@@ -212,4 +212,40 @@ public class CsvLineObjectScannerDefaultTest {
 
 	}
 
+	@Test
+	public void testDefault() throws Exception {
+		StringBuffer builder = new StringBuffer(); // "stringValue,longValue,integerValue,booleanValue,doubleValue\n");
+
+		String stringValue = "string";
+		Long longValue = 1L;
+		Integer integerValue = 2;
+		Boolean booleanValue = true;
+		Double doubleValue = 2.5;
+		
+		builder.append(stringValue);
+		builder.append(",");
+		builder.append(longValue.toString());
+		builder.append(",");
+		builder.append(integerValue.toString());
+		builder.append(",");
+		builder.append(booleanValue.toString());
+		builder.append(",");
+		builder.append(doubleValue.toString());
+		builder.append("\n");
+
+		CsvClassFactory<CsvLineObject> scanner = reflectionSetterMapping.createDefaultScannerFactory(false).newInstance(new StringReader(builder.toString()));
+		
+		CsvLineObject next = scanner.next();
+		assertThat(next).isNotNull();
+		
+		assertThat(next.getStringValue()).isEqualTo(stringValue);
+		assertThat(next.getLongValue()).isEqualTo(longValue);
+		assertThat(next.getIntegerValue()).isEqualTo(integerValue);
+		assertThat(next.getBooleanValue()).isEqualTo(booleanValue);
+		assertThat(next.getDoubleValue()).isEqualTo(doubleValue);
+		
+		assertThat(scanner.next()).isNull();
+
+	}
+
 }

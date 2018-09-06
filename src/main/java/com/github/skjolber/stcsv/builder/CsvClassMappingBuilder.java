@@ -149,7 +149,7 @@ public class CsvClassMappingBuilder<T> implements InvocationHandler {
 						try {
 							this.method = target.getMethod(builder.getNormalizedSetterName(), builder.getColumnClass());
 						} catch (NoSuchMethodException e2) {
-							throw new IllegalArgumentException("Unable to detect setter for class " + target.getName() + " field '" + builder.getName() + "'.");
+							throw new IllegalArgumentException("Unable to detect setter for class " + target.getName() + " field '" + builder.getName() + "' (" + builder.getSetterName() + "/ "+ builder.getNormalizedSetterName() + ").");
 						}
 					}
 				}
@@ -169,6 +169,10 @@ public class CsvClassMappingBuilder<T> implements InvocationHandler {
 		ClassLoader classLoader = this.classLoader;
 		if(classLoader == null) {
 			classLoader = getDefaultClassLoader();
+		}
+		
+		if(bufferLength <= 0) {
+			throw new IllegalArgumentException("Expected positive buffer length");
 		}
 		
 		return new CsvClassMapping<T>(target, divider, columns, skipEmptyLines, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);

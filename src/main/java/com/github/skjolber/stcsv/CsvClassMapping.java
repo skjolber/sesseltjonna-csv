@@ -31,6 +31,8 @@ import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SIPUSH;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,9 +53,9 @@ import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
  * 
  * Dynamic CSV parser generator. Adapts the underlying implementation according 
  * to the first (header) line.
- * <br/><br/>
+ * <br><br>
  * Uses ASM to build the parsers.
- * <br/><br/>
+ * <br><br>
  * Thread-safe.
  */
 
@@ -197,13 +199,11 @@ public class CsvClassMapping<T> {
 			return null;
 		}
 		SubClassLoader<AbstractCsvClassFactory<T>> loader = new SubClassLoader<AbstractCsvClassFactory<T>>(classLoader);
-		
 		/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
 		*/
-		
 		Class<? extends AbstractCsvClassFactory<T>> generatedClass = loader.load(classWriter.toByteArray(), subClassName);
 		return new CsvClassFactoryConstructor(generatedClass);
 	}
@@ -599,7 +599,6 @@ public class CsvClassMapping<T> {
 	}
 
 	protected void constructor(ClassWriter classWriter, String subClassInternalName) {
-		
 		{
 			MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", "(Ljava/io/Reader;)V", null, null);
 			mv.visitCode();
@@ -607,8 +606,8 @@ public class CsvClassMapping<T> {
 			mv.visitLabel(l0);
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ALOAD, 1);
-			mv.visitIntInsn(SIPUSH, bufferLength);
-			mv.visitMethodInsn(INVOKESPECIAL, "com/github/skjolber/stcsv/AbstractCsvClassFactory", "<init>", "(Ljava/io/Reader;I)V", false);
+			mv.visitLdcInsn(new Integer(bufferLength));
+			mv.visitMethodInsn(INVOKESPECIAL, superClassInternalName, "<init>", "(Ljava/io/Reader;I)V", false);
 			mv.visitInsn(RETURN);
 			Label l2 = new Label();
 			mv.visitLabel(l2);
