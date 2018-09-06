@@ -49,8 +49,12 @@ import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
 
 /**
  * 
- * Dynamic CSV parser generator. Adapts the underlying implementation according to the first (header) line.
- * 
+ * Dynamic CSV parser generator. Adapts the underlying implementation according 
+ * to the first (header) line.
+ * <br/><br/>
+ * Uses ASM to build the parsers.
+ * <br/><br/>
+ * Thread-safe.
  */
 
 public class CsvClassMapping<T> {
@@ -78,17 +82,17 @@ public class CsvClassMapping<T> {
 		return className.replace('.', '/');
 	}
 
-	private int divider;
-	private Class<T> mappedClass;
+	protected int divider;
+	protected Class<T> mappedClass;
 	
-	private String mappedClassInternalName;
+	protected String mappedClassInternalName;
 	
-	private Map<String, AbstractColumn> keys = new HashMap<>();
-	private List<AbstractColumn> columns;
+	protected Map<String, AbstractColumn> keys = new HashMap<>(); // thread safe for reading
+	protected List<AbstractColumn> columns;
 	
-	private final boolean skipEmptyLines;
-	private final boolean skippableFieldsWithoutLinebreaks;
-	private final int bufferLength;
+	protected final boolean skipEmptyLines;
+	protected final boolean skippableFieldsWithoutLinebreaks;
+	protected final int bufferLength;
 	
 	/**
 	 * Note: Stack variable types are fixed througout the application, as below. 
@@ -97,14 +101,14 @@ public class CsvClassMapping<T> {
 	 * 
 	 */
 	
-	private final int currentOffsetIndex = 1;
-	private final int currentArrayIndex = 2;
-	private final int objectIndex = 3;
-	private final int startIndex = 4;
-	private final int rangeIndex = 5;
+	protected final int currentOffsetIndex = 1;
+	protected final int currentArrayIndex = 2;
+	protected final int objectIndex = 3;
+	protected final int startIndex = 4;
+	protected final int rangeIndex = 5;
 	
-	private final Map<String, CsvClassFactoryConstructor<T>> factories = new ConcurrentHashMap<>();
-	private ClassLoader classLoader;
+	protected final Map<String, CsvClassFactoryConstructor<T>> factories = new ConcurrentHashMap<>();
+	protected ClassLoader classLoader;
 	
 	public CsvClassMapping(Class<T> cls, char divider, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
 		this.mappedClass = cls;
@@ -243,11 +247,11 @@ public class CsvClassMapping<T> {
 		}
 		
 		// https://stackoverflow.com/questions/34589435/get-the-enclosing-class-of-a-java-lambda-expression
-
-
 		CsvStaticInitializer.add(subClassName, consumers);
 		
-		// generics does not work when generating multiple classes; fails for class number 2 because of failing method signature
+		// generics does not work when generating multiple classes; 
+		// fails for class number 2 because of failing method signature
+		// TODO still generate such a beast for the first?
 		classWriter.visit(Opcodes.V1_8,
 				ACC_FINAL | ACC_PUBLIC,
 		        subClassInternalName,
@@ -313,7 +317,7 @@ public class CsvClassMapping<T> {
 			mv.visitVarInsn(ASTORE, objectIndex);
 
 			if(firstIndex > 0) {
-				// skip first
+				// skip first column(s)
 				skipColumns(mv, firstIndex);
 			}
 			
@@ -394,7 +398,7 @@ public class CsvClassMapping<T> {
 		}
 	}
 
-	private void skipColumns(MethodVisitor mv, int count) {
+	protected void skipColumns(MethodVisitor mv, int count) {
 		if(skippableFieldsWithoutLinebreaks) {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
@@ -638,9 +642,6 @@ public class CsvClassMapping<T> {
 			mv.visitMaxs(5, 5);
 			mv.visitEnd();
 		}
-
-		
-		
 	}
 
 	protected String parseStaticFieldName(Class<?> cls) {
@@ -649,13 +650,13 @@ public class CsvClassMapping<T> {
 		return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
 	}
 	
-	private void saveCurrentOffset(MethodVisitor mv, String superClassInternalName, int currentOffsetIndex) {
+	protected void saveCurrentOffset(MethodVisitor mv, String superClassInternalName, int currentOffsetIndex) {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitFieldInsn(PUTFIELD, superClassInternalName, "currentOffset", "I");		
 	}
 
-	private List<String> parseNames(String writer) {
+	protected List<String> parseNames(String writer) {
 		List<String> names = new ArrayList<>();
 		int start = 0;
 		for(int i = 0; i < writer.length(); i++) {
@@ -680,40 +681,6 @@ public class CsvClassMapping<T> {
 		}
 		return names;
 	}
-	
-	/*
-	public void trim() {
-		Label l12 = new Label();
-		mv.visitLabel(l12);
-		mv.visitLineNumber(93, l12);
-		mv.visitVarInsn(ALOAD, 2);
-		mv.visitVarInsn(ILOAD, 1);
-		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, 32);
-		Label l13 = new Label();
-		mv.visitJumpInsn(IF_ICMPEQ, l13);
-		mv.visitVarInsn(ALOAD, 2);
-		mv.visitVarInsn(ILOAD, 1);
-		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, 9);
-		Label l14 = new Label();
-		mv.visitJumpInsn(IF_ICMPNE, l14);
-		mv.visitLabel(l13);
-		mv.visitLineNumber(94, l13);
-		mv.visitFrame(Opcodes.F_APPEND,3, new Object[] {Opcodes.INTEGER, "[C", "com/github/skjolber/csv/Trip"}, 0, null);
-		mv.visitVarInsn(ALOAD, 2);
-		mv.visitIincInsn(1, 1);
-		mv.visitVarInsn(ILOAD, 1);
-		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, 32);
-		mv.visitJumpInsn(IF_ICMPEQ, l13);
-		mv.visitVarInsn(ALOAD, 2);
-		mv.visitVarInsn(ILOAD, 1);
-		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, 9);
-		mv.visitJumpInsn(IF_ICMPEQ, l13);		
-	}
-	*/
 	
 	public String getMappedClassInternalName() {
 		return mappedClassInternalName;

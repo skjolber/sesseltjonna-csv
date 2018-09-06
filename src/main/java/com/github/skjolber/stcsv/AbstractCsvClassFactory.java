@@ -3,6 +3,22 @@ package com.github.skjolber.stcsv;
 import java.io.IOException;
 import java.io.Reader;
 
+
+/**
+ * Base class for CSV data-binding. Generated parsers extend this class. 
+ * <br/><br/>
+ * Implementation note: The buffering is done so that reading plain (not quoted)
+ * content is speed up at the cost of reading quoted content. Essentially there is a 
+ * terminator scheme, where newline is the terminator. 
+ * <br/><br/>
+ * Each time the buffer is filled, the underlying implementation scans backwards for a newline.   
+ * The quoted parse loop must check whether the buffer must be filled upon encountering a quote. 
+ * <br/><br/>
+ * If the file ends without a newline, one is inserted.
+ * 
+ * @param <T> the target class (output from each line of CSV file). 
+ */
+
 public abstract class AbstractCsvClassFactory<T> implements CsvClassFactory<T> {
 
 	public static final int DEFAULT_RANGE_LENGTH = 64 * 1024;
@@ -83,20 +99,6 @@ public abstract class AbstractCsvClassFactory<T> implements CsvClassFactory<T> {
 		return this.currentRange = findEndOfLine(currentRange);
 	}
 
-	protected boolean ensureLines() throws IOException {
-		if(currentOffset < currentRange) {
-			return true;
-		}
-		
-		if(fill() > 0) {
-			currentOffset = 0;
-			
-			return true;
-		}
-		
-		return false;
-	}
-			
 	public abstract T next() throws Exception;
 
 	public int getCurrentRange() {
