@@ -19,7 +19,7 @@ The primary use-case for this library is __large csv files__ with more than 1000
 Bugs, feature suggestions and help requests can be filed with the [issue-tracker].
 
 ## Obtain
-The project is implemented in Java and built using [Maven]. The project is available on the central Maven repository.
+The project is implemented in Java and built using [Maven]. The project is not yet available on the central Maven repository.
 
 Example dependency config:
 
