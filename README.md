@@ -3,7 +3,7 @@
 
 [![Build Status](https://travis-ci.org/skjolber/sesseltjonna-csv.svg)](https://travis-ci.org/skjolber/sesseltjonna-csv)
 
-**sesseltjonna-csv** is an high-performance CSV databinding library with developer-friendly configuration options.
+**sesseltjonna-csv** is a high-performance CSV databinding library with developer-friendly configuration options.
 
 Projects using this library will benefit from:
 
