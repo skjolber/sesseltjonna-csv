@@ -19,7 +19,7 @@ The primary use-case for this library is __large csv files__ with more than 1000
 Bugs, feature suggestions and help requests can be filed with the [issue-tracker].
 
 ## Obtain
-The project is implemented in Java and built using [Maven]. The project is not yet available on the central Maven repository.
+The project is implemented in Java and built using [Maven]. The project is available on the central Maven repository.
 
 Example dependency config:
 
@@ -27,7 +27,7 @@ Example dependency config:
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>sesseltjonna-csv</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -88,18 +88,22 @@ To maximize performance (like response time) it is always necessary to pre-warm 
 JMH [benchmark results](https://github.com/skjolber/csv-benchmark#results). 
 
 # Compatibility
-The following rules / restrictions apply
+The following rules / restrictions apply, mostly for keeping in sync with RFC-4180
 
- * The default mode assumes the first line is the header
- * Quoted fields must be declared as quoted (in the builder) and can contain all characters (if the quotes are not present the value is treated as a plain field). The field must start and end with a quote to be quoted.
+ * Quoted fields must be declared as quoted (in the builder) and can contain all characters. 
+ * The first character of a quoted field must be a quote. If not, the value is treated as a plain field. 
  * Quoting must be done using double quotes. Two double quotes must be used to escape a single double quote.
  * Plain fields must not contain the separator or newline, otherwise can contain all characters.
- * All fields are either required or optional (no empty string is ever propagated to the target). Missing values result in CsvMappingException.
+ * All fields are either required or optional (no empty string is ever propagated to the target). Missing values result in CsvException.
  * Columns which have no mapping are skipped (ignored).
- * Newline and carriage return + newline line endings are supported (and auto-detected).
  * All lines must contain the same number of columns
- * Corrupt files can result in ArrayIndexOutOfBoundsException or CsvMappingException
- * Maximum line length is per default 64K. That should be enough to hold a lot of lines, if not try increasing the buffer size.
+ * Corrupt files can result in ArrayIndexOutOfBoundsException or CsvException
+ * Newline and carriage return + newline line endings are supported (and auto-detected).
+
+Also note that
+
+ * The default mode assumes the first line is the header. For fixed formats, a default parser can be created.
+ * Maximum line length is per default 64K. 64K should be enough to hold a lot of lines, if not try increasing the buffer size to improve performance.
 
 # Contact
 If you have any questions, comments or feature requests, please open an issue.
