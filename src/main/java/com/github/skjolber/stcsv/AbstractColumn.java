@@ -34,7 +34,7 @@ public abstract class AbstractColumn {
 	protected final boolean trimTrailingWhitespaces;
 	protected final boolean trimLeadingWhitespaces;
 
-	protected CsvClassMapping<?> parent;
+	protected CsvMapper<?> parent;
 
 	protected int currentArrayIndex;
 	protected int currentOffsetIndex;
@@ -91,7 +91,7 @@ public abstract class AbstractColumn {
 		this.consumer = consumer;
 	}
 	
-	public void setParent(CsvClassMapping<?> parent) {
+	public void setParent(CsvMapper<?> parent) {
 		this.parent = parent;
 	}
 
@@ -102,9 +102,9 @@ public abstract class AbstractColumn {
 	public String getConsumerInternalName() {
 		if(consumerInternalName == null) {
 			if(consumer.getClass().getPackage().equals(StringCsvColumnValueConsumer.class.getPackage())) {
-				consumerInternalName = CsvClassMapping.getInternalName(consumer.getClass());
+				consumerInternalName = CsvMapper.getInternalName(consumer.getClass());
 			} else {
-				consumerInternalName = CsvClassMapping.consumerName;
+				consumerInternalName = CsvMapper.consumerName;
 			}
 			
 		}
@@ -191,8 +191,8 @@ public abstract class AbstractColumn {
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, startIndex);
 		mv.visitVarInsn(ILOAD, endIndex);
-		if(consumerInternalName == CsvClassMapping.consumerName) {
-			mv.visitMethodInsn(INVOKEINTERFACE, CsvClassMapping.consumerName, "consume", "(Ljava/lang/Object;[CII)V", true);
+		if(consumerInternalName == CsvMapper.consumerName) {
+			mv.visitMethodInsn(INVOKEINTERFACE, CsvMapper.consumerName, "consume", "(Ljava/lang/Object;[CII)V", true);
 		} else {
 			mv.visitMethodInsn(INVOKEVIRTUAL, consumerInternalName, "consume", "(Ljava/lang/Object;[CII)V", false);
 		}
@@ -219,10 +219,10 @@ public abstract class AbstractColumn {
 	}
 
 	protected void throwMappingException(MethodVisitor mv) {
-		mv.visitTypeInsn(NEW, "com/github/skjolber/stcsv/CsvMappingException");
+		mv.visitTypeInsn(NEW, "com/github/skjolber/stcsv/CsvException");
 		mv.visitInsn(DUP);
 		mv.visitLdcInsn("Illegal value in field '" + name + "'");
-		mv.visitMethodInsn(INVOKESPECIAL, "com/github/skjolber/stcsv/CsvMappingException", "<init>", "(Ljava/lang/String;)V", false);
+		mv.visitMethodInsn(INVOKESPECIAL, "com/github/skjolber/stcsv/CsvException", "<init>", "(Ljava/lang/String;)V", false);
 		mv.visitInsn(ATHROW);
 	}
 

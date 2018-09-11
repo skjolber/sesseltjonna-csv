@@ -19,7 +19,7 @@ import java.io.Reader;
  * @param <T> the target class (output from each line of CSV file). 
  */
 
-public abstract class AbstractCsvClassFactory<T> implements CsvClassFactory<T> {
+public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 
 	public static final int DEFAULT_RANGE_LENGTH = 64 * 1024;
 	
@@ -32,7 +32,7 @@ public abstract class AbstractCsvClassFactory<T> implements CsvClassFactory<T> {
 	protected int spareRange = 0;
 	protected boolean eof = false;
 
-	public AbstractCsvClassFactory(Reader reader, char[] current, int offset, int length) {
+	public AbstractCsvReader(Reader reader, char[] current, int offset, int length) {
 		this.reader = reader;
 		this.current = current;
 		this.currentOffset = offset;
@@ -53,7 +53,7 @@ public abstract class AbstractCsvClassFactory<T> implements CsvClassFactory<T> {
 		return currentRange;
 	}
 	
-	public AbstractCsvClassFactory(Reader reader, int length) {
+	public AbstractCsvReader(Reader reader, int length) {
 		this(reader, new char[length + 1], 0, 0);
 	}
 	

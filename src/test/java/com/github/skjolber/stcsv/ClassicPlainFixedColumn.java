@@ -10,8 +10,8 @@ import static org.objectweb.asm.Opcodes.ISTORE;
 import org.objectweb.asm.MethodVisitor;
 
 import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.CsvClassMapping;
-import com.github.skjolber.stcsv.CsvMappingException;
+import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
 
 public class ClassicPlainFixedColumn extends AbstractColumn {
@@ -28,14 +28,14 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 		
 		public static int orException(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target, char c) {
 			
-			if(current[currentOffset] == c) throw new CsvMappingException();
+			if(current[currentOffset] == c) throw new CsvException();
 			
 			int start = currentOffset;
 			
 			currentOffset += length;
 			
 			// expect seperator character at the right location
-			if(current[currentOffset] != c) throw new CsvMappingException();
+			if(current[currentOffset] != c) throw new CsvException();
 			
 			consumer.consume(target, current, start, currentOffset);
 			
@@ -51,7 +51,7 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 			currentOffset += length;
 			
 			// expect seperator character at the right location
-			if(current[currentOffset] != c) throw new CsvMappingException();
+			if(current[currentOffset] != c) throw new CsvException();
 			
 			consumer.consume(target, current, start, currentOffset);
 			
@@ -64,14 +64,14 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 		public static class NewLine {
 			public static int orException(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target) {
 				
-				if(current[currentOffset] == '\n') throw new CsvMappingException();
+				if(current[currentOffset] == '\n') throw new CsvException();
 				
 				int start = currentOffset;
 				
 				currentOffset += length;
 				
 				// expect newline character at the right location
-				if(current[currentOffset] != '\n') throw new CsvMappingException();
+				if(current[currentOffset] != '\n') throw new CsvException();
 				
 				consumer.consume(target, current, start, currentOffset);
 				
@@ -86,7 +86,7 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 				currentOffset += length;
 				
 				// expect newline character at the right location
-				if(current[currentOffset] != '\n') throw new CsvMappingException();
+				if(current[currentOffset] != '\n') throw new CsvException();
 				
 				consumer.consume(target, current, start, currentOffset);
 				
@@ -99,13 +99,13 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 			public static int orException(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target) {
 				
 				// object id
-				if(current[currentOffset] == '\r') throw new CsvMappingException();
+				if(current[currentOffset] == '\r') throw new CsvException();
 				
 				int start = currentOffset;
 				
 				currentOffset += length;
 				
-				if(current[currentOffset] != '\r') throw new CsvMappingException();
+				if(current[currentOffset] != '\r') throw new CsvException();
 				
 				consumer.consume(target, current, start, currentOffset);
 
@@ -120,7 +120,7 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 				
 				currentOffset += length;
 				
-				if(current[currentOffset] != '\r') throw new CsvMappingException();
+				if(current[currentOffset] != '\r') throw new CsvException();
 				
 				consumer.consume(object, current, start, currentOffset);
 
@@ -140,7 +140,7 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
 		mv.visitIntInsn(BIPUSH, parent.getDivider());
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Middle", optional ? "orSkip" : "orException", "([CIIL" + CsvClassMapping.consumerName + ";Ljava/lang/Object;C)I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Middle", optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;C)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);
 	}
 
@@ -156,7 +156,7 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 		mv.visitIntInsn(BIPUSH, fixedSize);
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIIL" + CsvClassMapping.consumerName + ";Ljava/lang/Object;)I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);		
 	}	
 }

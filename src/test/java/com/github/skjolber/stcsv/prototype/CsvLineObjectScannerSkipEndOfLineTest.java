@@ -6,8 +6,8 @@ import java.io.StringReader;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvClassFactory;
-import com.github.skjolber.stcsv.CsvClassMapping;
+import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.CsvMapper;
 
 public class CsvLineObjectScannerSkipEndOfLineTest {
 
@@ -16,7 +16,7 @@ public class CsvLineObjectScannerSkipEndOfLineTest {
 		
 		String stringValue = "string";
 
-		CsvClassMapping<CsvLineObject> mapping = CsvClassMapping.builder(CsvLineObject.class)
+		CsvMapper<CsvLineObject> mapping = CsvMapper.builder(CsvLineObject.class)
 				.skipEmptyLines()
 				.stringField("a")
 					.consumer(CsvLineObject::setStringValue)
@@ -37,7 +37,7 @@ public class CsvLineObjectScannerSkipEndOfLineTest {
 		builder.append("random data");
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = mapping.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = mapping.create(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();
@@ -52,7 +52,7 @@ public class CsvLineObjectScannerSkipEndOfLineTest {
 		
 		String stringValue = "string";
 
-		CsvClassMapping<CsvLineObject> mapping = CsvClassMapping.builder(CsvLineObject.class)
+		CsvMapper<CsvLineObject> mapping = CsvMapper.builder(CsvLineObject.class)
 				.skipEmptyLines()
 				.stringField("a")
 					.consumer(CsvLineObject::setStringValue)
@@ -73,7 +73,7 @@ public class CsvLineObjectScannerSkipEndOfLineTest {
 		builder.append("random data");
 		builder.append("\r\n");
 
-		CsvClassFactory<CsvLineObject> scanner = mapping.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = mapping.create(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();

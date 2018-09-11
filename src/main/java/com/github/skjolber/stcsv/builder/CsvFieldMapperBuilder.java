@@ -6,7 +6,7 @@ public class CsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<T> {
 
 	protected CsvColumnValueConsumer<T> consumer;
 
-	public CsvFieldMapperBuilder(CsvClassMappingBuilder<T> parent, String name) {
+	public CsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
 		super(parent, name);
 	}
 

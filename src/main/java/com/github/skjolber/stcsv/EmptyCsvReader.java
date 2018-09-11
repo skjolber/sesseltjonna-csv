@@ -1,8 +1,8 @@
 package com.github.skjolber.stcsv;
 
-public class NullCsvClassFactory<T> extends AbstractCsvClassFactory<T> {
+public class EmptyCsvReader<T> extends AbstractCsvReader<T> {
 
-	public NullCsvClassFactory() {
+	public EmptyCsvReader() {
 		super(null, 0);
 	}
 

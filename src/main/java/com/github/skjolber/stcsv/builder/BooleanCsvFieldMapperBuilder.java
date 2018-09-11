@@ -9,7 +9,7 @@ public class BooleanCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuild
 	protected ObjBooleanConsumer<T> consumer;
 	protected ObjBooleanConsumer<T> setter;
 
-	public BooleanCsvFieldMapperBuilder(CsvClassMappingBuilder<T> parent, String name) {
+	public BooleanCsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
 		super(parent, name);
 	}
 

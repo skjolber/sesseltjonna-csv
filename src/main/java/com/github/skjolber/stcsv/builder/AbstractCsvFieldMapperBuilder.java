@@ -19,9 +19,9 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 	protected boolean trimTrailingWhitespaces = false;
 	protected boolean trimLeadingWhitespaces = false;
 
-	protected CsvClassMappingBuilder<T> parent;
+	protected CsvMappingBuilder<T> parent;
 
-	public AbstractCsvFieldMapperBuilder(CsvClassMappingBuilder<T> parent, String name) {
+	public AbstractCsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
 		super();
 		this.parent = parent;
 		this.name = name;
@@ -35,7 +35,7 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 		return optional;
 	}
 
-	public CsvClassMappingBuilder<T> optional() {
+	public CsvMappingBuilder<T> optional() {
 		this.optional = true;
 		parent.field(this);
 		
@@ -48,7 +48,7 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 		return this;
 	}
 
-	public CsvClassMappingBuilder<T> required() {
+	public CsvMappingBuilder<T> required() {
 		this.optional = false;
 
 		parent.field(this);

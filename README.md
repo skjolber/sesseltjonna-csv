@@ -35,7 +35,7 @@ Example dependency config:
 Use the builder to configure your parser.
 
 ```java
-CsvClassMapping<Trip> mapping = CsvClassMapping.builder(Trip.class)
+CsvMapper<Trip> mapper = CsvMapper.builder(Trip.class)
         .stringField("route_id")
             .setter(Trip::setRouteId)
             .quoted()
@@ -48,20 +48,20 @@ CsvClassMapping<Trip> mapping = CsvClassMapping.builder(Trip.class)
 
 where each field must be either `required` or `optional`. Use of the `setter` is optional; a setter with the same name as the field name will be automatically selected in its abscense. 
 
-Then create a `CsvClassFactory` using
+Then create a `CsvReader` using
 
 
 ```java
 Reader reader = ...; // your input
 
-CsvClassFactory<Trip> factory = mapping.create(reader);
+CsvReader<Trip> csvReader = mapper.create(reader);
 ```
 
 and parse untill `null` using
 
 ```java
 do {
-    Trip trip = factory.next();
+    Trip trip = csvReader.next();
     if(trip == null) {
         break;
     }
@@ -73,7 +73,7 @@ do {
 If you're into doing some custom logic before applying values, add your own `consumer`:
 
 ```java
-CsvClassFactory<City> mapping = CsvClassMapping.builder(City.class)
+CsvMapper<City> mapping = CsvMapper.builder(City.class)
     .longField("Population")
         .consumer((city, n) -> city.setPopulation(n * 1000))
         .optional()

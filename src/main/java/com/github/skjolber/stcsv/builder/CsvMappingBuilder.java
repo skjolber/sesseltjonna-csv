@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Set;
 
 import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.AbstractCsvClassFactory;
-import com.github.skjolber.stcsv.CsvClassMapping;
+import com.github.skjolber.stcsv.AbstractCsvReader;
+import com.github.skjolber.stcsv.CsvMapper;
 import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
 
-public class CsvClassMappingBuilder<T> implements InvocationHandler {
+public class CsvMappingBuilder<T> implements InvocationHandler {
 
 	protected static boolean isSafeByteUTF8Delimiter(char c) {
 		//https://en.wikipedia.org/wiki/UTF-8#Description
@@ -29,7 +29,7 @@ public class CsvClassMappingBuilder<T> implements InvocationHandler {
 	
 	private boolean skipEmptyLines = false;
 	private boolean skippableFieldsWithoutLinebreaks = false;
-	private int bufferLength = AbstractCsvClassFactory.DEFAULT_RANGE_LENGTH;
+	private int bufferLength = AbstractCsvReader.DEFAULT_RANGE_LENGTH;
 	
 	private ClassLoader classLoader;
 
@@ -37,11 +37,11 @@ public class CsvClassMappingBuilder<T> implements InvocationHandler {
 	private Method method;
 	
 
-	public CsvClassMappingBuilder(Class<T> cls) {
+	public CsvMappingBuilder(Class<T> cls) {
 		this.target = cls;
 	}
 	
-	public CsvClassMappingBuilder<T> skipEmptyLines() {
+	public CsvMappingBuilder<T> skipEmptyLines() {
 		this.skipEmptyLines = true;
 		
 		return this;
@@ -54,25 +54,25 @@ public class CsvClassMappingBuilder<T> implements InvocationHandler {
 	 * @return this
 	 */
 
-	public CsvClassMappingBuilder<T> skippableFieldsWithoutLinebreaks() {
+	public CsvMappingBuilder<T> skippableFieldsWithoutLinebreaks() {
 		this.skippableFieldsWithoutLinebreaks = true;
 		
 		return this;
 	}
 	
-	public CsvClassMappingBuilder<T> classLoader(ClassLoader classLoader) {
+	public CsvMappingBuilder<T> classLoader(ClassLoader classLoader) {
 		this.classLoader = classLoader;
 		
 		return this;
 	}
 	
-	public CsvClassMappingBuilder<T> bufferLength(int length) {
+	public CsvMappingBuilder<T> bufferLength(int length) {
 		this.bufferLength = length;
 		
 		return this;
 	}
 	
-	public CsvClassMappingBuilder<T> divider(char c) {
+	public CsvMappingBuilder<T> divider(char c) {
 		if(!isSafeCharDelimiter(c) || c == '\n') {
 			throw new IllegalArgumentException("Cannot use character '" + c + "' as divider");
 		}
@@ -105,13 +105,13 @@ public class CsvClassMappingBuilder<T> implements InvocationHandler {
 		return new BooleanCsvFieldMapperBuilder<T>(this, name);
 	}
 
-	protected CsvClassMappingBuilder<T> field(AbstractCsvFieldMapperBuilder<T> field) {
+	protected CsvMappingBuilder<T> field(AbstractCsvFieldMapperBuilder<T> field) {
 		this.fields.add(field);
 		
 		return this;
 	}
 	
-	public CsvClassMapping<T> build() throws Exception {
+	public CsvMapper<T> build() throws Exception {
 		List<AbstractColumn> columns = new ArrayList<>(fields.size());
 		Set<String> fieldNames = new HashSet<>(fields.size() * 2);
 		
@@ -175,7 +175,7 @@ public class CsvClassMappingBuilder<T> implements InvocationHandler {
 			throw new IllegalArgumentException("Expected positive buffer length");
 		}
 		
-		return new CsvClassMapping<T>(target, divider, columns, skipEmptyLines, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
+		return new CsvMapper<T>(target, divider, columns, skipEmptyLines, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
 	}
 
 	protected ClassLoader getDefaultClassLoader() {

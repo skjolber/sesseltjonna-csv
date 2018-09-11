@@ -10,7 +10,7 @@ public class DoubleCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilde
 	protected ObjDoubleConsumer<T> consumer;
 	protected ObjDoubleConsumer<T> setter;
 
-	public DoubleCsvFieldMapperBuilder(CsvClassMappingBuilder<T> parent, String name) {
+	public DoubleCsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
 		super(parent, name);
 	}
 

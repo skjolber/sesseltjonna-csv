@@ -9,30 +9,30 @@ import java.io.StringReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvClassFactory;
-import com.github.skjolber.stcsv.CsvClassMapping;
-import com.github.skjolber.stcsv.CsvMappingException;
+import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.CsvException;
 
 public class CsvLineObjectScannerRequiredFieldTest {
 
-	private CsvClassMapping<CsvLineObject> required;
-	private CsvClassMapping<CsvLineObject> requiredWithConsumer;
-	private CsvClassMapping<CsvLineObject> requiredQuotedWithoutNewlines;
+	private CsvMapper<CsvLineObject> required;
+	private CsvMapper<CsvLineObject> requiredWithConsumer;
+	private CsvMapper<CsvLineObject> requiredQuotedWithoutNewlines;
 
-	private CsvClassMapping<CsvLineObject> optional;
-	private CsvClassMapping<CsvLineObject> optionalWithConsumer;
-	private CsvClassMapping<CsvLineObject> optionalQuotedWithoutNewlines;
+	private CsvMapper<CsvLineObject> optional;
+	private CsvMapper<CsvLineObject> optionalWithConsumer;
+	private CsvMapper<CsvLineObject> optionalQuotedWithoutNewlines;
 
 	@BeforeEach
 	public void init() throws Exception {
-		required = CsvClassMapping.builder(CsvLineObject.class)
+		required = CsvMapper.builder(CsvLineObject.class)
 				.skipEmptyLines()
 				.stringField("stringValue")
 					.quoted()
 					.required()
 				.build();
 		
-		requiredWithConsumer = CsvClassMapping.builder(CsvLineObject.class)
+		requiredWithConsumer = CsvMapper.builder(CsvLineObject.class)
 				.skipEmptyLines()
 				.stringField("stringValue")
 					.consumer(CsvLineObject::setStringValue)
@@ -40,21 +40,21 @@ public class CsvLineObjectScannerRequiredFieldTest {
 					.required()
 				.build();
 		
-		requiredQuotedWithoutNewlines = CsvClassMapping.builder(CsvLineObject.class)
+		requiredQuotedWithoutNewlines = CsvMapper.builder(CsvLineObject.class)
 				.skipEmptyLines()
 				.stringField("stringValue")
 					.quotedWithoutLinebreaks()
 					.required()
 				.build();
 		
-		optional = CsvClassMapping.builder(CsvLineObject.class)
+		optional = CsvMapper.builder(CsvLineObject.class)
 				.skipEmptyLines()
 				.stringField("stringValue")
 					.quoted()
 					.optional()
 				.build();		
 
-		optionalWithConsumer = CsvClassMapping.builder(CsvLineObject.class)
+		optionalWithConsumer = CsvMapper.builder(CsvLineObject.class)
 				.skipEmptyLines()
 				.stringField("stringValue")
 					.consumer(CsvLineObject::setStringValue)
@@ -62,7 +62,7 @@ public class CsvLineObjectScannerRequiredFieldTest {
 					.optional()
 				.build();	
 		
-		optionalQuotedWithoutNewlines = CsvClassMapping.builder(CsvLineObject.class)
+		optionalQuotedWithoutNewlines = CsvMapper.builder(CsvLineObject.class)
 				.stringField("stringValue")
 					.quotedWithoutLinebreaks()
 					.optional()
@@ -89,7 +89,7 @@ public class CsvLineObjectScannerRequiredFieldTest {
 		builder.append("random data");
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = required.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = required.create(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();
@@ -118,7 +118,7 @@ public class CsvLineObjectScannerRequiredFieldTest {
 		builder.append("random data");
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = requiredWithConsumer.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = requiredWithConsumer.create(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();
@@ -144,15 +144,15 @@ public class CsvLineObjectScannerRequiredFieldTest {
 		builder.append("random data");
 		builder.append("\n");
 
-		assertThrows(CsvMappingException.class, () -> {
+		assertThrows(CsvException.class, () -> {
 			required.create(new StringReader(builder.toString())).next();
 	    });
 
-		assertThrows(CsvMappingException.class, () -> {
+		assertThrows(CsvException.class, () -> {
 			requiredWithConsumer.create(new StringReader(builder.toString())).next();
 	    });
 
-		assertThrows(CsvMappingException.class, () -> {
+		assertThrows(CsvException.class, () -> {
 			requiredQuotedWithoutNewlines.create(new StringReader(builder.toString())).next();
 	    });
 		
@@ -175,9 +175,9 @@ public class CsvLineObjectScannerRequiredFieldTest {
 		builder.append("random data");
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = required.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = required.create(new StringReader(builder.toString()));
 		
-		assertThrows(CsvMappingException.class, () -> {
+		assertThrows(CsvException.class, () -> {
 			scanner.next();
 	    });
 	}
@@ -201,7 +201,7 @@ public class CsvLineObjectScannerRequiredFieldTest {
 		builder.append("random data");
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = required.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = required.create(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();
@@ -230,7 +230,7 @@ public class CsvLineObjectScannerRequiredFieldTest {
 		builder.append("random data");
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = requiredQuotedWithoutNewlines.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = requiredQuotedWithoutNewlines.create(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();

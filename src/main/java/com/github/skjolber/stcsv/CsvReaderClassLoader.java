@@ -2,11 +2,11 @@ package com.github.skjolber.stcsv;
 
 import java.util.Objects;
 
-public class SubClassLoader<T> {
+public class CsvReaderClassLoader<T> {
 	
     protected final ClassLoader contextClassLoader;
 
-    public SubClassLoader(ClassLoader contextClassLoader) {
+    public CsvReaderClassLoader(ClassLoader contextClassLoader) {
         this.contextClassLoader = contextClassLoader;
     }
 

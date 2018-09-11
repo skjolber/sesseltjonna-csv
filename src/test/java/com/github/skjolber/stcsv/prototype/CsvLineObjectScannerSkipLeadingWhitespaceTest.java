@@ -8,17 +8,17 @@ import java.io.StringReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvClassFactory;
-import com.github.skjolber.stcsv.CsvClassMapping;
-import com.github.skjolber.stcsv.CsvMappingException;
+import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.CsvException;
 
 public class CsvLineObjectScannerSkipLeadingWhitespaceTest {
 
-	private CsvClassMapping<CsvLineObject> mapping;
+	private CsvMapper<CsvLineObject> mapping;
 
 	@BeforeEach
 	public void init() throws Exception {
-		mapping = CsvClassMapping.builder(CsvLineObject.class)
+		mapping = CsvMapper.builder(CsvLineObject.class)
 				.skipEmptyLines()
 				.stringField("a")
 					.consumer(CsvLineObject::setStringValue)
@@ -45,7 +45,7 @@ public class CsvLineObjectScannerSkipLeadingWhitespaceTest {
 		builder.append("random data");
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = mapping.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = mapping.create(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();
@@ -70,9 +70,9 @@ public class CsvLineObjectScannerSkipLeadingWhitespaceTest {
 		builder.append("random data");
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = mapping.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = mapping.create(new StringReader(builder.toString()));
 		
-		assertThrows(CsvMappingException.class, () -> {
+		assertThrows(CsvException.class, () -> {
 			scanner.next();
 	    });
 	}	

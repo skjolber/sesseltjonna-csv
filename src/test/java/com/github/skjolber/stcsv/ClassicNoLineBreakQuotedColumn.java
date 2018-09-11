@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.objectweb.asm.MethodVisitor;
 
 import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.CsvMappingException;
+import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
 
 public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
@@ -47,7 +47,7 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 			if(currentOffset > start) {
 				consumer.consume(object, current, start, currentOffset);
 			} else {
-				throw new CsvMappingException();
+				throw new CsvException();
 			}
 			
 			if(current[currentOffset] != c) {
@@ -131,7 +131,7 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 				if(currentOffset > start) {
 					consumer.consume(object, current, start, currentOffset);
 				} else {
-					throw new CsvMappingException();
+					throw new CsvException();
 				}
 				
 				if(current[currentOffset] != '\n') {

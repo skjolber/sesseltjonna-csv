@@ -12,8 +12,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.CsvClassMapping;
-import com.github.skjolber.stcsv.CsvMappingException;
+import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.QuotedColumn;
 import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
 
@@ -42,7 +42,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 			currentOffset += length;
 
 			// expect quote character at the end location
-			if(current[currentOffset] != '"') throw new CsvMappingException();
+			if(current[currentOffset] != '"') throw new CsvException();
 
 			consumer.consume(target, current, start, currentOffset);
 
@@ -64,7 +64,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 			currentOffset += length;
 
 			// expect quote character at the end location
-			if(current[currentOffset] != '"') throw new CsvMappingException();
+			if(current[currentOffset] != '"') throw new CsvException();
 
 			consumer.consume(target, current, start, currentOffset);
 
@@ -88,7 +88,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				currentOffset += length;
 
 				// expect quote character at the end location
-				if(current[currentOffset] != '"') throw new CsvMappingException();
+				if(current[currentOffset] != '"') throw new CsvException();
 
 				consumer.consume(target, current, start, currentOffset);
 
@@ -110,7 +110,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				currentOffset += length;
 
 				// expect quote character at the end location
-				if(current[currentOffset] != '"') throw new CsvMappingException();
+				if(current[currentOffset] != '"') throw new CsvException();
 
 				consumer.consume(target, current, start, currentOffset);
 
@@ -133,7 +133,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				currentOffset += length;
 
 				// expect quote character at the end location
-				if(current[currentOffset] != '"') throw new CsvMappingException();
+				if(current[currentOffset] != '"') throw new CsvException();
 
 				consumer.consume(target, current, start, currentOffset);
 
@@ -155,7 +155,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				currentOffset += length;
 
 				// expect quote character at the end location
-				if(current[currentOffset] != '"') throw new CsvMappingException();
+				if(current[currentOffset] != '"') throw new CsvException();
 
 				consumer.consume(target, current, start, currentOffset);
 
@@ -176,7 +176,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
 		mv.visitIntInsn(BIPUSH, parent.getDivider());
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedFixedColumn$Middle", optional ? "orSkip" : "orException", "([CIIL" + CsvClassMapping.consumerName + ";Ljava/lang/Object;C)I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedFixedColumn$Middle", optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;C)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);	
 	}
 
@@ -193,7 +193,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 		mv.visitIntInsn(BIPUSH, fixedSize);
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedFixedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIIL" + CsvClassMapping.consumerName + ";Ljava/lang/Object;)I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedFixedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);		
 	}
 

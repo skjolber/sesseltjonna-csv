@@ -1,6 +1,6 @@
 package com.github.skjolber.stcsv;
 
-public interface CsvClassFactory<T> {
+public interface CsvReader<T> {
 
 	T next() throws Exception;
 	

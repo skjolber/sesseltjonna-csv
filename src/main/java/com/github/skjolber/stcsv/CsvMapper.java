@@ -46,7 +46,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import com.github.skjolber.stcsv.builder.CsvClassMappingBuilder;
+import com.github.skjolber.stcsv.builder.CsvMappingBuilder;
 import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
 
 /**
@@ -59,21 +59,21 @@ import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
  * Thread-safe.
  */
 
-public class CsvClassMapping<T> {
+public class CsvMapper<T> {
 
 	protected static final String GENERATED_CLASS_SIMPLE_NAME = "GeneratedCsvClassFactory%d";
 	protected static final String GENERATED_CLASS_FULL_NAME = "com.github.skjolber.stcsv." + GENERATED_CLASS_SIMPLE_NAME;
 	protected static final String GENERATED_CLASS_FULL_INTERNAL = "com/github/skjolber/stcsv/" + GENERATED_CLASS_SIMPLE_NAME;
 	
-	protected static final String superClassInternalName = getInternalName(AbstractCsvClassFactory.class);
-	protected static final String csvStaticInitializer = getInternalName(CsvStaticInitializer.class);
+	protected static final String superClassInternalName = getInternalName(AbstractCsvReader.class);
+	protected static final String csvStaticInitializer = getInternalName(CsvReaderStaticInitializer.class);
 	protected static final String ignoredColumnName = getInternalName(IgnoredColumn.class);
 	protected static final String consumerName = getInternalName(CsvColumnValueConsumer.class);
 	
 	protected static AtomicInteger counter = new AtomicInteger();
 
-	public static <T> CsvClassMappingBuilder<T> builder(Class<T> cls) {
-		return new CsvClassMappingBuilder<T>(cls);
+	public static <T> CsvMappingBuilder<T> builder(Class<T> cls) {
+		return new CsvMappingBuilder<T>(cls);
 	}
 	
 	public static String getInternalName(Class<?> cls) {
@@ -109,10 +109,10 @@ public class CsvClassMapping<T> {
 	protected final int startIndex = 4;
 	protected final int rangeIndex = 5;
 	
-	protected final Map<String, CsvClassFactoryConstructor<T>> factories = new ConcurrentHashMap<>();
+	protected final Map<String, CsvReaderConstructor<T>> factories = new ConcurrentHashMap<>();
 	protected ClassLoader classLoader;
 	
-	public CsvClassMapping(Class<T> cls, char divider, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
+	public CsvMapper(Class<T> cls, char divider, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
 		this.mappedClass = cls;
 		this.divider = divider;
 		this.columns = columns;
@@ -140,7 +140,7 @@ public class CsvClassMapping<T> {
 		return divider;
 	}
 
-	public CsvClassFactory<T> create(Reader reader) throws Exception {
+	public CsvReader<T> create(Reader reader) throws Exception {
 		// avoid multiple calls to read when locating the first line
 		// so read a full buffer
 		char[] current = new char[bufferLength + 1];
@@ -150,7 +150,7 @@ public class CsvClassMapping<T> {
 		do {
 			int read = reader.read(current, start, bufferLength - start);
 			if(read == -1) {
-				return new NullCsvClassFactory<>();
+				return new EmptyCsvReader<>();
 			} else {
 				end += read;
 			}
@@ -166,15 +166,15 @@ public class CsvClassMapping<T> {
 		throw new IllegalArgumentException("No linebreak found in " + current.length + " characters");
 	}
 
-	public CsvClassFactory<T> create(Reader reader, String header, char[] current, int offset, int length) throws Exception {
-		CsvClassFactoryConstructor<T> constructor = factories.get(header); // note: using the stringbuilder as a key does not work
+	public CsvReader<T> create(Reader reader, String header, char[] current, int offset, int length) throws Exception {
+		CsvReaderConstructor<T> constructor = factories.get(header); // note: using the stringbuilder as a key does not work
 		if(constructor == null) {
 			boolean carriageReturns = header.length() > 1 && header.charAt(header.length() - 1) == '\r';
 			List<String> fields = parseNames(header);
 			
 			constructor = createScannerFactory(carriageReturns, fields);
 			if(constructor == null) {
-				return new NullCsvClassFactory<>();
+				return new EmptyCsvReader<>();
 			}
 		    factories.put(header, constructor);
 		}
@@ -182,7 +182,7 @@ public class CsvClassMapping<T> {
 		
 	}
 	
-	public CsvClassFactoryConstructor<T> createDefaultScannerFactory(boolean carriageReturns) throws Exception {
+	public CsvReaderConstructor<T> createDefaultScannerFactory(boolean carriageReturns) throws Exception {
 		List<String> names = new ArrayList<>();
 		for (AbstractColumn column: columns) {
 			names.add(column.getName());
@@ -191,21 +191,21 @@ public class CsvClassMapping<T> {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public CsvClassFactoryConstructor<T> createScannerFactory(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
+	public CsvReaderConstructor<T> createScannerFactory(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
 		ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 
 		String subClassName = write(classWriter, csvFileFieldNames, carriageReturns);
 		if(subClassName == null) {
 			return null;
 		}
-		SubClassLoader<AbstractCsvClassFactory<T>> loader = new SubClassLoader<AbstractCsvClassFactory<T>>(classLoader);
+		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
 		/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
 		*/
-		Class<? extends AbstractCsvClassFactory<T>> generatedClass = loader.load(classWriter.toByteArray(), subClassName);
-		return new CsvClassFactoryConstructor(generatedClass);
+		Class<? extends AbstractCsvReader<T>> generatedClass = loader.load(classWriter.toByteArray(), subClassName);
+		return new CsvReaderConstructor(generatedClass);
 	}
 	
 	protected String write(ClassWriter classWriter, List<String> csvFileFieldNames, boolean carriageReturns) {
@@ -247,7 +247,7 @@ public class CsvClassMapping<T> {
 		}
 		
 		// https://stackoverflow.com/questions/34589435/get-the-enclosing-class-of-a-java-lambda-expression
-		CsvStaticInitializer.add(subClassName, consumers);
+		CsvReaderStaticInitializer.add(subClassName, consumers);
 		
 		// generics does not work when generating multiple classes; 
 		// fails for class number 2 because of failing method signature
@@ -560,10 +560,10 @@ public class CsvClassMapping<T> {
 			int consumerArrayIndex = 1;
 
 			mv.visitLdcInsn(className);
-			mv.visitMethodInsn(INVOKESTATIC, csvStaticInitializer, "remove", "(Ljava/lang/String;)Lcom/github/skjolber/stcsv/CsvStaticInitializer$CsvStaticFields;", false);
+			mv.visitMethodInsn(INVOKESTATIC, csvStaticInitializer, "remove", "(Ljava/lang/String;)Lcom/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields;", false);
 			mv.visitVarInsn(ASTORE, 0);
 			mv.visitVarInsn(ALOAD, 0);
-			mv.visitMethodInsn(INVOKEVIRTUAL, "com/github/skjolber/stcsv/CsvStaticInitializer$CsvStaticFields", "getConsumers", "()[L" + consumerName + ";", false);
+			mv.visitMethodInsn(INVOKEVIRTUAL, "com/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields", "getConsumers", "()[L" + consumerName + ";", false);
 			mv.visitVarInsn(ASTORE, consumerArrayIndex);
 
 			// consumers
@@ -580,7 +580,7 @@ public class CsvClassMapping<T> {
 			Label endLabel = new Label();
 			mv.visitLabel(endLabel);
 			mv.visitInsn(RETURN);
-			mv.visitLocalVariable("fields", "Lcom/github/skjolber/stcsv/CsvStaticInitializer$CsvStaticFields;", null, startLabel, endLabel, 0);
+			mv.visitLocalVariable("fields", "Lcom/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields;", null, startLabel, endLabel, 0);
 			mv.visitLocalVariable("consumerList", "[L" + consumerName + ";", null, startLabel, endLabel, consumerArrayIndex);
 			mv.visitMaxs(0, 0);
 			mv.visitEnd();		    	

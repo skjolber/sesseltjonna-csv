@@ -13,8 +13,8 @@ import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvClassFactory;
-import com.github.skjolber.stcsv.CsvClassMapping;
+import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.CsvMapper;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 /**
@@ -27,13 +27,13 @@ public class TripsTest {
 	private File file = new File("src/test/resources/gtfs/trips-plain-5000.txt");
 	private File quotedFile = new File("src/test/resources/gtfs/trips-quoted-5000.txt");
 
-	private CsvClassMapping<Trip> plain;
-	private CsvClassMapping<Trip> quoted;
+	private CsvMapper<Trip> plain;
+	private CsvMapper<Trip> quoted;
 	
 	@BeforeEach
 	public void init() throws Exception {
 		
-		plain = CsvClassMapping.builder(Trip.class)
+		plain = CsvMapper.builder(Trip.class)
 				.stringField("route_id")
 					.setter(Trip::setRouteId)
 					.quoted()
@@ -59,7 +59,7 @@ public class TripsTest {
 					.optional()
 				.build();		
 		
-		quoted = CsvClassMapping.builder(Trip.class)
+		quoted = CsvMapper.builder(Trip.class)
 				.stringField("route_id")
 					.setter(Trip::setRouteId)
 					.quoted()
@@ -95,7 +95,7 @@ public class TripsTest {
 	public void compareToConventionalParserWithoutQuotes() throws Exception {
 
 		CsvParser referenceParser = referenceParser(file, StandardCharsets.UTF_8);
-		CsvClassFactory<Trip> factory = parser(file, StandardCharsets.UTF_8);
+		CsvReader<Trip> factory = parser(file, StandardCharsets.UTF_8);
 		
 		int count = 0;
 		
@@ -145,7 +145,7 @@ public class TripsTest {
 	public void compareToConventionalParserWithQuotes() throws Exception {
 
 		CsvParser referenceParser = referenceParser(quotedFile, StandardCharsets.ISO_8859_1);
-		CsvClassFactory<Trip> factory = quotedParser(quotedFile, StandardCharsets.ISO_8859_1);
+		CsvReader<Trip> factory = quotedParser(quotedFile, StandardCharsets.ISO_8859_1);
 		
 		int count = 0;
 		
@@ -190,14 +190,14 @@ public class TripsTest {
 		System.out.println("Parsed " + count + " lines");
 	}
 	
-	public CsvClassFactory<Trip> parser(File file, Charset charste) throws Exception {
+	public CsvReader<Trip> parser(File file, Charset charste) throws Exception {
 		InputStream input = new FileInputStream(file);
 		
 		InputStreamReader reader1 = new InputStreamReader(input, charste);
 		return plain.create(reader1);
 	}
 	
-	public CsvClassFactory<Trip> quotedParser(File file, Charset charset) throws Exception {
+	public CsvReader<Trip> quotedParser(File file, Charset charset) throws Exception {
 		InputStream input = new FileInputStream(file);
 		
 		InputStreamReader reader1 = new InputStreamReader(input, charset);

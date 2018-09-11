@@ -12,9 +12,9 @@ import java.io.IOException;
 import org.objectweb.asm.MethodVisitor;
 
 import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.AbstractCsvClassFactory;
-import com.github.skjolber.stcsv.CsvClassMapping;
-import com.github.skjolber.stcsv.CsvMappingException;
+import com.github.skjolber.stcsv.AbstractCsvReader;
+import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
 
 public class ClassicPlainColumn extends AbstractColumn {
@@ -23,7 +23,7 @@ public class ClassicPlainColumn extends AbstractColumn {
 		super(name, index, optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
 	}
 
-	public static int skipEmptyLines(AbstractCsvClassFactory scanner, char[] current, int currentOffset) throws IOException {
+	public static int skipEmptyLines(AbstractCsvReader scanner, char[] current, int currentOffset) throws IOException {
 		// skip empty lines
 		if(current[currentOffset] == '\n') {
 			int currentRange = scanner.getCurrentRange();
@@ -50,7 +50,7 @@ public class ClassicPlainColumn extends AbstractColumn {
 		public static int orException(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object, char c) {
 			
 			// object id
-			if(current[currentOffset] == c) throw new CsvMappingException();
+			if(current[currentOffset] == c) throw new CsvException();
 			
 			int start = currentOffset;
 			while(current[++currentOffset] != c);
@@ -80,7 +80,7 @@ public class ClassicPlainColumn extends AbstractColumn {
 			public static int orException(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object) {
 				
 				// object id
-				if(current[currentOffset] == '\n') throw new CsvMappingException();
+				if(current[currentOffset] == '\n') throw new CsvException();
 				
 				int start = currentOffset;
 				while(current[++currentOffset] != '\n');
@@ -109,7 +109,7 @@ public class ClassicPlainColumn extends AbstractColumn {
 			public static int orException(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object) {
 				
 				// object id
-				if(current[currentOffset] == '\r') throw new CsvMappingException();
+				if(current[currentOffset] == '\r') throw new CsvException();
 				
 				int start = currentOffset;
 				while(current[++currentOffset] != '\r');
@@ -149,7 +149,7 @@ public class ClassicPlainColumn extends AbstractColumn {
 		mv.visitVarInsn(ALOAD, objectIndex);
 
 		mv.visitIntInsn(BIPUSH, parent.getDivider());
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainColumn$Middle", optional ? "orSkip" : "orException", "([CIL" + CsvClassMapping.consumerName + ";Ljava/lang/Object;C)I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainColumn$Middle", optional ? "orSkip" : "orException", "([CIL" + CsvMapper.consumerName + ";Ljava/lang/Object;C)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);
 	}
 
@@ -165,7 +165,7 @@ public class ClassicPlainColumn extends AbstractColumn {
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIL" + CsvClassMapping.consumerName + ";Ljava/lang/Object;)I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIL" + CsvMapper.consumerName + ";Ljava/lang/Object;)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);		
 	}
 	

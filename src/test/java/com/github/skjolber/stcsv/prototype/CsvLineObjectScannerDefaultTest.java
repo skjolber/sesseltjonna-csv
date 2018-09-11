@@ -7,18 +7,18 @@ import java.io.StringReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvClassFactory;
-import com.github.skjolber.stcsv.CsvClassMapping;
+import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.CsvMapper;
 
 public class CsvLineObjectScannerDefaultTest {
 
-	private CsvClassMapping<CsvLineObject> consumerMapping;
-	private CsvClassMapping<CsvLineObject> reflectionSetterMapping;
-	private CsvClassMapping<CsvLineObject> proxySetterMapping;
+	private CsvMapper<CsvLineObject> consumerMapping;
+	private CsvMapper<CsvLineObject> reflectionSetterMapping;
+	private CsvMapper<CsvLineObject> proxySetterMapping;
 	
 	@BeforeEach
 	public void init() throws Exception {
-		consumerMapping = CsvClassMapping.builder(CsvLineObject.class)
+		consumerMapping = CsvMapper.builder(CsvLineObject.class)
 				.stringField("a")
 					.consumer(CsvLineObject::setStringValue)
 					.optional()
@@ -36,7 +36,7 @@ public class CsvLineObjectScannerDefaultTest {
 					.optional()
 				.build();
 		
-		reflectionSetterMapping = CsvClassMapping.builder(CsvLineObject.class)
+		reflectionSetterMapping = CsvMapper.builder(CsvLineObject.class)
 				.stringField("stringValue")
 					.optional()
 				.longField("longValue")
@@ -49,7 +49,7 @@ public class CsvLineObjectScannerDefaultTest {
 					.optional()
 				.build();		
 		
-		proxySetterMapping = CsvClassMapping.builder(CsvLineObject.class)
+		proxySetterMapping = CsvMapper.builder(CsvLineObject.class)
 				.stringField("stringValue2")
 					.setter(CsvLineObject::setStringValue)
 					.optional()
@@ -101,7 +101,7 @@ public class CsvLineObjectScannerDefaultTest {
 		builder.append(floatValue.toString());
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = consumerMapping.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = consumerMapping.create(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();
@@ -149,7 +149,7 @@ public class CsvLineObjectScannerDefaultTest {
 		builder.append(floatValue.toString());
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = reflectionSetterMapping.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = reflectionSetterMapping.create(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();
@@ -197,7 +197,7 @@ public class CsvLineObjectScannerDefaultTest {
 		builder.append(floatValue.toString());
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = proxySetterMapping.create(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = proxySetterMapping.create(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();
@@ -233,7 +233,7 @@ public class CsvLineObjectScannerDefaultTest {
 		builder.append(doubleValue.toString());
 		builder.append("\n");
 
-		CsvClassFactory<CsvLineObject> scanner = reflectionSetterMapping.createDefaultScannerFactory(false).newInstance(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = reflectionSetterMapping.createDefaultScannerFactory(false).newInstance(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();

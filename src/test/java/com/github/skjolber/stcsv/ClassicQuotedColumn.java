@@ -12,9 +12,9 @@ import java.io.IOException;
 import org.objectweb.asm.MethodVisitor;
 
 import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.AbstractCsvClassFactory;
-import com.github.skjolber.stcsv.CsvClassMapping;
-import com.github.skjolber.stcsv.CsvMappingException;
+import com.github.skjolber.stcsv.AbstractCsvReader;
+import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
 
 
@@ -29,7 +29,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 	public static class Middle {
 		
 		@SuppressWarnings("unchecked")
-		public static int orException(AbstractCsvClassFactory scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target, char c) throws IOException {
+		public static int orException(AbstractCsvReader scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target, char c) throws IOException {
 			if(current[currentOffset] != '"') {
 				return ClassicPlainColumn.Middle.orException(current, currentOffset, consumer, target, c);
 			}
@@ -72,7 +72,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 			if(currentOffset > start) {
 				consumer.consume(target, current, start, currentOffset);
 			} else {
-				throw new CsvMappingException();
+				throw new CsvException();
 			}
 			
 			if(current[currentOffset] != c) {
@@ -83,7 +83,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 		}
 
 		@SuppressWarnings("unchecked")
-		public static int orSkip(AbstractCsvClassFactory scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target, char c) throws IOException {
+		public static int orSkip(AbstractCsvReader scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target, char c) throws IOException {
 			if(current[currentOffset] != '"') {
 				return ClassicPlainColumn.Middle.orSkip(current, currentOffset, consumer, target, c);
 			}
@@ -112,7 +112,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 						currentOffset = currentOffset - start; // what we've already read
 
 						if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
-							throw new CsvMappingException();
+							throw new CsvException();
 						}
 						
 						start = 0;
@@ -139,7 +139,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 	public static class Last {
 		
 		public static class NewLine {
-			public static int orException(AbstractCsvClassFactory scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target) throws IOException {
+			public static int orException(AbstractCsvReader scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target) throws IOException {
 				if(current[currentOffset] != '"') {
 					return ClassicPlainColumn.Last.NewLine.orException(current, currentOffset, consumer, target);
 				}
@@ -182,7 +182,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 				if(currentOffset > start) {
 					consumer.consume(target, current, start, currentOffset);
 				} else {
-					throw new CsvMappingException();
+					throw new CsvException();
 				}
 				
 				if(current[currentOffset] != '\n') {
@@ -192,7 +192,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 				return ++currentOffset;					
 			}
 			
-			public static int orSkip(AbstractCsvClassFactory scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target) throws IOException {
+			public static int orSkip(AbstractCsvReader scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target) throws IOException {
 				if(current[currentOffset] != '"') {
 					return ClassicPlainColumn.Last.NewLine.orSkip(current, currentOffset, consumer, target);
 				}
@@ -245,7 +245,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 		}
 		
 		public static class NewLineCarriageReturn {
-			public static int orException(AbstractCsvClassFactory scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target) throws IOException {
+			public static int orException(AbstractCsvReader scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target) throws IOException {
 				if(current[currentOffset] != '"') {
 					return ClassicPlainColumn.Last.NewLineCarriageReturn.orException(current, currentOffset, consumer, target);
 				}
@@ -274,7 +274,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 							currentOffset = currentOffset - start; // what we've already read
 
 							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
-								throw new CsvMappingException();
+								throw new CsvException();
 							}
 							
 							start = 0;
@@ -298,7 +298,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 				return ++currentOffset; // skip newline
 			}
 			
-			public static int orSkip(AbstractCsvClassFactory scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target) throws IOException {
+			public static int orSkip(AbstractCsvReader scanner, char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object target) throws IOException {
 				if(current[currentOffset] != '"') {
 					return ClassicPlainColumn.Last.NewLineCarriageReturn.orSkip(current, currentOffset, consumer, target);
 				}
@@ -366,7 +366,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
 		mv.visitIntInsn(BIPUSH, parent.getDivider());
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedColumn$Middle", optional ? "orSkip" : "orException", "(L" + CsvClassMapping.superClassInternalName + ";[CIL" + CsvClassMapping.consumerName + ";Ljava/lang/Object;C)I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedColumn$Middle", optional ? "orSkip" : "orException", "(L" + CsvMapper.superClassInternalName + ";[CIL" + CsvMapper.consumerName + ";Ljava/lang/Object;C)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);
 	}
 
@@ -383,7 +383,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "(L" + CsvClassMapping.superClassInternalName + ";[CIL" + CsvClassMapping.consumerName + ";Ljava/lang/Object;)I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "(L" + CsvMapper.superClassInternalName + ";[CIL" + CsvMapper.consumerName + ";Ljava/lang/Object;)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);		
 	}
 	

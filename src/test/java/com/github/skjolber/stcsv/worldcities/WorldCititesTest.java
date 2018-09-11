@@ -15,20 +15,20 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvClassFactory;
-import com.github.skjolber.stcsv.CsvClassMapping;
+import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.CsvMapper;
 
 public class WorldCititesTest {
 
-	private CsvClassMapping<City> consumer;
-	private CsvClassMapping<City> consumerWithQuotes;
+	private CsvMapper<City> consumer;
+	private CsvMapper<City> consumerWithQuotes;
 
-	private CsvClassMapping<City> setter;
-	private CsvClassMapping<City> setterWithQuotes;
+	private CsvMapper<City> setter;
+	private CsvMapper<City> setterWithQuotes;
 
 	@BeforeEach
 	public void init() throws Exception {
-		consumer = CsvClassMapping.builder(City.class)
+		consumer = CsvMapper.builder(City.class)
 				.stringField("Country")
 					.consumer(City::setCountry)
 					.required()
@@ -53,7 +53,7 @@ public class WorldCititesTest {
 					.optional()
 				.build();
 		
-		consumerWithQuotes = CsvClassMapping.builder(City.class)
+		consumerWithQuotes = CsvMapper.builder(City.class)
 				.stringField("Country")
 					.consumer(City::setCountry)
 					.quoted()
@@ -84,7 +84,7 @@ public class WorldCititesTest {
 					.optional()
 				.build();		
 		
-		setter = CsvClassMapping.builder(City.class)
+		setter = CsvMapper.builder(City.class)
 				.stringField("Country")
 					.required()
 				.stringField("City")
@@ -104,7 +104,7 @@ public class WorldCititesTest {
 		
 		// "Country","City","AccentCity","Region","Population","Latitude","Longitude"
 
-		setterWithQuotes = CsvClassMapping.builder(City.class)
+		setterWithQuotes = CsvMapper.builder(City.class)
 				.stringField("Country")
 					.quoted()
 					.required()
@@ -130,7 +130,7 @@ public class WorldCititesTest {
 		
 	}
 
-	private void parseUntillNull(CsvClassFactory<City> factory) throws Exception {
+	private void parseUntillNull(CsvReader<City> factory) throws Exception {
 		List<City> trips = new ArrayList<>();
 		int count = 0;
 		try {
@@ -175,19 +175,19 @@ public class WorldCititesTest {
 
 	@Test
 	public void parseConsumerHeaderOnly() throws Exception {
-		CsvClassFactory<City> factory = parserWithConsumer(new File("src/test/resources/worldcities/worldcitiespop-1.txt"), StandardCharsets.UTF_8);
+		CsvReader<City> factory = parserWithConsumer(new File("src/test/resources/worldcities/worldcitiespop-1.txt"), StandardCharsets.UTF_8);
 		assertNull(factory.next());
 	}
 
 	@Test
 	public void parseConsumerHeaderOnlyWithQuotes() throws Exception {
-		CsvClassFactory<City> factory = parserWithConsumer(new File("src/test/resources/worldcities/worldcitiespop2-1.txt"), StandardCharsets.UTF_8);
+		CsvReader<City> factory = parserWithConsumer(new File("src/test/resources/worldcities/worldcitiespop2-1.txt"), StandardCharsets.UTF_8);
 		assertNull(factory.next());
 	}
 	
 	@Test
 	public void parseConsumer10Cities() throws Exception {
-		CsvClassFactory<City> factory = parserWithConsumer(new File("src/test/resources/worldcities/worldcitiespop-10.txt"), StandardCharsets.UTF_8);
+		CsvReader<City> factory = parserWithConsumer(new File("src/test/resources/worldcities/worldcitiespop-10.txt"), StandardCharsets.UTF_8);
 		assertNotNull(factory.next());
 		
 		parseUntillNull(factory);
@@ -196,7 +196,7 @@ public class WorldCititesTest {
 	
 	@Test
 	public void parseConsumer10CitiesWithQuotes() throws Exception {
-		CsvClassFactory<City> factory = parserWithConsumerQuotes(new File("src/test/resources/worldcities/worldcitiespop2-10.txt"), StandardCharsets.UTF_8);
+		CsvReader<City> factory = parserWithConsumerQuotes(new File("src/test/resources/worldcities/worldcitiespop2-10.txt"), StandardCharsets.UTF_8);
 		assertNotNull(factory.next());
 		
 		parseUntillNull(factory);
@@ -204,19 +204,19 @@ public class WorldCititesTest {
 	
 	@Test
 	public void parseSetterHeaderOnly() throws Exception {
-		CsvClassFactory<City> factory = parserWithSetter(new File("src/test/resources/worldcities/worldcitiespop-1.txt"), StandardCharsets.UTF_8);
+		CsvReader<City> factory = parserWithSetter(new File("src/test/resources/worldcities/worldcitiespop-1.txt"), StandardCharsets.UTF_8);
 		assertNull(factory.next());
 	}
 
 	@Test
 	public void parseSetterHeaderOnlyWithQuotes() throws Exception {
-		CsvClassFactory<City> factory = parserWithSetter(new File("src/test/resources/worldcities/worldcitiespop2-1.txt"), StandardCharsets.UTF_8);
+		CsvReader<City> factory = parserWithSetter(new File("src/test/resources/worldcities/worldcitiespop2-1.txt"), StandardCharsets.UTF_8);
 		assertNull(factory.next());
 	}
 	
 	@Test
 	public void parseSetter250000OnlyWithQuotes() throws Exception {
-		CsvClassFactory<City> factory = parserWithSetterQuotes(new File("src/test/resources/worldcities/worldCities-withQuotes-250000.txt"), StandardCharsets.UTF_8);
+		CsvReader<City> factory = parserWithSetterQuotes(new File("src/test/resources/worldcities/worldCities-withQuotes-250000.txt"), StandardCharsets.UTF_8);
 		assertNotNull(factory.next());
 		
 		int count = 0;
@@ -232,7 +232,7 @@ public class WorldCititesTest {
 	
 	@Test
 	public void parseSetterCities() throws Exception {
-		CsvClassFactory<City> factory = parserWithSetter(new File("src/test/resources/worldcities/worldcitiespop-10.txt"), StandardCharsets.UTF_8);
+		CsvReader<City> factory = parserWithSetter(new File("src/test/resources/worldcities/worldcitiespop-10.txt"), StandardCharsets.UTF_8);
 		assertNotNull(factory.next());
 		
 		parseUntillNull(factory);
@@ -240,35 +240,35 @@ public class WorldCititesTest {
 
 	@Test
 	public void parseSetter10CitiesWithQuotes() throws Exception {
-		CsvClassFactory<City> factory = parserWithSetterQuotes(new File("src/test/resources/worldcities/worldcitiespop2-10.txt"), StandardCharsets.UTF_8);
+		CsvReader<City> factory = parserWithSetterQuotes(new File("src/test/resources/worldcities/worldcitiespop2-10.txt"), StandardCharsets.UTF_8);
 		assertNotNull(factory.next());
 		
 		parseUntillNull(factory);
 	}
 	
 	
-	public CsvClassFactory<City> parserWithConsumer(File file, Charset charset) throws Exception {
+	public CsvReader<City> parserWithConsumer(File file, Charset charset) throws Exception {
 		InputStream input = new FileInputStream(file);
 		
 		InputStreamReader reader1 = new InputStreamReader(input, charset);
 		return consumer.create(reader1);
 	}
 
-	public CsvClassFactory<City> parserWithConsumerQuotes(File file, Charset charset) throws Exception {
+	public CsvReader<City> parserWithConsumerQuotes(File file, Charset charset) throws Exception {
 		InputStream input = new FileInputStream(file);
 		
 		InputStreamReader reader1 = new InputStreamReader(input, charset);
 		return consumerWithQuotes.create(reader1);
 	}
 
-	public CsvClassFactory<City> parserWithSetter(File file, Charset charset) throws Exception {
+	public CsvReader<City> parserWithSetter(File file, Charset charset) throws Exception {
 		InputStream input = new FileInputStream(file);
 		
 		InputStreamReader reader1 = new InputStreamReader(input, charset);
 		return setter.create(reader1);
 	}
 
-	public CsvClassFactory<City> parserWithSetterQuotes(File file, Charset charset) throws Exception {
+	public CsvReader<City> parserWithSetterQuotes(File file, Charset charset) throws Exception {
 		InputStream input = new FileInputStream(file);
 		
 		InputStreamReader reader1 = new InputStreamReader(input, charset);

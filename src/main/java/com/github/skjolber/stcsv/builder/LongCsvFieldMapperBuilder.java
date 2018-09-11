@@ -10,7 +10,7 @@ public class LongCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<
 	protected ObjLongConsumer<T> consumer;
 	protected ObjLongConsumer<T> setter;
 
-	public LongCsvFieldMapperBuilder(CsvClassMappingBuilder<T> parent, String name) {
+	public LongCsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
 		super(parent, name);
 	}
 

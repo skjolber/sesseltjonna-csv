@@ -6,15 +6,15 @@ import java.io.StringReader;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvClassFactory;
-import com.github.skjolber.stcsv.CsvClassMapping;
+import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.CsvMapper;
 
 public class CsvLineObjectScannerSkipEmptyLineTest {
 
 	@Test
 	public void testSkipEmptyLine() throws Exception {
 
-		CsvClassMapping<CsvLineObject> mapping = CsvClassMapping.builder(CsvLineObject.class)
+		CsvMapper<CsvLineObject> mapping = CsvMapper.builder(CsvLineObject.class)
 				.skipEmptyLines()
 				.stringField("stringValue")
 					.consumer(CsvLineObject::setStringValue)
@@ -24,7 +24,7 @@ public class CsvLineObjectScannerSkipEmptyLineTest {
 		// newline
 		String stringValueForLinebreak = createCsv("\n");
 
-		CsvClassFactory<CsvLineObject> scannerForLinebreak = mapping.create(new StringReader(stringValueForLinebreak));
+		CsvReader<CsvLineObject> scannerForLinebreak = mapping.create(new StringReader(stringValueForLinebreak));
 		CsvLineObject next = scannerForLinebreak.next();
 		assertThat(next).isNotNull();
 		assertThat(next.getStringValue()).isEqualTo("string");
@@ -33,7 +33,7 @@ public class CsvLineObjectScannerSkipEmptyLineTest {
 		// newline carriage return
 		String stringValue = createCsv("\r\n");
 
-		CsvClassFactory<CsvLineObject> scanner = mapping.create(new StringReader(stringValue));
+		CsvReader<CsvLineObject> scanner = mapping.create(new StringReader(stringValue));
 		next = scanner.next();
 		assertThat(next).isNotNull();
 		assertThat(next.getStringValue()).isEqualTo("string");

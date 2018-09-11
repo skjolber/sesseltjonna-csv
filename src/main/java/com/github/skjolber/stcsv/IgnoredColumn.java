@@ -5,7 +5,7 @@ import java.io.IOException;
 public class IgnoredColumn {
 
 	@SuppressWarnings("unchecked")
-	public static int skipColumns(AbstractCsvClassFactory scanner, char[] current, int currentOffset, char c, int columns) throws IOException {
+	public static int skipColumns(AbstractCsvReader scanner, char[] current, int currentOffset, char c, int columns) throws IOException {
 		
 		while(columns > 0) {
 			if(current[currentOffset] == c) {
@@ -63,7 +63,7 @@ public class IgnoredColumn {
 	}	
 	
 	@SuppressWarnings("unchecked")
-	public static int skipToLineBreak(AbstractCsvClassFactory scanner, char[] current, int currentOffset) throws IOException {
+	public static int skipToLineBreak(AbstractCsvReader scanner, char[] current, int currentOffset) throws IOException {
 		while(true) {
 			if(current[currentOffset] == '\n') {
 				return ++currentOffset; // skip newline

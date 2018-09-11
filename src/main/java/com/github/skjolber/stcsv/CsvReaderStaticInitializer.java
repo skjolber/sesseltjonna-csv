@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
 
-public class CsvStaticInitializer {
+public class CsvReaderStaticInitializer {
 
 	public static class CsvStaticFields {
 		private CsvColumnValueConsumer<?>[] consumers;
