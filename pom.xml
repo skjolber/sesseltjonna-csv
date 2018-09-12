@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.skjolber.sesseltjonna-csv</groupId>
 	<artifactId>sesseltjonna-csv</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.1</version>
 
 	<name>sesseltjonna-csv</name>
 	<description>High-performance CSV databinding library</description>
@@ -32,7 +32,7 @@
 		<connection>scm:git:git@github.com:skjolber/sesseltjonna-csv.git</connection>
 		<developerConnection>scm:git:git@github.com:skjolber/sesseltjonna-csv.git</developerConnection>
 		<url>git@github.com:skjolber/sesseltjonna-csv.git</url>
-		<tag>HEAD</tag>
+		<tag>sesseltjonna-csv-1.0.1</tag>
 	</scm>
 
 	<issueManagement>
