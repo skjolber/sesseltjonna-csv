@@ -97,7 +97,7 @@ The following rules / restrictions apply, mostly for keeping in sync with RFC-41
  * All fields are either required or optional (no empty string is ever propagated to the target). Missing values result in CsvException.
  * Columns which have no mapping are skipped (ignored).
  * All lines must contain the same number of columns
- * Corrupt files can result in ArrayIndexOutOfBoundsException or CsvException
+ * Corrupt files can result in CsvException
  * Newline and carriage return + newline line endings are supported (and auto-detected).
 
 Also note that

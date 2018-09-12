@@ -1,6 +1,6 @@
 package com.github.skjolber.stcsv;
 
-import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -199,11 +199,13 @@ public class CsvMapper<T> {
 			return null;
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
+		
 		/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
 		*/
+		
 		Class<? extends AbstractCsvReader<T>> generatedClass = loader.load(classWriter.toByteArray(), subClassName);
 		return new CsvReaderConstructor(generatedClass);
 	}
@@ -306,6 +308,18 @@ public class CsvMapper<T> {
 			mv.visitFieldInsn(GETFIELD, superClassInternalName, "current", "[C");
 			mv.visitVarInsn(ASTORE, currentArrayIndex);		    	
 			
+			
+			// try-catch block
+			Label startTryCatch = new Label();
+			
+			Label endVariableScope = new Label();
+
+			//Label endTryCatch = new Label();
+			Label exceptionHandling = new Label();
+			mv.visitTryCatchBlock(startTryCatch, endVariableScope, exceptionHandling, "java/lang/ArrayIndexOutOfBoundsException");
+			
+			mv.visitLabel(startTryCatch);
+			
 			if(skipEmptyLines) {
 				writeSkipEmptyLines(mv, subClassInternalName, carriageReturns);
 			}
@@ -360,9 +374,24 @@ public class CsvMapper<T> {
 			// return object
 			mv.visitVarInsn(ALOAD, objectIndex);
 			mv.visitInsn(ARETURN);
-			
-			Label endVariableScope = new Label();
+
 			mv.visitLabel(endVariableScope);
+
+			// throw block
+			mv.visitLabel(exceptionHandling);
+			mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {"java/lang/ArrayIndexOutOfBoundsException"});
+			mv.visitVarInsn(ASTORE, 1);
+			Label l3 = new Label();
+			mv.visitLabel(l3);
+			mv.visitLineNumber(33, l3);
+			mv.visitTypeInsn(NEW, "com/github/skjolber/stcsv/CsvException");
+			mv.visitInsn(DUP);
+			mv.visitVarInsn(ALOAD, 1);
+			mv.visitMethodInsn(INVOKESPECIAL, "com/github/skjolber/stcsv/CsvException", "<init>", "(Ljava/lang/Throwable;)V", false);
+			mv.visitInsn(ATHROW);
+
+			
+			
 			
 			mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, startVariableScope, endVariableScope, 0);
 			mv.visitLocalVariable("value", "L" + mappedClassInternalName + ";", null, startVariableScope, endVariableScope, objectIndex);
