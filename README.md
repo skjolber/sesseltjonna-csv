@@ -27,7 +27,7 @@ Example dependency config:
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>sesseltjonna-csv</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -114,6 +114,7 @@ Contributions are welcome, especially those with unit tests ;)
 [Apache 2.0]
 
 # History
+ - [1.0.1]: Improve exception handling
  - [1.0.0]: Initial release.
 
 [Apache 2.0]: 			http://www.apache.org/licenses/LICENSE-2.0.html
