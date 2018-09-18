@@ -120,7 +120,7 @@ Contributions are welcome, especially those with unit tests ;)
 [Apache 2.0]: 			http://www.apache.org/licenses/LICENSE-2.0.html
 [issue-tracker]:		https://github.com/skjolber/sesseltjonna-csv/issues
 [Maven]:				http://maven.apache.org/
-[1.0.0]:		    	https://github.com/skjolber/sesseltjonna-csv/releases
+[1.0.1]:		    	https://github.com/skjolber/sesseltjonna-csv/releases
 [benchmarks]:			https://github.com/skjolber/csv-benchmark
 [hytta.jpg]:			http://skjolber.github.io/img/hytta.jpg
 [ASM]:					https://asm.ow2.io/
