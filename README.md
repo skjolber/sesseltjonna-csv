@@ -115,7 +115,7 @@ Contributions are welcome, especially those with unit tests ;)
 
 # History
  - [1.0.1]: Improve exception handling
- - [1.0.0]: Initial release.
+ - 1.0.0: Initial release.
 
 [Apache 2.0]: 			http://www.apache.org/licenses/LICENSE-2.0.html
 [issue-tracker]:		https://github.com/skjolber/sesseltjonna-csv/issues
