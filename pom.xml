@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.skjolber.sesseltjonna-csv</groupId>
 	<artifactId>sesseltjonna-csv</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.2-SNAPSHOT</version>
 
 	<name>sesseltjonna-csv</name>
 	<description>High-performance CSV databinding library</description>

@@ -190,6 +190,10 @@ public class CsvMapper<T> {
 		return createScannerFactory(carriageReturns, names);
 	}
 
+	public CsvReaderConstructor<T> createScannerFactory(boolean carriageReturns, String header) throws Exception {
+		return createScannerFactory(carriageReturns, parseNames(header));
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CsvReaderConstructor<T> createScannerFactory(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
 		ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
