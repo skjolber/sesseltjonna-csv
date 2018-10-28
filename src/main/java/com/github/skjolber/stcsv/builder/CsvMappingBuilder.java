@@ -111,7 +111,7 @@ public class CsvMappingBuilder<T> implements InvocationHandler {
 		return this;
 	}
 	
-	public CsvMapper<T> build() throws Exception {
+	public CsvMapper<T> build() {
 		List<AbstractColumn> columns = new ArrayList<>(fields.size());
 		Set<String> fieldNames = new HashSet<>(fields.size() * 2);
 		
@@ -138,7 +138,11 @@ public class CsvMappingBuilder<T> implements InvocationHandler {
 				if(builder.hasSetter()) {
 					// detect setter using proxy class
 					if(proxy == null) {
-						proxy = generateProxy();
+						try {
+							proxy = generateProxy();
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
 					}
 					builder.invokeSetter(proxy); // populates the 'method' field
 				} else {

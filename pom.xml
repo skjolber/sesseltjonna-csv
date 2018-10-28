@@ -53,13 +53,13 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
-		<asm.version>6.2.1</asm.version>
-		<byte-buddy.version>1.8.20</byte-buddy.version>
-		<univocity.version>2.7.3</univocity.version>
+		<asm.version>7.0</asm.version>
+		<byte-buddy.version>1.9.2</byte-buddy.version>
+		<univocity.version>2.7.6</univocity.version>
 
  		<commons-io.version>2.6</commons-io.version>
 		<google-truth.version>0.42</google-truth.version>
-		<junit.version>5.2.0</junit.version>
+		<junit.version>5.3.1</junit.version>
 		
 		<!-- plugins -->
 		<build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
@@ -93,6 +93,7 @@
 		    <groupId>net.bytebuddy</groupId>
 		    <artifactId>byte-buddy</artifactId>
 		    <version>${byte-buddy.version}</version>
+		    <optional>true</optional>
 		</dependency>
 		
 		<!-- test dependencies -->
