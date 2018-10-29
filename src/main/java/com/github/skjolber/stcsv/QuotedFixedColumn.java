@@ -27,10 +27,14 @@ import org.objectweb.asm.MethodVisitor;
 public class QuotedFixedColumn extends AbstractColumn {
 
 	private int fixedSize;
+	protected final int quoteCharacter;
+	protected final int escapeCharacter;
 
-	public QuotedFixedColumn(String name, int index, boolean optional, boolean trimTrailingWhitespaces, boolean trimLeadingWhitespaces, int fixedSize) {
+	public QuotedFixedColumn(String name, int index, int quoteCharacter, int escapeCharacter, boolean optional, boolean trimTrailingWhitespaces, boolean trimLeadingWhitespaces, int fixedSize) {
 		super(name, index, optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
 
+		this.quoteCharacter = quoteCharacter;
+		this.escapeCharacter = escapeCharacter;
 		this.fixedSize = fixedSize;
 	}
 
@@ -62,7 +66,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 		
 		// checks for empty value, but empty quotes are not supported
 		
-		Label quoted = ifAtChar(mv, QuotedColumn.QUOTE);
+		Label quoted = ifAtChar(mv, quoteCharacter);
 		Label emptyLabel = ifAtChar(mv, divider);
 		
 		saveOffsetInStart(mv);
@@ -99,7 +103,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, QuotedColumn.QUOTE);
+		mv.visitIntInsn(BIPUSH, quoteCharacter);
 		Label l20 = new Label();
 		mv.visitJumpInsn(IF_ICMPNE, l20);
 		Label l21 = new Label();
@@ -109,7 +113,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 		mv.visitInsn(ICONST_1);
 		mv.visitInsn(IADD);
 		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, QuotedColumn.QUOTE);
+		mv.visitIntInsn(BIPUSH, quoteCharacter);
 		Label l22 = new Label();
 		mv.visitJumpInsn(IF_ICMPEQ, l22);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);

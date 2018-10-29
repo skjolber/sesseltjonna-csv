@@ -18,14 +18,20 @@ import org.objectweb.asm.MethodVisitor;
 
 public class NoLineBreakQuotedColumn extends AbstractColumn {
 
-	public NoLineBreakQuotedColumn(String name, int index, boolean optional, boolean trimTrailingWhitespaces, boolean trimLeadingWhitespaces) {
+	protected final int quoteCharacter;
+	protected final int escapeCharacter;
+
+	public NoLineBreakQuotedColumn(String name, int index, int quoteCharacter, int escapeCharacter, boolean optional, boolean trimTrailingWhitespaces, boolean trimLeadingWhitespaces) {
 		super(name, index, optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
+		
+		this.quoteCharacter = quoteCharacter;
+		this.escapeCharacter = escapeCharacter;
 	}
 
 	@Override
 	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
 
-		Label quoted = ifAtChar(mv, QuotedColumn.QUOTE); // quoted
+		Label quoted = ifAtChar(mv, quoteCharacter); // quoted
 		Label plainEmpty = ifAtChar(mv, divider); // empty
 	
 		saveOffsetInStart(mv);
@@ -65,7 +71,7 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, QuotedColumn.QUOTE);
+		mv.visitIntInsn(BIPUSH, quoteCharacter);
 		mv.visitJumpInsn(IF_ICMPNE, l27);
 		
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
@@ -73,7 +79,7 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 		mv.visitInsn(ICONST_1);
 		mv.visitInsn(IADD);
 		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, QuotedColumn.QUOTE);
+		mv.visitIntInsn(BIPUSH, quoteCharacter);
 		Label l29 = new Label();
 		mv.visitJumpInsn(IF_ICMPNE, l29);
 		

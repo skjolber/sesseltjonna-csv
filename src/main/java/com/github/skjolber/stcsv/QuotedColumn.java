@@ -24,15 +24,19 @@ import org.objectweb.asm.MethodVisitor;
 
 public class QuotedColumn extends AbstractColumn {
 
-	protected static int QUOTE = (int)'"'; // 34
+	protected final int quoteCharacter;
+	protected final int escapeCharacter;
 	
-	public QuotedColumn(String name, int index, boolean optional, boolean trimTrailingWhitespaces, boolean trimLeadingWhitespaces) {
+	public QuotedColumn(String name, int index, int quoteCharacter, int escapeCharacter, boolean optional, boolean trimTrailingWhitespaces, boolean trimLeadingWhitespaces) {
 		super(name, index, optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
+		
+		this.quoteCharacter = quoteCharacter;
+		this.escapeCharacter = escapeCharacter;
 	}
 
 	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
 
-		Label quoted = ifAtChar(mv, QUOTE); // quoted
+		Label quoted = ifAtChar(mv, quoteCharacter); // quoted
 		Label plainEmpty = ifAtChar(mv, divider); // empty
 	
 		saveOffsetInStart(mv);
@@ -69,7 +73,7 @@ public class QuotedColumn extends AbstractColumn {
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, QUOTE);
+		mv.visitIntInsn(BIPUSH, quoteCharacter);
 		Label l20 = new Label();
 		mv.visitJumpInsn(IF_ICMPNE, l20);
 		Label l21 = new Label();
@@ -79,7 +83,7 @@ public class QuotedColumn extends AbstractColumn {
 		mv.visitInsn(ICONST_1);
 		mv.visitInsn(IADD);
 		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, QUOTE);
+		mv.visitIntInsn(BIPUSH, quoteCharacter);
 		Label l22 = new Label();
 		mv.visitJumpInsn(IF_ICMPEQ, l22);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);

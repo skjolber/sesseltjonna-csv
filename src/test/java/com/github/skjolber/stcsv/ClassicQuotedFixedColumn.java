@@ -11,27 +11,28 @@ import static org.objectweb.asm.Opcodes.ISTORE;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.CsvMapper;
-import com.github.skjolber.stcsv.CsvException;
-import com.github.skjolber.stcsv.QuotedColumn;
 import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
 
 public class ClassicQuotedFixedColumn extends AbstractColumn {
 
 	private int fixedSize;
+	protected final int quoteCharacter;
+	protected final int escapeCharacter;
 
-	public ClassicQuotedFixedColumn(String name, int index, boolean optional, boolean trimTrailingWhitespaces, boolean trimLeadingWhitespaces, int fixedSize) {
+	public ClassicQuotedFixedColumn(String name, int index, int quoteCharacter, int escapeCharacter, boolean optional, boolean trimTrailingWhitespaces, boolean trimLeadingWhitespaces, int fixedSize) {
 		super(name, index, optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
 
+		this.quoteCharacter = quoteCharacter;
+		this.escapeCharacter = escapeCharacter;
+		
 		this.fixedSize = fixedSize;
 	}
 
 	public static class Middle {
 
-		public static int orException(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target, char c) {
-			if(current[currentOffset] != '"') {
-				return ClassicPlainFixedColumn.Middle.orException(current, currentOffset, length, consumer, target, c);
+		public static int orException(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target, char divider, char quoteCharacter, char escapeCharacter) {
+			if(current[currentOffset] != quoteCharacter) {
+				return ClassicPlainFixedColumn.Middle.orException(current, currentOffset, length, consumer, target, divider);
 			}
 
 			// skip quote
@@ -49,9 +50,9 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 			return currentOffset += 2;
 		}
 
-		public static int orSkip(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target, char c) {
-			if(current[currentOffset] != '"') {
-				return ClassicPlainFixedColumn.Middle.orSkip(current, currentOffset, length, consumer, target, c);
+		public static int orSkip(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target, char divider, char quoteCharacter, char escapeCharacter) {
+			if(current[currentOffset] != quoteCharacter) {
+				return ClassicPlainFixedColumn.Middle.orSkip(current, currentOffset, length, consumer, target, divider);
 			}
 
 			// skip quote
@@ -75,8 +76,8 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 	public static class Last {
 
 		public static class NewLine {
-			public static int orException(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target) {
-				if(current[currentOffset] != '"') {
+			public static int orException(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target, char quoteCharacter, char escapeCharacter) {
+				if(current[currentOffset] != quoteCharacter) {
 					return ClassicPlainFixedColumn.Last.NewLine.orException(current, currentOffset, length, consumer, target);
 				}
 
@@ -95,8 +96,8 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				return currentOffset += 2;
 			}
 
-			public static int orSkip(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target) {
-				if(current[currentOffset] != '"') {
+			public static int orSkip(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target, char quoteCharacter, char escapeCharacter) {
+				if(current[currentOffset] != quoteCharacter) {
 					return ClassicPlainFixedColumn.Last.NewLine.orSkip(current, currentOffset, length, consumer, target);
 				}
 
@@ -120,8 +121,8 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 		}
 
 		public static class NewLineCarriageReturn {
-			public static int orException(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target) {
-				if(current[currentOffset] != '"') {
+			public static int orException(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target, char quoteCharacter, char escapeCharacter) {
+				if(current[currentOffset] != quoteCharacter) {
 					return ClassicPlainFixedColumn.Last.NewLineCarriageReturn.orException(current, currentOffset, length, consumer, target);
 				}
 
@@ -140,8 +141,8 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				return currentOffset += 3;
 			}
 
-			public static int orSkip(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target) {
-				if(current[currentOffset] != '"') {
+			public static int orSkip(char[] current, int currentOffset, int length, CsvColumnValueConsumer consumer, Object target, char quoteCharacter, char escapeCharacter) {
+				if(current[currentOffset] != quoteCharacter) {
 					return ClassicPlainFixedColumn.Last.NewLineCarriageReturn.orSkip(current, currentOffset, length, consumer, target);
 				}
 
@@ -224,7 +225,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 		
 		// checks for empty value, but empty quotes are not supported
 		
-		Label quoteLabel = ifAtChar(mv, QuotedColumn.QUOTE);
+		Label quoteLabel = ifAtChar(mv, quoteCharacter);
 		Label emptyLabel = ifAtChar(mv, divider);
 		
 		mv.visitIincInsn(1, fixedSize);
