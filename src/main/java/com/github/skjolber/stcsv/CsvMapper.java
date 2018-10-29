@@ -85,6 +85,8 @@ public class CsvMapper<T> {
 	}
 
 	protected int divider;
+	private int quote;
+	private int escapeCharacter;
 	protected Class<T> mappedClass;
 	
 	protected String mappedClassInternalName;
@@ -112,9 +114,11 @@ public class CsvMapper<T> {
 	protected final Map<String, CsvReaderConstructor<T>> factories = new ConcurrentHashMap<>();
 	protected ClassLoader classLoader;
 	
-	public CsvMapper(Class<T> cls, char divider, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
+	public CsvMapper(Class<T> cls, char divider, char quote, char escapeCharacter, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
 		this.mappedClass = cls;
 		this.divider = divider;
+		this.quote = quote;
+		this.escapeCharacter = escapeCharacter;
 		this.columns = columns;
 
 		this.skipEmptyLines = skipEmptyLines;

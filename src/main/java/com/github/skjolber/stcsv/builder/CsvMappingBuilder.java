@@ -26,6 +26,8 @@ public class CsvMappingBuilder<T> implements InvocationHandler {
 	
 	private Class<T> target;
 	private char divider = ',';
+	private char quote = '"';
+	private char escapeCharacter = '"';
 	
 	private boolean skipEmptyLines = false;
 	private boolean skippableFieldsWithoutLinebreaks = false;
@@ -77,6 +79,18 @@ public class CsvMappingBuilder<T> implements InvocationHandler {
 			throw new IllegalArgumentException("Cannot use character '" + c + "' as divider");
 		}
 		this.divider = c;
+		
+		return this;
+	}
+	
+	public CsvMappingBuilder<T> quote(char c) {
+		this.quote = c;
+		
+		return this;
+	}
+	
+	public CsvMappingBuilder<T> escapeCharacter(char c) {
+		this.escapeCharacter = c;
 		
 		return this;
 	}
@@ -179,7 +193,7 @@ public class CsvMappingBuilder<T> implements InvocationHandler {
 			throw new IllegalArgumentException("Expected positive buffer length");
 		}
 		
-		return new CsvMapper<T>(target, divider, columns, skipEmptyLines, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
+		return new CsvMapper<T>(target, divider, quote, escapeCharacter, columns, skipEmptyLines, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
 	}
 
 	protected ClassLoader getDefaultClassLoader() {
