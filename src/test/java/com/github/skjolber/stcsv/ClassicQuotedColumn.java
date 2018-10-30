@@ -42,36 +42,66 @@ public class ClassicQuotedColumn extends AbstractColumn {
 			int currentRange = scanner.getCurrentRange();
 			int start = ++currentOffset;
 			
-			do {
-				if(current[currentOffset] == '"') {
-					if(current[currentOffset + 1] != '"') {
-						// 1x qoute
-						break;
-					}
-
-					// 2x qoute
-					// overwrite one of the quotes by copying the previous stuff forward
-					// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
-					System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
-					currentOffset++;
-
-					start++;
-				} else if(current[currentOffset] == '\n') {
-					if(currentOffset == currentRange) {
-						currentOffset = currentOffset - start; // what we've already read
-
-						if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
-							throw new IllegalArgumentException();
+			if(quoteCharacter == escapeCharacter) {
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						if(current[currentOffset + 1] != quoteCharacter) {
+							// 1x qoute
+							break;
 						}
-						
-						start = 0;
-					} else {
-						++currentOffset;
+	
+						// 2x qoute
+						// overwrite one of the quotes by copying the previous stuff forward
+						// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
+					} else if(current[currentOffset] == '\n') {
+						if(currentOffset == currentRange) {
+							currentOffset = currentOffset - start; // what we've already read
+	
+							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+								throw new IllegalArgumentException();
+							}
+							
+							start = 0;
+						} else {
+							++currentOffset;
+						}
 					}
-				}
-				currentOffset++;
-			} while(true);
+					currentOffset++;
+				} while(true);
+			} else {
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						break;
+					} else if(current[currentOffset] == quoteCharacter) {
+						// escaped value
+						// overwrite the escape char by copying the previous stuff forward
+						// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
+					} else if(current[currentOffset] == '\n') {
+						if(currentOffset == currentRange) {
+							currentOffset = currentOffset - start; // what we've already read
+	
+							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+								throw new IllegalArgumentException();
+							}
+							
+							start = 0;
+						} else {
+							++currentOffset;
+						}
+					}
+					currentOffset++;
+				} while(true);
+			}
 
 			if(currentOffset > start) {
 				consumer.consume(target, current, start, currentOffset);
@@ -96,37 +126,68 @@ public class ClassicQuotedColumn extends AbstractColumn {
 			int currentRange = scanner.getCurrentRange();
 			int start = ++currentOffset;
 			
-			do {
-				if(current[currentOffset] == '"') {
-					if(current[currentOffset + 1] != '"') {
-						// 1x qoute
-						break;
-					}
-
-					// 2x qoute
-					// overwrite one of the quotes by copying the previous stuff forward
-					// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
-					System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
-					currentOffset++;
-
-					start++;
-				} else if(current[currentOffset] == '\n') {
-					if(currentOffset == currentRange) {
-						currentOffset = currentOffset - start; // what we've already read
-
-						if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
-							throw new CsvException();
+			if(quoteCharacter == escapeCharacter) {
+	
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						if(current[currentOffset + 1] != quoteCharacter) {
+							// 1x qoute
+							break;
 						}
-						
-						start = 0;
-					} else {
-						++currentOffset;
+	
+						// 2x qoute
+						// overwrite one of the quotes by copying the previous stuff forward
+						// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
+					} else if(current[currentOffset] == '\n') {
+						if(currentOffset == currentRange) {
+							currentOffset = currentOffset - start; // what we've already read
+	
+							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+								throw new CsvException();
+							}
+							
+							start = 0;
+						} else {
+							++currentOffset;
+						}
 					}
-				}
-				currentOffset++;
-			} while(true);
-
+					currentOffset++;
+				} while(true);
+			} else {
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						break;
+					} else if(current[currentOffset] == quoteCharacter) {
+						// escaped value
+						// overwrite the escape char by copying the previous stuff forward
+						// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
+					} else if(current[currentOffset] == '\n') {
+						if(currentOffset == currentRange) {
+							currentOffset = currentOffset - start; // what we've already read
+	
+							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+								throw new IllegalArgumentException();
+							}
+							
+							start = 0;
+						} else {
+							++currentOffset;
+						}
+					}
+					currentOffset++;
+				} while(true);
+			}
+			
 			if(currentOffset > start) {
 				consumer.consume(target, current, start, currentOffset);
 			}
@@ -152,36 +213,66 @@ public class ClassicQuotedColumn extends AbstractColumn {
 				int currentRange = scanner.getCurrentRange();
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
-						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
-						currentOffset++;
-
-						start++;
-					} else if(current[currentOffset] == '\n') {
-						if(currentOffset == currentRange) {
-							currentOffset = currentOffset - start; // what we've already read
-
-							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
-								throw new IllegalArgumentException();
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
 							}
-							
-							start = 0;
-						} else {
-							++currentOffset;
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
+						} else if(current[currentOffset] == '\n') {
+							if(currentOffset == currentRange) {
+								currentOffset = currentOffset - start; // what we've already read
+	
+								if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+									throw new IllegalArgumentException();
+								}
+								
+								start = 0;
+							} else {
+								++currentOffset;
+							}
 						}
-					}
-					currentOffset++;
-				} while(true);
+						currentOffset++;
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						} else if(current[currentOffset] == '\n') {
+							if(currentOffset == currentRange) {
+								currentOffset = currentOffset - start; // what we've already read
+		
+								if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+									throw new IllegalArgumentException();
+								}
+								
+								start = 0;
+							} else {
+								++currentOffset;
+							}
+						}
+						currentOffset++;
+					} while(true);
+				}
 
 				if(currentOffset > start) {
 					consumer.consume(target, current, start, currentOffset);
@@ -205,37 +296,67 @@ public class ClassicQuotedColumn extends AbstractColumn {
 				int currentRange = scanner.getCurrentRange();
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
-						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
-						currentOffset++;
-
-						start++;
-					} else if(current[currentOffset] == '\n') {
-						if(currentOffset == currentRange) {
-							currentOffset = currentOffset - start; // what we've already read
-
-							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
-								throw new IllegalArgumentException();
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
 							}
-							
-							start = 0;
-						} else {
-							++currentOffset;
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
+						} else if(current[currentOffset] == '\n') {
+							if(currentOffset == currentRange) {
+								currentOffset = currentOffset - start; // what we've already read
+	
+								if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+									throw new IllegalArgumentException();
+								}
+								
+								start = 0;
+							} else {
+								++currentOffset;
+							}
 						}
-					}
-					currentOffset++;
-				} while(true);
-
+						currentOffset++;
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						} else if(current[currentOffset] == '\n') {
+							if(currentOffset == currentRange) {
+								currentOffset = currentOffset - start; // what we've already read
+		
+								if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+									throw new IllegalArgumentException();
+								}
+								
+								start = 0;
+							} else {
+								++currentOffset;
+							}
+						}
+						currentOffset++;
+					} while(true);
+				}
+				
 				if(currentOffset > start) {
 					consumer.consume(target, current, start, currentOffset);
 				}
@@ -258,36 +379,66 @@ public class ClassicQuotedColumn extends AbstractColumn {
 				int currentRange = scanner.getCurrentRange();
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
-						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
-						currentOffset++;
-
-						start++;
-					} else if(current[currentOffset] == '\n') {
-						if(currentOffset == currentRange) {
-							currentOffset = currentOffset - start; // what we've already read
-
-							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
-								throw new CsvException();
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
 							}
-							
-							start = 0;
-						} else {
-							++currentOffset;
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
+						} else if(current[currentOffset] == '\n') {
+							if(currentOffset == currentRange) {
+								currentOffset = currentOffset - start; // what we've already read
+	
+								if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+									throw new CsvException();
+								}
+								
+								start = 0;
+							} else {
+								++currentOffset;
+							}
 						}
-					}
-					currentOffset++;
-				} while(true);
+						currentOffset++;
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						} else if(current[currentOffset] == '\n') {
+							if(currentOffset == currentRange) {
+								currentOffset = currentOffset - start; // what we've already read
+		
+								if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+									throw new IllegalArgumentException();
+								}
+								
+								start = 0;
+							} else {
+								++currentOffset;
+							}
+						}
+						currentOffset++;
+					} while(true);
+				}
 
 				if(currentOffset > start) {
 					consumer.consume(target, current, start, currentOffset);
@@ -311,37 +462,67 @@ public class ClassicQuotedColumn extends AbstractColumn {
 				int currentRange = scanner.getCurrentRange();
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
-						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
-						currentOffset++;
-
-						start++;
-					} else if(current[currentOffset] == '\n') {
-						if(currentOffset == currentRange) {
-							currentOffset = currentOffset - start; // what we've already read
-
-							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
-								throw new IllegalArgumentException();
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
 							}
-							
-							start = 0;
-						} else {
-							++currentOffset;
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
+						} else if(current[currentOffset] == '\n') {
+							if(currentOffset == currentRange) {
+								currentOffset = currentOffset - start; // what we've already read
+	
+								if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+									throw new IllegalArgumentException();
+								}
+								
+								start = 0;
+							} else {
+								++currentOffset;
+							}
 						}
-					}
-					currentOffset++;
-				} while(true);
-
+						currentOffset++;
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						} else if(current[currentOffset] == '\n') {
+							if(currentOffset == currentRange) {
+								currentOffset = currentOffset - start; // what we've already read
+		
+								if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+									throw new IllegalArgumentException();
+								}
+								
+								start = 0;
+							} else {
+								++currentOffset;
+							}
+						}
+						currentOffset++;
+					} while(true);
+				}
+				
 				if(currentOffset > start) {
 					consumer.consume(target, current, start, currentOffset);
 				}

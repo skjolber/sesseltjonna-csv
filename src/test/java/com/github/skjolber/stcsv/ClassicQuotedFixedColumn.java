@@ -43,7 +43,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 			currentOffset += length;
 
 			// expect quote character at the end location
-			if(current[currentOffset] != '"') throw new CsvException();
+			if(current[currentOffset] != quoteCharacter) throw new CsvException();
 
 			consumer.consume(target, current, start, currentOffset);
 
@@ -56,7 +56,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 			}
 
 			// skip quote
-			if(current[++currentOffset] == '"') {
+			if(current[++currentOffset] == quoteCharacter) {
 				return currentOffset += 2;
 			}
 
@@ -65,7 +65,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 			currentOffset += length;
 
 			// expect quote character at the end location
-			if(current[currentOffset] != '"') throw new CsvException();
+			if(current[currentOffset] != quoteCharacter) throw new CsvException();
 
 			consumer.consume(target, current, start, currentOffset);
 
@@ -89,7 +89,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				currentOffset += length;
 
 				// expect quote character at the end location
-				if(current[currentOffset] != '"') throw new CsvException();
+				if(current[currentOffset] != quoteCharacter) throw new CsvException();
 
 				consumer.consume(target, current, start, currentOffset);
 
@@ -102,7 +102,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				}
 
 				// skip quote
-				if(current[++currentOffset] == '"') {
+				if(current[++currentOffset] == quoteCharacter) {
 					return currentOffset += 2;
 				}
 
@@ -111,7 +111,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				currentOffset += length;
 
 				// expect quote character at the end location
-				if(current[currentOffset] != '"') throw new CsvException();
+				if(current[currentOffset] != quoteCharacter) throw new CsvException();
 
 				consumer.consume(target, current, start, currentOffset);
 
@@ -134,7 +134,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				currentOffset += length;
 
 				// expect quote character at the end location
-				if(current[currentOffset] != '"') throw new CsvException();
+				if(current[currentOffset] != quoteCharacter) throw new CsvException();
 
 				consumer.consume(target, current, start, currentOffset);
 
@@ -147,7 +147,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				}
 
 				// skip quote
-				if(current[++currentOffset] == '"') {
+				if(current[++currentOffset] == quoteCharacter) {
 					return currentOffset += 3;
 				}
 
@@ -156,7 +156,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 				currentOffset += length;
 
 				// expect quote character at the end location
-				if(current[currentOffset] != '"') throw new CsvException();
+				if(current[currentOffset] != quoteCharacter) throw new CsvException();
 
 				consumer.consume(target, current, start, currentOffset);
 

@@ -55,69 +55,75 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 			throwMappingException(mv);
 		}		
 		
-		mv.visitLabel(quoted);
-		mv.visitIincInsn(currentOffsetIndex, 1);
-		mv.visitVarInsn(ILOAD, currentOffsetIndex);
-		mv.visitVarInsn(ISTORE, startIndex);
-		Label l25 = new Label();
-		mv.visitLabel(l25);
-		
-		Label l26 = new Label();
-		mv.visitJumpInsn(GOTO, l26);
-		Label l27 = new Label();
-		mv.visitLabel(l27);
-		mv.visitIincInsn(currentOffsetIndex, 1);
-		mv.visitLabel(l26);
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, currentOffsetIndex);
-		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, quoteCharacter);
-		mv.visitJumpInsn(IF_ICMPNE, l27);
-		
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, currentOffsetIndex);
-		mv.visitInsn(ICONST_1);
-		mv.visitInsn(IADD);
-		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, quoteCharacter);
-		Label l29 = new Label();
-		mv.visitJumpInsn(IF_ICMPNE, l29);
-		
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		mv.visitInsn(ICONST_1);
-		mv.visitInsn(IADD);
-		mv.visitVarInsn(ILOAD, currentOffsetIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		mv.visitInsn(ISUB);
-		mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
-		mv.visitIincInsn(currentOffsetIndex, 2);
-		mv.visitIincInsn(4, currentOffsetIndex);
-		Label l34 = new Label();
-		mv.visitJumpInsn(GOTO, l34);
-		mv.visitLabel(l29);
-		mv.visitVarInsn(ILOAD, currentOffsetIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		Label nonEmptyValue = new Label();
-		mv.visitJumpInsn(IF_ICMPGT, nonEmptyValue);
-
-		if(!optional) {
-			throwMappingException(mv);
-		} else {
+		// handle quotes
+		if(quoteCharacter == escapeCharacter) {
+			
+			mv.visitLabel(quoted);
+			mv.visitIincInsn(currentOffsetIndex, 1);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitVarInsn(ISTORE, startIndex);
+			Label l25 = new Label();
+			mv.visitLabel(l25);
+			
+			Label l26 = new Label();
+			mv.visitJumpInsn(GOTO, l26);
+			Label l27 = new Label();
+			mv.visitLabel(l27);
+			mv.visitIincInsn(currentOffsetIndex, 1);
+			mv.visitLabel(l26);
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitInsn(CALOAD);
+			mv.visitIntInsn(BIPUSH, quoteCharacter);
+			mv.visitJumpInsn(IF_ICMPNE, l27);
+			
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitInsn(ICONST_1);
+			mv.visitInsn(IADD);
+			mv.visitInsn(CALOAD);
+			mv.visitIntInsn(BIPUSH, quoteCharacter);
+			Label l29 = new Label();
+			mv.visitJumpInsn(IF_ICMPNE, l29);
+			
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, startIndex);
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, startIndex);
+			mv.visitInsn(ICONST_1);
+			mv.visitInsn(IADD);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitVarInsn(ILOAD, startIndex);
+			mv.visitInsn(ISUB);
+			mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
+			mv.visitIincInsn(currentOffsetIndex, 2);
+			mv.visitIincInsn(4, currentOffsetIndex);
+			Label l34 = new Label();
+			mv.visitJumpInsn(GOTO, l34);
+			mv.visitLabel(l29);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitVarInsn(ILOAD, startIndex);
+			Label nonEmptyValue = new Label();
+			mv.visitJumpInsn(IF_ICMPGT, nonEmptyValue);
+	
+			if(!optional) {
+				throwMappingException(mv);
+			} else {
+				mv.visitJumpInsn(GOTO, endLabel);
+			}
+			
+			mv.visitLabel(nonEmptyValue);
+			
+			writeValue(mv, subClassInternalName);
+			
+			doIncrementWhileNotEqualToDivider(mv, divider);
+			
 			mv.visitJumpInsn(GOTO, endLabel);
+			mv.visitLabel(l34);
+			mv.visitJumpInsn(GOTO, l26);
+		} else {
+			throw new RuntimeException();
 		}
-		
-		mv.visitLabel(nonEmptyValue);
-		
-		writeValue(mv, subClassInternalName);
-		
-		doIncrementWhileNotEqualToDivider(mv, divider);
-		
-		mv.visitJumpInsn(GOTO, endLabel);
-		mv.visitLabel(l34);
-		mv.visitJumpInsn(GOTO, l26);
 		mv.visitLabel(endLabel);
 		
 		mv.visitIincInsn(currentOffsetIndex, increment);		

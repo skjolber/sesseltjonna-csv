@@ -25,25 +25,43 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 			// now inside start quote
 			int start = ++currentOffset;
 			
-			do {
-				if(current[currentOffset] == '"') {
-					if(current[currentOffset + 1] != '"') {
-						// 1x qoute
-						break;
+			if(quoteCharacter == escapeCharacter) {
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						if(current[currentOffset + 1] != quoteCharacter) {
+							// 1x qoute
+							break;
+						}
+	
+						// 2x qoute
+						// overwrite one of the quotes by copying the previous stuff forward
+						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
 					}
-
-					// 2x qoute
-					// overwrite one of the quotes by copying the previous stuff forward
-					// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-					System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 					currentOffset++;
-
-					start++;
-				}
-				currentOffset++;
-			} while(true);
-
+				} while(true);
+			} else {
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						break;
+					} else if(current[currentOffset] == quoteCharacter) {
+						// escaped value
+						// overwrite the escape char by copying the previous stuff forward
+						// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
+					}
+					currentOffset++;
+				} while(true);
+			}
+			
 			if(currentOffset > start) {
 				consumer.consume(object, current, start, currentOffset);
 			} else {
@@ -66,25 +84,43 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 			// now inside start quote
 			int start = ++currentOffset;
 			
-			do {
-				if(current[currentOffset] == '"') {
-					if(current[currentOffset + 1] != '"') {
-						// 1x qoute
-						break;
+			if(quoteCharacter == escapeCharacter) {
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						if(current[currentOffset + 1] != quoteCharacter) {
+							// 1x qoute
+							break;
+						}
+	
+						// 2x qoute
+						// overwrite one of the quotes by copying the previous stuff forward
+						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
 					}
-
-					// 2x qoute
-					// overwrite one of the quotes by copying the previous stuff forward
-					// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-					System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 					currentOffset++;
-
-					start++;
-				}
-				currentOffset++;
-			} while(true);
-
+				} while(true);
+			} else {
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						break;
+					} else if(current[currentOffset] == quoteCharacter) {
+						// escaped value
+						// overwrite the escape char by copying the previous stuff forward
+						// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
+					}
+					currentOffset++;
+				} while(true);
+			}
+			
 			if(currentOffset > start) {
 				consumer.consume(object, current, start, currentOffset);
 			}
@@ -109,25 +145,43 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 				// now inside start quote
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
+							}
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
 						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 						currentOffset++;
-
-						start++;
-					}
-					currentOffset++;
-				} while(true);
-
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						}
+						currentOffset++;
+					} while(true);
+				}
+				
 				if(currentOffset > start) {
 					consumer.consume(object, current, start, currentOffset);
 				} else {
@@ -149,25 +203,43 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 				// now inside start quote
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
+							}
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
 						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 						currentOffset++;
-
-						start++;
-					}
-					currentOffset++;
-				} while(true);
-
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						}
+						currentOffset++;
+					} while(true);
+				}
+				
 				if(currentOffset > start) {
 					consumer.consume(object, current, start, currentOffset);
 				}
@@ -189,25 +261,43 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 				// now inside start quote
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
+							}
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
 						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 						currentOffset++;
-
-						start++;
-					}
-					currentOffset++;
-				} while(true);
-
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						}
+						currentOffset++;
+					} while(true);
+				}
+				
 				if(currentOffset > start) {
 					consumer.consume(object, current, start, currentOffset);
 				}
@@ -229,25 +319,43 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 				// now inside start quote
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
+							}
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
 						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 						currentOffset++;
-
-						start++;
-					}
-					currentOffset++;
-				} while(true);
-
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						}
+						currentOffset++;
+					} while(true);
+				}
+				
 				if(currentOffset > start) {
 					consumer.consume(object, current, start, currentOffset);
 				}
