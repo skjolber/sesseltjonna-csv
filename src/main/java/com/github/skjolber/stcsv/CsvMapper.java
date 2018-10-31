@@ -208,11 +208,11 @@ public class CsvMapper<T> {
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
 		
-		
+		/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-		
+		*/
 		
 		Class<? extends AbstractCsvReader<T>> generatedClass = loader.load(classWriter.toByteArray(), subClassName);
 		return new CsvReaderConstructor(generatedClass);

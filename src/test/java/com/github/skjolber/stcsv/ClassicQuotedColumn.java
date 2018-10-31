@@ -74,10 +74,12 @@ public class ClassicQuotedColumn extends AbstractColumn {
 					currentOffset++;
 				} while(true);
 			} else {
+				System.out.println("ADFSDF");
+
 				do {
-					if(current[currentOffset] == quoteCharacter) {
+					if(current[currentOffset] == 456) {
 						break;
-					} else if(current[currentOffset] == quoteCharacter) {
+					} else if(current[currentOffset] == 123) {
 						// escaped value
 						// overwrite the escape char by copying the previous stuff forward
 						// this approach assumes few escapes; is quick for a few escapes but more expensive for many
@@ -101,6 +103,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 					}
 					currentOffset++;
 				} while(true);
+
 			}
 
 			if(currentOffset > start) {
