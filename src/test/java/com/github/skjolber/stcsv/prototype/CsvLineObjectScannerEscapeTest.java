@@ -27,6 +27,7 @@ public class CsvLineObjectScannerEscapeTest {
 					.quoted()
 					.required()
 				.build();
+		
 		mapping2 = CsvMapper.builder(CsvLineObject.class)
 				.quoteCharacter('\'')
 				.skipEmptyLines()
@@ -49,7 +50,8 @@ public class CsvLineObjectScannerEscapeTest {
 				.stringField("stringValue")
 					.quoted()
 					.optional()
-				.build();		
+				.build();
+
 	}
 	
 	@Test
@@ -253,5 +255,87 @@ public class CsvLineObjectScannerEscapeTest {
 		assertThat(next.getStringValue()).isEqualTo(originalValue);
 		
 		assertThat(scanner.next()).isNull();
+	}
+	
+	@Test
+	public void testEscapeWithNoLinebreaks() throws Exception {
+		String originalValue = "string \"this\"";
+
+		String stringValue = originalValue.replace("\"", "\"\"");
+
+		StringBuffer builder = new StringBuffer();
+
+		// header
+		builder.append("stringValue");
+		builder.append(",");
+		builder.append("randomValue");
+		builder.append("\n");
+		
+		// first line
+		builder.append('"');
+		builder.append(stringValue);
+		builder.append('"');
+		builder.append(",");
+		builder.append("random data");
+		builder.append("\n");
+
+		CsvMapper<CsvLineObject> mapper = CsvMapper.builder(CsvLineObject.class)
+			.skipEmptyLines()
+			.stringField("stringValue")
+				.quotedWithoutLinebreaks()
+				.required()
+			.build();
+		
+		CsvReader<CsvLineObject> scanner = mapper.create(new StringReader(builder.toString()));
+		
+		CsvLineObject next = scanner.next();
+		assertThat(next).isNotNull();
+		
+		assertThat(next.getStringValue()).isEqualTo(originalValue);
+		
+		assertThat(scanner.next()).isNull();
 	}	
+	
+	
+	@Test
+	public void testEscapeWithNoLinebreaksAndCustomQuoteCharacter() throws Exception {
+		String originalValue = "string \\this\\";
+
+		String stringValue = originalValue.replace("\\", "\\\\");
+
+		StringBuffer builder = new StringBuffer();
+
+		// header
+		builder.append("stringValue");
+		builder.append(",");
+		builder.append("randomValue");
+		builder.append("\n");
+		
+		// first line
+		builder.append('\'');
+		builder.append(stringValue);
+		builder.append('\'');
+		builder.append(",");
+		builder.append("random data");
+		builder.append("\n");
+
+		CsvMapper<CsvLineObject> mapper = CsvMapper.builder(CsvLineObject.class)
+			.skipEmptyLines()
+			.quoteCharacter('\'')
+			.escapeCharacter('\\')
+			.stringField("stringValue")
+				.quotedWithoutLinebreaks()
+				.optional()
+			.build();
+		
+		CsvReader<CsvLineObject> scanner = mapper.create(new StringReader(builder.toString()));
+		
+		CsvLineObject next = scanner.next();
+		assertThat(next).isNotNull();
+		
+		assertThat(next.getStringValue()).isEqualTo(originalValue);
+		
+		assertThat(scanner.next()).isNull();
+	}	
+	
 }

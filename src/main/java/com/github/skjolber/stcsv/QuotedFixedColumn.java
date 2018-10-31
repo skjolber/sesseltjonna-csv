@@ -20,13 +20,14 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.ISUB;
 import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.SIPUSH;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 public class QuotedFixedColumn extends AbstractColumn {
 
-	private int fixedSize;
+	protected int fixedSize;
 	protected final int quoteCharacter;
 	protected final int escapeCharacter;
 
@@ -125,7 +126,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 			mv.visitVarInsn(ILOAD, 1);
 			mv.visitVarInsn(ILOAD, 4);
 			mv.visitInsn(ISUB);
-			mv.visitIntInsn(BIPUSH, fixedSize);
+			mv.visitLdcInsn(new Integer(fixedSize));
 			Label l46 = new Label();
 			mv.visitJumpInsn(IF_ICMPEQ, l46);
 			
@@ -203,7 +204,135 @@ public class QuotedFixedColumn extends AbstractColumn {
 			mv.visitIincInsn(currentOffsetIndex, 1);
 			mv.visitJumpInsn(GOTO, l19);
 		} else {
-			throw new RuntimeException();
+			// handle quoted
+			mv.visitLabel(quoted);
+
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "getCurrentRange", "()I", false);
+			mv.visitVarInsn(ISTORE, rangeIndex);
+			mv.visitIincInsn(currentOffsetIndex, 1);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitVarInsn(ISTORE, startIndex);
+			Label l31 = new Label();
+			mv.visitLabel(l31);
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitInsn(CALOAD);
+			mv.visitIntInsn(BIPUSH, escapeCharacter);
+			Label l32 = new Label();
+			mv.visitJumpInsn(IF_ICMPNE, l32);
+			mv.visitVarInsn(ALOAD, currentArrayIndex); 
+			mv.visitVarInsn(ILOAD, startIndex);
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, startIndex);			
+			mv.visitInsn(ICONST_1);
+			mv.visitInsn(IADD);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitVarInsn(ILOAD, startIndex);
+			mv.visitInsn(ISUB);
+			mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
+			mv.visitIincInsn(currentOffsetIndex, 1);
+			mv.visitIincInsn(startIndex, 1);
+			Label l37 = new Label();
+			mv.visitJumpInsn(GOTO, l37);
+			mv.visitLabel(l32);
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitInsn(CALOAD);
+			mv.visitIntInsn(SIPUSH, quoteCharacter);
+			Label l38 = new Label();
+			mv.visitJumpInsn(IF_ICMPNE, l38);
+
+			
+			// got value, check if optional
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitVarInsn(ILOAD, startIndex);
+			Label l40 = new Label();
+			mv.visitJumpInsn(IF_ICMPGT, l40);
+						
+			Label l42 = new Label();
+			if(optional) {
+				mv.visitJumpInsn(GOTO, l42);
+			} else {
+				throwMappingException(mv);
+			}
+			
+			mv.visitLabel(l40);
+			
+			
+			/*
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitInsn(ISUB);
+			mv.visitIntInsn(BIPUSH, fixedSize);
+			Label l46 = new Label();
+			mv.visitJumpInsn(IF_ICMPEQ, l46);
+			
+			throwMappingException(mv);
+			
+			mv.visitLabel(l46);			
+			*/
+			
+			mv.visitVarInsn(ILOAD, 1);
+			mv.visitVarInsn(ILOAD, 4);
+			mv.visitInsn(ISUB);
+			mv.visitLdcInsn(new Integer(fixedSize));
+			Label l46 = new Label();
+			mv.visitJumpInsn(IF_ICMPEQ, l46);
+			
+			throwMappingException(mv);
+			
+			
+			mv.visitLabel(l46);			
+			
+			
+			writeValue(mv, subClassInternalName);
+
+			mv.visitLabel(l42);
+			mv.visitIincInsn(currentOffsetIndex, 1);
+			Label l43 = new Label();
+			mv.visitLabel(l43);
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitInsn(CALOAD);
+			mv.visitIntInsn(BIPUSH, 44);
+			mv.visitJumpInsn(IF_ICMPNE, l42);
+			
+			Label l45 = new Label();
+			mv.visitJumpInsn(GOTO, l45);
+			mv.visitLabel(l38);
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitInsn(CALOAD);
+			mv.visitIntInsn(BIPUSH, 10);
+			mv.visitJumpInsn(IF_ICMPNE, l37);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitVarInsn(ILOAD, rangeIndex);
+			mv.visitJumpInsn(IF_ICMPNE, l37);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitVarInsn(ILOAD, startIndex);
+			mv.visitInsn(ISUB);
+			mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
+			mv.visitInsn(DUP);
+			mv.visitVarInsn(ISTORE, rangeIndex);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			Label l48 = new Label();
+			mv.visitJumpInsn(IF_ICMPGT, l48);
+			
+			throwMappingException(mv);
+
+			mv.visitLabel(l48);
+			mv.visitInsn(ICONST_0);
+			mv.visitVarInsn(ISTORE, startIndex);
+			mv.visitLabel(l37);
+			mv.visitIincInsn(currentOffsetIndex, 1);
+			mv.visitJumpInsn(GOTO, l31);
+			mv.visitLabel(l45);
+
+
 		}
 		mv.visitLabel(endLabel);
 		

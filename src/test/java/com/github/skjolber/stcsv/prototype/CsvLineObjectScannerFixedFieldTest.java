@@ -16,6 +16,7 @@ public class CsvLineObjectScannerFixedFieldTest {
 
 	private CsvMapper<CsvLineObject> mapping;
 	private CsvMapper<CsvLineObject> mappingWithQuotes;
+	private CsvMapper<CsvLineObject> mappingWithQuotesAndCustomEscapes;
 	
 	@BeforeEach
 	public void init() throws Exception {
@@ -34,7 +35,17 @@ public class CsvLineObjectScannerFixedFieldTest {
 					.fixedSize(2)
 					.quoted()
 					.required()
-				.build();		
+				.build();
+		
+		mappingWithQuotesAndCustomEscapes = CsvMapper.builder(CsvLineObject.class)
+				.skipEmptyLines()
+				.quoteCharacter('\'')
+				.stringField("a")
+					.consumer(CsvLineObject::setStringValue)
+					.fixedSize(2)
+					.quoted()
+					.required()
+				.build();			
 	}
 	
 	@Test
@@ -160,5 +171,36 @@ public class CsvLineObjectScannerFixedFieldTest {
 		assertThat(next.getStringValue()).isEqualTo("\"\n");
 		
 		assertThat(scanner.next()).isNull();
+	}
+	
+
+	@Test
+	public void testQuotedValueOfCorrectSizeValueCustomQuotes() throws Exception {
+		StringBuffer builder = new StringBuffer();
+		// header
+		builder.append("a");
+		builder.append(",");
+		builder.append("randomValue");
+		builder.append("\n");
+		
+		// first line
+		builder.append('\'');
+		builder.append("bb");
+		builder.append('\'');
+		builder.append(",");
+		builder.append('\'');
+		builder.append("random data");
+		builder.append('\'');
+		builder.append("\n");
+
+		CsvReader<CsvLineObject> scanner = mappingWithQuotesAndCustomEscapes.create(new StringReader(builder.toString()));
+		
+		CsvLineObject next = scanner.next();
+		assertThat(next).isNotNull();
+		
+		assertThat(next.getStringValue()).isEqualTo("bb");
+		
+		assertThat(scanner.next()).isNull();
 	}	
+	
 }
