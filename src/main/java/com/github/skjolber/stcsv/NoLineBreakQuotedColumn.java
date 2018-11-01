@@ -73,7 +73,7 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
-			mv.visitIntInsn(BIPUSH, quoteCharacter);
+			mv.visitLdcInsn(new Integer(quoteCharacter));
 			mv.visitJumpInsn(IF_ICMPNE, l27);
 			
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
@@ -81,7 +81,7 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 			mv.visitInsn(ICONST_1);
 			mv.visitInsn(IADD);
 			mv.visitInsn(CALOAD);
-			mv.visitIntInsn(BIPUSH, quoteCharacter);
+			mv.visitLdcInsn(new Integer(quoteCharacter));
 			Label l29 = new Label();
 			mv.visitJumpInsn(IF_ICMPNE, l29);
 			
@@ -131,7 +131,7 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
-			mv.visitIntInsn(BIPUSH, escapeCharacter);
+			mv.visitLdcInsn(new Integer(escapeCharacter));
 			Label l31 = new Label();
 			mv.visitJumpInsn(IF_ICMPNE, l31);
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
@@ -152,7 +152,7 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
-			mv.visitIntInsn(BIPUSH, quoteCharacter);
+			mv.visitLdcInsn(new Integer(quoteCharacter));
 			mv.visitJumpInsn(IF_ICMPNE, l36);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, startIndex);

@@ -553,7 +553,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitIntInsn(BIPUSH, parent.getDivider());
+		mv.visitLdcInsn(new Integer(parent.getDivider()));
 		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedColumn$Middle", optional ? "orSkip" : "orException", "(L" + CsvMapper.superClassInternalName + ";[CIL" + CsvMapper.consumerName + ";Ljava/lang/Object;C)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);
 	}

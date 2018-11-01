@@ -136,10 +136,10 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 		}
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
-		mv.visitIntInsn(BIPUSH, fixedSize);
+		mv.visitLdcInsn(new Integer(fixedSize));
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitIntInsn(BIPUSH, parent.getDivider());
+		mv.visitLdcInsn(new Integer(parent.getDivider()));
 		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Middle", optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;C)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);
 	}
@@ -153,7 +153,7 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 	
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
-		mv.visitIntInsn(BIPUSH, fixedSize);
+		mv.visitLdcInsn(new Integer(fixedSize));
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
 		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;)I", false);

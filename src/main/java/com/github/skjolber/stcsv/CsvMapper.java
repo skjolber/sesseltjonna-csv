@@ -208,11 +208,9 @@ public class CsvMapper<T> {
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
 		
-		/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-		*/
 		
 		Class<? extends AbstractCsvReader<T>> generatedClass = loader.load(classWriter.toByteArray(), subClassName);
 		return new CsvReaderConstructor(generatedClass);
@@ -439,16 +437,16 @@ public class CsvMapper<T> {
 		if(skippableFieldsWithoutLinebreaks) {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitIntInsn(BIPUSH, divider);
-			mv.visitIntInsn(BIPUSH, count);
+			mv.visitLdcInsn(new Integer(divider));
+			mv.visitLdcInsn(new Integer(count));
 			mv.visitMethodInsn(INVOKESTATIC, ignoredColumnName, "skipColumnsWithoutLinebreak", "([CICI)I", false);
 			mv.visitVarInsn(ISTORE, currentOffsetIndex);
 		} else {
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitIntInsn(BIPUSH, divider);
-			mv.visitIntInsn(BIPUSH, count);
+			mv.visitLdcInsn(new Integer(divider));
+			mv.visitLdcInsn(new Integer(count));
 			mv.visitMethodInsn(INVOKESTATIC, ignoredColumnName, "skipColumns", "(L" + superClassInternalName + ";[CICI)I", false);
 			mv.visitVarInsn(ISTORE, currentOffsetIndex);
 		}
@@ -607,7 +605,7 @@ public class CsvMapper<T> {
 			for (int k = 0; k < columns.length; k++) {
 				if(columns[k] != null && columns[k].isConsumer()) {
 					mv.visitVarInsn(ALOAD, consumerArrayIndex);
-					mv.visitIntInsn(BIPUSH, k);
+					mv.visitLdcInsn(new Integer(k));
 					mv.visitInsn(AALOAD);
 					mv.visitTypeInsn(CHECKCAST, columns[k].getConsumerInternalName());
 			    	mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + columns[k].getConsumerInternalName() + ";");

@@ -212,7 +212,7 @@ public abstract class AbstractColumn {
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, character);
+		mv.visitLdcInsn(new Integer(character));
 		Label l27 = new Label();
 		mv.visitJumpInsn(code, l27);
 		return l27;
@@ -233,7 +233,7 @@ public abstract class AbstractColumn {
 		mv.visitIincInsn(currentOffsetIndex, 1);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, divider);
+		mv.visitLdcInsn(new Integer(divider));
 		mv.visitJumpInsn(IF_ICMPNE, l29);
 	}
 	
