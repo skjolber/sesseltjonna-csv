@@ -1,7 +1,6 @@
 package com.github.skjolber.stcsv;
 
 import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CALOAD;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IADD;
@@ -62,8 +61,6 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 
 		// handle quotes
 		if(quoteCharacter == escapeCharacter) {
-			
-			
 			Label l26 = new Label();
 			mv.visitJumpInsn(GOTO, l26);
 			Label l27 = new Label();

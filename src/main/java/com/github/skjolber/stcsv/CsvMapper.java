@@ -1,6 +1,6 @@
 package com.github.skjolber.stcsv;
 
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -9,6 +9,7 @@ import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CALOAD;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -29,7 +30,6 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.SIPUSH;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -208,10 +208,11 @@ public class CsvMapper<T> {
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
 		
+		/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-		
+		*/
 		Class<? extends AbstractCsvReader<T>> generatedClass = loader.load(classWriter.toByteArray(), subClassName);
 		return new CsvReaderConstructor(generatedClass);
 	}

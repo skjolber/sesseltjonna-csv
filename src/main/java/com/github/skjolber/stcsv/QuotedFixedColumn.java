@@ -1,7 +1,6 @@
 package com.github.skjolber.stcsv;
 
 import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CALOAD;
 import static org.objectweb.asm.Opcodes.DUP;
@@ -14,12 +13,10 @@ import static org.objectweb.asm.Opcodes.IF_ICMPGT;
 import static org.objectweb.asm.Opcodes.IF_ICMPLE;
 import static org.objectweb.asm.Opcodes.IF_ICMPNE;
 import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.ISUB;
-import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.SIPUSH;
 
 import org.objectweb.asm.Label;
@@ -286,11 +283,15 @@ public class QuotedFixedColumn extends AbstractColumn {
 			Label l45 = new Label();
 			mv.visitJumpInsn(GOTO, l45);
 			mv.visitLabel(l38);
+			
+			
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
 			mv.visitIntInsn(BIPUSH, 10);
 			mv.visitJumpInsn(IF_ICMPNE, l37);
+			
+			
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, rangeIndex);
 			mv.visitJumpInsn(IF_ICMPNE, l37);

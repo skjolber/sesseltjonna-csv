@@ -21,7 +21,6 @@ import static org.objectweb.asm.Opcodes.SIPUSH;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 
 public class QuotedColumn extends AbstractColumn {
@@ -241,6 +240,8 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitInsn(CALOAD);
 			mv.visitIntInsn(BIPUSH, 10);
 			mv.visitJumpInsn(IF_ICMPNE, l37);
+			
+			
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, rangeIndex);
 			mv.visitJumpInsn(IF_ICMPNE, l37);
