@@ -17,80 +17,116 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 	public static class Middle {
 		
 		@SuppressWarnings("unchecked")
-		public static int orException(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object, char c) throws IOException {
-			if(current[currentOffset] != '"') {
-				return ClassicPlainColumn.Middle.orException(current, currentOffset, consumer, object, c);
+		public static int orException(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object, char divider, char quoteCharacter, char escapeCharacter) throws IOException {
+			if(current[currentOffset] != quoteCharacter) {
+				return ClassicPlainColumn.Middle.orException(current, currentOffset, consumer, object, divider);
 			}
 
 			// now inside start quote
 			int start = ++currentOffset;
 			
-			do {
-				if(current[currentOffset] == '"') {
-					if(current[currentOffset + 1] != '"') {
-						// 1x qoute
-						break;
+			if(quoteCharacter == escapeCharacter) {
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						if(current[currentOffset + 1] != quoteCharacter) {
+							// 1x qoute
+							break;
+						}
+	
+						// 2x qoute
+						// overwrite one of the quotes by copying the previous stuff forward
+						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
 					}
-
-					// 2x qoute
-					// overwrite one of the quotes by copying the previous stuff forward
-					// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-					System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 					currentOffset++;
-
-					start++;
-				}
-				currentOffset++;
-			} while(true);
-
+				} while(true);
+			} else {
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						break;
+					} else if(current[currentOffset] == quoteCharacter) {
+						// escaped value
+						// overwrite the escape char by copying the previous stuff forward
+						// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
+					}
+					currentOffset++;
+				} while(true);
+			}
+			
 			if(currentOffset > start) {
 				consumer.consume(object, current, start, currentOffset);
 			} else {
 				throw new CsvException();
 			}
 			
-			if(current[currentOffset] != c) {
-				while(current[++currentOffset] != c);
+			if(current[currentOffset] != divider) {
+				while(current[++currentOffset] != divider);
 			}
 			
 			return ++currentOffset;
 		}
 
 		@SuppressWarnings("unchecked")
-		public static int orSkip(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object, char c) throws IOException {
-			if(current[currentOffset] != '"') {
-				return ClassicPlainColumn.Middle.orSkip(current, currentOffset, consumer, object, c);
+		public static int orSkip(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object, char divider, char quoteCharacter, char escapeCharacter) throws IOException {
+			if(current[currentOffset] != quoteCharacter) {
+				return ClassicPlainColumn.Middle.orSkip(current, currentOffset, consumer, object, divider);
 			}
 			
 			// now inside start quote
 			int start = ++currentOffset;
 			
-			do {
-				if(current[currentOffset] == '"') {
-					if(current[currentOffset + 1] != '"') {
-						// 1x qoute
-						break;
+			if(quoteCharacter == escapeCharacter) {
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						if(current[currentOffset + 1] != quoteCharacter) {
+							// 1x qoute
+							break;
+						}
+	
+						// 2x qoute
+						// overwrite one of the quotes by copying the previous stuff forward
+						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
 					}
-
-					// 2x qoute
-					// overwrite one of the quotes by copying the previous stuff forward
-					// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-					System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 					currentOffset++;
-
-					start++;
-				}
-				currentOffset++;
-			} while(true);
-
+				} while(true);
+			} else {
+				do {
+					if(current[currentOffset] == quoteCharacter) {
+						break;
+					} else if(current[currentOffset] == quoteCharacter) {
+						// escaped value
+						// overwrite the escape char by copying the previous stuff forward
+						// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+						currentOffset++;
+	
+						start++;
+					}
+					currentOffset++;
+				} while(true);
+			}
+			
 			if(currentOffset > start) {
 				consumer.consume(object, current, start, currentOffset);
 			}
 			
-			if(current[currentOffset] != c) {
-				while(current[++currentOffset] != c);
+			if(current[currentOffset] != divider) {
+				while(current[++currentOffset] != divider);
 			}
 			
 			return ++currentOffset;
@@ -101,33 +137,51 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 	public static class Last {
 		
 		public static class NewLine {
-			public static int orException(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object) throws IOException {
-				if(current[currentOffset] != '"') {
+			public static int orException(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object, char quoteCharacter, char escapeCharacter) throws IOException {
+				if(current[currentOffset] != quoteCharacter) {
 					return ClassicPlainColumn.Last.NewLine.orException(current, currentOffset, consumer, object);
 				}
 				
 				// now inside start quote
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
+							}
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
 						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 						currentOffset++;
-
-						start++;
-					}
-					currentOffset++;
-				} while(true);
-
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						}
+						currentOffset++;
+					} while(true);
+				}
+				
 				if(currentOffset > start) {
 					consumer.consume(object, current, start, currentOffset);
 				} else {
@@ -141,33 +195,51 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 				return ++currentOffset;					
 			}
 			
-			public static int orSkip(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object) throws IOException {
-				if(current[currentOffset] != '"') {
+			public static int orSkip(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object, char quoteCharacter, char escapeCharacter) throws IOException {
+				if(current[currentOffset] != quoteCharacter) {
 					return ClassicPlainColumn.Last.NewLine.orSkip(current, currentOffset, consumer, object);
 				}
 				
 				// now inside start quote
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
+							}
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
 						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 						currentOffset++;
-
-						start++;
-					}
-					currentOffset++;
-				} while(true);
-
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						}
+						currentOffset++;
+					} while(true);
+				}
+				
 				if(currentOffset > start) {
 					consumer.consume(object, current, start, currentOffset);
 				}
@@ -181,33 +253,51 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 		}
 		
 		public static class NewLineCarriageReturn {
-			public static int orException(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object) throws IOException {
-				if(current[currentOffset] != '"') {
+			public static int orException(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object, char quoteCharacter, char escapeCharacter) throws IOException {
+				if(current[currentOffset] != quoteCharacter) {
 					return ClassicPlainColumn.Last.NewLineCarriageReturn.orException(current, currentOffset, consumer, object);
 				}
 				
 				// now inside start quote
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
+							}
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
 						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 						currentOffset++;
-
-						start++;
-					}
-					currentOffset++;
-				} while(true);
-
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						}
+						currentOffset++;
+					} while(true);
+				}
+				
 				if(currentOffset > start) {
 					consumer.consume(object, current, start, currentOffset);
 				}
@@ -221,33 +311,51 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 				return ++currentOffset; // skip newline
 			}
 			
-			public static int orSkip(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object) throws IOException {
-				if(current[currentOffset] != '"') {
+			public static int orSkip(char[] current, int currentOffset, CsvColumnValueConsumer consumer, Object object, char quoteCharacter, char escapeCharacter) throws IOException {
+				if(current[currentOffset] != quoteCharacter) {
 					return ClassicPlainColumn.Last.NewLineCarriageReturn.orSkip(current, currentOffset, consumer, object);
 				}
 				
 				// now inside start quote
 				int start = ++currentOffset;
 				
-				do {
-					if(current[currentOffset] == '"') {
-						if(current[currentOffset + 1] != '"') {
-							// 1x qoute
-							break;
+				if(quoteCharacter == escapeCharacter) {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							if(current[currentOffset + 1] != quoteCharacter) {
+								// 1x qoute
+								break;
+							}
+	
+							// 2x qoute
+							// overwrite one of the quotes by copying the previous stuff forward
+							// this approach assumes few quotes; is quick for a few quotes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+	
+							currentOffset++;
+	
+							start++;
 						}
-
-						// 2x qoute
-						// overwrite one of the quotes by copying the previous stuff forward
-						// this approach assumes few quotes; is quick for a few quotes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-
 						currentOffset++;
-
-						start++;
-					}
-					currentOffset++;
-				} while(true);
-
+					} while(true);
+				} else {
+					do {
+						if(current[currentOffset] == quoteCharacter) {
+							break;
+						} else if(current[currentOffset] == quoteCharacter) {
+							// escaped value
+							// overwrite the escape char by copying the previous stuff forward
+							// this approach assumes few escapes; is quick for a few escapes but more expensive for many
+							System.arraycopy(current, start, current, start + 1, currentOffset - start);
+		
+							currentOffset++;
+		
+							start++;
+						}
+						currentOffset++;
+					} while(true);
+				}
+				
 				if(currentOffset > start) {
 					consumer.consume(object, current, start, currentOffset);
 				}

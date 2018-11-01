@@ -120,11 +120,11 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 		AbstractColumn column;
 		if(quoted) {
 			if(fixedSize != null) {
-				column = new QuotedFixedColumn(name, index, optional, trimTrailingWhitespaces, trimLeadingWhitespaces, fixedSize);
+				column = new QuotedFixedColumn(name, index, parent.getQuoteCharacter(), parent.getEscapeCharacter(), optional, trimTrailingWhitespaces, trimLeadingWhitespaces, fixedSize);
 			} else if(!linebreaks) {
-				column = new NoLineBreakQuotedColumn(name, index, optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
+				column = new NoLineBreakQuotedColumn(name, index, parent.getQuoteCharacter(), parent.getEscapeCharacter(), optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
 			} else {
-				column = new QuotedColumn(name, index, optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
+				column = new QuotedColumn(name, index, parent.getQuoteCharacter(), parent.getEscapeCharacter(), optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
 			}
 		} else {
 			if(fixedSize != null) {

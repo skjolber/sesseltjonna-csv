@@ -1,6 +1,6 @@
 package com.github.skjolber.stcsv;
 
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -9,6 +9,7 @@ import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CALOAD;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -29,7 +30,6 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.SIPUSH;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -85,6 +85,8 @@ public class CsvMapper<T> {
 	}
 
 	protected int divider;
+	private int quote;
+	private int escapeCharacter;
 	protected Class<T> mappedClass;
 	
 	protected String mappedClassInternalName;
@@ -112,9 +114,11 @@ public class CsvMapper<T> {
 	protected final Map<String, CsvReaderConstructor<T>> factories = new ConcurrentHashMap<>();
 	protected ClassLoader classLoader;
 	
-	public CsvMapper(Class<T> cls, char divider, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
+	public CsvMapper(Class<T> cls, char divider, char quote, char escapeCharacter, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
 		this.mappedClass = cls;
 		this.divider = divider;
+		this.quote = quote;
+		this.escapeCharacter = escapeCharacter;
 		this.columns = columns;
 
 		this.skipEmptyLines = skipEmptyLines;
@@ -209,7 +213,6 @@ public class CsvMapper<T> {
 		fout.write(classWriter.toByteArray());
 		fout.close();
 		*/
-		
 		Class<? extends AbstractCsvReader<T>> generatedClass = loader.load(classWriter.toByteArray(), subClassName);
 		return new CsvReaderConstructor(generatedClass);
 	}
@@ -435,16 +438,16 @@ public class CsvMapper<T> {
 		if(skippableFieldsWithoutLinebreaks) {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitIntInsn(BIPUSH, divider);
-			mv.visitIntInsn(BIPUSH, count);
+			mv.visitLdcInsn(new Integer(divider));
+			mv.visitLdcInsn(new Integer(count));
 			mv.visitMethodInsn(INVOKESTATIC, ignoredColumnName, "skipColumnsWithoutLinebreak", "([CICI)I", false);
 			mv.visitVarInsn(ISTORE, currentOffsetIndex);
 		} else {
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitIntInsn(BIPUSH, divider);
-			mv.visitIntInsn(BIPUSH, count);
+			mv.visitLdcInsn(new Integer(divider));
+			mv.visitLdcInsn(new Integer(count));
 			mv.visitMethodInsn(INVOKESTATIC, ignoredColumnName, "skipColumns", "(L" + superClassInternalName + ";[CICI)I", false);
 			mv.visitVarInsn(ISTORE, currentOffsetIndex);
 		}
@@ -603,7 +606,7 @@ public class CsvMapper<T> {
 			for (int k = 0; k < columns.length; k++) {
 				if(columns[k] != null && columns[k].isConsumer()) {
 					mv.visitVarInsn(ALOAD, consumerArrayIndex);
-					mv.visitIntInsn(BIPUSH, k);
+					mv.visitLdcInsn(new Integer(k));
 					mv.visitInsn(AALOAD);
 					mv.visitTypeInsn(CHECKCAST, columns[k].getConsumerInternalName());
 			    	mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + columns[k].getConsumerInternalName() + ";");
