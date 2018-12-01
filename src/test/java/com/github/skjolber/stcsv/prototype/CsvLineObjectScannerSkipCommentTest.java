@@ -40,6 +40,69 @@ public class CsvLineObjectScannerSkipCommentTest {
 		assertThat(scanner.next()).isNull();
 		
 	}
+	
+
+	@Test
+	public void testSkipMultipleComments() throws Exception {
+
+		CsvMapper<CsvLineObject> mapping = CsvMapper.builder(CsvLineObject.class)
+				.skipComments()
+				.stringField("stringValue")
+					.consumer(CsvLineObject::setStringValue)
+					.required()
+				.build();
+
+		// newline
+		String stringValueForLinebreak = createCsv("\n", "# this is a comment", 3);
+
+		CsvReader<CsvLineObject> scannerForLinebreak = mapping.create(new StringReader(stringValueForLinebreak));
+		CsvLineObject next = scannerForLinebreak.next();
+		assertThat(next).isNotNull();
+		assertThat(next.getStringValue()).isEqualTo("string");
+		assertThat(scannerForLinebreak.next()).isNull();
+		
+		// newline carriage return
+		String stringValue = createCsv("\r\n", "# this is a comment", 3);
+
+		CsvReader<CsvLineObject> scanner = mapping.create(new StringReader(stringValue));
+		next = scanner.next();
+		assertThat(next).isNotNull();
+		assertThat(next.getStringValue()).isEqualTo("string");
+		assertThat(scanner.next()).isNull();
+		
+	}
+		
+	
+	@Test
+	public void testSkipMultipleCommentsAndLineBreak() throws Exception {
+
+		CsvMapper<CsvLineObject> mapping = CsvMapper.builder(CsvLineObject.class)
+				.skipComments()
+				.skipEmptyLines()
+				.stringField("stringValue")
+					.consumer(CsvLineObject::setStringValue)
+					.required()
+				.build();
+
+		// newline
+		String stringValueForLinebreak = createCsv("\n", "\n# this is a comment\n", 3);
+
+		CsvReader<CsvLineObject> scannerForLinebreak = mapping.create(new StringReader(stringValueForLinebreak));
+		CsvLineObject next = scannerForLinebreak.next();
+		assertThat(next).isNotNull();
+		assertThat(next.getStringValue()).isEqualTo("string");
+		assertThat(scannerForLinebreak.next()).isNull();
+		
+		// newline carriage return
+		String stringValue = createCsv("\r\n", "\r\n# this is a comment\r\n", 3);
+
+		CsvReader<CsvLineObject> scanner = mapping.create(new StringReader(stringValue));
+		next = scanner.next();
+		assertThat(next).isNotNull();
+		assertThat(next.getStringValue()).isEqualTo("string");
+		assertThat(scanner.next()).isNull();
+		
+	}	
 
 	private String createCsv(String linebreak, String comment, int count) {
 		String stringValue = "string";
