@@ -29,6 +29,7 @@ public class CsvMappingBuilder<T> implements InvocationHandler {
 	private char quoteCharacter = '"';
 	private char escapeCharacter = '"';
 	
+	private boolean skipComments = false;
 	private boolean skipEmptyLines = false;
 	private boolean skippableFieldsWithoutLinebreaks = false;
 	private int bufferLength = AbstractCsvReader.DEFAULT_RANGE_LENGTH;
@@ -48,7 +49,13 @@ public class CsvMappingBuilder<T> implements InvocationHandler {
 		
 		return this;
 	}
-	
+
+	public CsvMappingBuilder<T> skipComments() {
+		this.skipComments = true;
+		
+		return this;
+	}
+
 	/**
 	 * 
 	 * All fields (including any ignored columns) are without linebreaks.
@@ -193,7 +200,7 @@ public class CsvMappingBuilder<T> implements InvocationHandler {
 			throw new IllegalArgumentException("Expected positive buffer length");
 		}
 		
-		return new CsvMapper<T>(target, divider, quoteCharacter, escapeCharacter, columns, skipEmptyLines, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
+		return new CsvMapper<T>(target, divider, quoteCharacter, escapeCharacter, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
 	}
 
 	protected ClassLoader getDefaultClassLoader() {

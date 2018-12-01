@@ -95,6 +95,7 @@ public class CsvMapper<T> {
 	protected List<AbstractColumn> columns;
 	
 	protected final boolean skipEmptyLines;
+	protected final boolean skipComments;
 	protected final boolean skippableFieldsWithoutLinebreaks;
 	protected final int bufferLength;
 	
@@ -114,7 +115,7 @@ public class CsvMapper<T> {
 	protected final Map<String, CsvReaderConstructor<T>> factories = new ConcurrentHashMap<>();
 	protected ClassLoader classLoader;
 	
-	public CsvMapper(Class<T> cls, char divider, char quote, char escapeCharacter, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
+	public CsvMapper(Class<T> cls, char divider, char quote, char escapeCharacter, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skipComments, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
 		this.mappedClass = cls;
 		this.divider = divider;
 		this.quote = quote;
@@ -122,6 +123,7 @@ public class CsvMapper<T> {
 		this.columns = columns;
 
 		this.skipEmptyLines = skipEmptyLines;
+		this.skipComments = skipComments;
 		this.skippableFieldsWithoutLinebreaks = skippableFieldsWithoutLinebreaks;
 		this.classLoader = classLoader;
 		this.bufferLength = bufferLength;
@@ -208,11 +210,11 @@ public class CsvMapper<T> {
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
 		
-		/*
+		
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-		*/
+		
 		Class<? extends AbstractCsvReader<T>> generatedClass = loader.load(classWriter.toByteArray(), subClassName);
 		return new CsvReaderConstructor(generatedClass);
 	}
@@ -326,9 +328,13 @@ public class CsvMapper<T> {
 			mv.visitTryCatchBlock(startTryCatch, endVariableScope, exceptionHandling, "java/lang/ArrayIndexOutOfBoundsException");
 			
 			mv.visitLabel(startTryCatch);
-			
-			if(skipEmptyLines) {
+
+			if(skipEmptyLines && skipComments) {
+				writeSkipEmptyOrCommentedLines(mv, subClassInternalName, carriageReturns);
+			} else if(skipEmptyLines) {
 				writeSkipEmptyLines(mv, subClassInternalName, carriageReturns);
+			} else if(skipComments) {
+				writeSkipComments(mv, subClassInternalName, carriageReturns);
 			}
 			
 			// init value object, i.e. the object to which data-binding will occur
@@ -417,6 +423,11 @@ public class CsvMapper<T> {
 		return subClassName;
 	}
 
+	private void writeSkipComments(MethodVisitor mv, String subClassInternalName, boolean carriageReturns) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	protected void skipToLinebreak(MethodVisitor mv) {
 		if(skippableFieldsWithoutLinebreaks) {
 			//skipToLineBreakWithoutLinebreak							
@@ -451,6 +462,10 @@ public class CsvMapper<T> {
 			mv.visitMethodInsn(INVOKESTATIC, ignoredColumnName, "skipColumns", "(L" + superClassInternalName + ";[CICI)I", false);
 			mv.visitVarInsn(ISTORE, currentOffsetIndex);
 		}
+	}
+
+	protected void writeSkipEmptyOrCommentedLines(MethodVisitor mv, String subClassInternalName, boolean carriageReturns) {
+		
 	}
 
 	protected void writeSkipEmptyLines(MethodVisitor mv, String subClassInternalName, boolean carriageReturns) {
