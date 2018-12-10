@@ -200,7 +200,7 @@ public class CsvMappingBuilder<T> implements InvocationHandler {
 			throw new IllegalArgumentException("Expected positive buffer length");
 		}
 		
-		return new CsvMapper<T>(target, divider, quoteCharacter, escapeCharacter, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
+		return new CsvMapper<T>(target, divider, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
 	}
 
 	protected ClassLoader getDefaultClassLoader() {

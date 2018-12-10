@@ -31,6 +31,8 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,8 +85,6 @@ public class CsvMapper<T> {
 	}
 
 	protected int divider;
-	private int quote;
-	private int escapeCharacter;
 	protected Class<T> mappedClass;
 
 	protected String mappedClassInternalName;
@@ -113,11 +113,9 @@ public class CsvMapper<T> {
 	protected final Map<String, CsvReaderConstructor<T>> factories = new ConcurrentHashMap<>();
 	protected ClassLoader classLoader;
 
-	public CsvMapper(Class<T> cls, char divider, char quote, char escapeCharacter, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skipComments, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
+	public CsvMapper(Class<T> cls, char divider, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skipComments, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
 		this.mappedClass = cls;
 		this.divider = divider;
-		this.quote = quote;
-		this.escapeCharacter = escapeCharacter;
 		this.columns = columns;
 
 		this.skipEmptyLines = skipEmptyLines;
@@ -332,7 +330,7 @@ public class CsvMapper<T> {
 			} else if(skipEmptyLines) {
 				writeSkipEmptyLines(mv, subClassInternalName, carriageReturns);
 			} else if(skipComments) {
-				writeSkipComments(mv, subClassInternalName, carriageReturns);
+				writeSkipComments(mv, subClassInternalName);
 			}
 
 			// init value object, i.e. the object to which data-binding will occur
@@ -401,9 +399,6 @@ public class CsvMapper<T> {
 			mv.visitMethodInsn(INVOKESPECIAL, "com/github/skjolber/stcsv/CsvException", "<init>", "(Ljava/lang/Throwable;)V", false);
 			mv.visitInsn(ATHROW);
 
-
-
-
 			mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, startVariableScope, endVariableScope, 0);
 			mv.visitLocalVariable("value", "L" + mappedClassInternalName + ";", null, startVariableScope, endVariableScope, objectIndex);
 			mv.visitLocalVariable("currentOffset", "I", null, startVariableScope, endVariableScope, currentOffsetIndex);
@@ -421,26 +416,7 @@ public class CsvMapper<T> {
 		return subClassName;
 	}
 
-	private void writeSkipComments(MethodVisitor mv, String subClassInternalName, boolean carriageReturns) {
-
-		/**
-			while (current[currentOffset] == '#') {
-				int value = this.currentRange;
-
-				do {
-					++currentOffset;
-					if (currentOffset == value) {
-						if ((value = this.fill()) == 0) {
-							return null;
-						}
-
-						currentOffset = 0;
-					}
-				} while (current[currentOffset] != '\n');
-
-				currentOffset++;
-			}
-		 */
+	private void writeSkipComments(MethodVisitor mv, String subClassInternalName) {
 		final int rangeVariableIndex = 3;
 
 		Label l12 = new Label();
@@ -453,29 +429,35 @@ public class CsvMapper<T> {
 		Label l14 = new Label();
 		mv.visitLabel(l14);
 		mv.visitIincInsn(currentOffsetIndex, 1);
+		mv.visitVarInsn(ALOAD, currentArrayIndex);
+		mv.visitVarInsn(ILOAD, currentOffsetIndex);
+		mv.visitInsn(CALOAD);
+		mv.visitIntInsn(BIPUSH, 10);
+		mv.visitJumpInsn(IF_ICMPNE, l14);
+		Label l16 = new Label();
+		mv.visitLabel(l16);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitVarInsn(ILOAD, rangeVariableIndex);
-		Label l16 = new Label();
-		mv.visitJumpInsn(IF_ICMPNE, l16);
+		Label l17 = new Label();
+		mv.visitJumpInsn(IF_ICMPNE, l17);
+		Label l18 = new Label();
+		mv.visitLabel(l18);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "()I", false);
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ISTORE, rangeVariableIndex);
-
+				
+		
 		Label l10 = new Label();
 		mv.visitJumpInsn(IFNE, l10);
 		mv.visitInsn(ACONST_NULL);
 		mv.visitInsn(ARETURN);
-		mv.visitLabel(l10);
-
+		mv.visitLabel(l10);	
+		
 		mv.visitInsn(ICONST_0);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);
-		mv.visitLabel(l16);
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, currentOffsetIndex);
-		mv.visitInsn(CALOAD);
-		mv.visitIntInsn(BIPUSH, 10); // \n
-		mv.visitJumpInsn(IF_ICMPNE, l14);
+		mv.visitJumpInsn(GOTO, l12);
+		mv.visitLabel(l17);
 		mv.visitIincInsn(currentOffsetIndex, 1);
 		mv.visitLabel(l12);
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
@@ -483,6 +465,8 @@ public class CsvMapper<T> {
 		mv.visitInsn(CALOAD);
 		mv.visitIntInsn(BIPUSH, 35); // #
 		mv.visitJumpInsn(IF_ICMPEQ, l13);
+
+
 
 	}
 
