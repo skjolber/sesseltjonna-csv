@@ -27,7 +27,7 @@ Example dependency config:
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>sesseltjonna-csv</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
@@ -113,7 +113,8 @@ Contributions are welcome, especially those with unit tests ;)
 [Apache 2.0]
 
 # History
- - [1.0.2]: Support for custom quote and escape characters.
+ - [1.0.3]: Support for skipping comment lines.
+ - 1.0.2: Support for custom quote and escape characters.
  - 1.0.1: Improve exception handling
  - 1.0.0: Initial release.
 
