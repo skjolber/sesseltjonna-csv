@@ -64,18 +64,18 @@ public class CsvMapper<T> {
 	protected static final String GENERATED_CLASS_SIMPLE_NAME = "GeneratedCsvClassFactory%d";
 	protected static final String GENERATED_CLASS_FULL_NAME = "com.github.skjolber.stcsv." + GENERATED_CLASS_SIMPLE_NAME;
 	protected static final String GENERATED_CLASS_FULL_INTERNAL = "com/github/skjolber/stcsv/" + GENERATED_CLASS_SIMPLE_NAME;
-	
+
 	protected static final String superClassInternalName = getInternalName(AbstractCsvReader.class);
 	protected static final String csvStaticInitializer = getInternalName(CsvReaderStaticInitializer.class);
 	protected static final String ignoredColumnName = getInternalName(IgnoredColumn.class);
 	protected static final String consumerName = getInternalName(CsvColumnValueConsumer.class);
-	
+
 	protected static AtomicInteger counter = new AtomicInteger();
 
 	public static <T> CsvMappingBuilder<T> builder(Class<T> cls) {
 		return new CsvMappingBuilder<T>(cls);
 	}
-	
+
 	public static String getInternalName(Class<?> cls) {
 		return getInternalName(cls.getName());
 	}
@@ -85,61 +85,59 @@ public class CsvMapper<T> {
 	}
 
 	protected int divider;
-	private int quote;
-	private int escapeCharacter;
 	protected Class<T> mappedClass;
-	
+
 	protected String mappedClassInternalName;
-	
+
 	protected Map<String, AbstractColumn> keys = new HashMap<>(); // thread safe for reading
 	protected List<AbstractColumn> columns;
-	
+
 	protected final boolean skipEmptyLines;
+	protected final boolean skipComments;
 	protected final boolean skippableFieldsWithoutLinebreaks;
 	protected final int bufferLength;
-	
+
 	/**
 	 * Note: Stack variable types are fixed througout the application, as below. 
 	 * 
 	 * The range index is dual purpose as end index for trimming quoted content.
 	 * 
 	 */
-	
+
 	protected final int currentOffsetIndex = 1;
 	protected final int currentArrayIndex = 2;
 	protected final int objectIndex = 3;
 	protected final int startIndex = 4;
 	protected final int rangeIndex = 5;
-	
+
 	protected final Map<String, CsvReaderConstructor<T>> factories = new ConcurrentHashMap<>();
 	protected ClassLoader classLoader;
-	
-	public CsvMapper(Class<T> cls, char divider, char quote, char escapeCharacter, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
+
+	public CsvMapper(Class<T> cls, char divider, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skipComments, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
 		this.mappedClass = cls;
 		this.divider = divider;
-		this.quote = quote;
-		this.escapeCharacter = escapeCharacter;
 		this.columns = columns;
 
 		this.skipEmptyLines = skipEmptyLines;
+		this.skipComments = skipComments;
 		this.skippableFieldsWithoutLinebreaks = skippableFieldsWithoutLinebreaks;
 		this.classLoader = classLoader;
 		this.bufferLength = bufferLength;
-		
+
 		for (AbstractColumn column : columns) {
 			keys.put(column.getName(),  column);
 
 			column.setParent(this);
 			column.setVariableIndexes(currentArrayIndex, currentOffsetIndex, objectIndex, startIndex, rangeIndex);
 		}
-		
+
 		mappedClassInternalName = getInternalName(mappedClass);
 	}
 
 	public Class<T> getMappedClass() {
 		return mappedClass;
 	}
-	
+
 	public int getDivider() {
 		return divider;
 	}
@@ -148,7 +146,7 @@ public class CsvMapper<T> {
 		// avoid multiple calls to read when locating the first line
 		// so read a full buffer
 		char[] current = new char[bufferLength + 1];
-		
+
 		int start = 0;
 		int end = 0;
 		do {
@@ -158,7 +156,7 @@ public class CsvMapper<T> {
 			} else {
 				end += read;
 			}
-			
+
 			for(int i = start; i < end; i++) {
 				if(current[i] == '\n') {
 					return create(reader, new String(current, 0, i), current, i + 1, end);
@@ -175,17 +173,17 @@ public class CsvMapper<T> {
 		if(constructor == null) {
 			boolean carriageReturns = header.length() > 1 && header.charAt(header.length() - 1) == '\r';
 			List<String> fields = parseNames(header);
-			
+
 			constructor = createScannerFactory(carriageReturns, fields);
 			if(constructor == null) {
 				return new EmptyCsvReader<>();
 			}
-		    factories.put(header, constructor);
+			factories.put(header, constructor);
 		}
 		return constructor.newInstance(reader, current, offset, length);
-		
+
 	}
-	
+
 	public CsvReaderConstructor<T> createDefaultScannerFactory(boolean carriageReturns) throws Exception {
 		List<String> names = new ArrayList<>();
 		for (AbstractColumn column: columns) {
@@ -207,75 +205,75 @@ public class CsvMapper<T> {
 			return null;
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
-		
-		/*
+
+/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-		*/
+*/
 		Class<? extends AbstractCsvReader<T>> generatedClass = loader.load(classWriter.toByteArray(), subClassName);
 		return new CsvReaderConstructor(generatedClass);
 	}
-	
+
 	protected String write(ClassWriter classWriter, List<String> csvFileFieldNames, boolean carriageReturns) {
 		int subclassNumber = counter.incrementAndGet();
 		String subClassName = String.format(GENERATED_CLASS_FULL_NAME, subclassNumber);
 		String subClassInternalName = String.format(GENERATED_CLASS_FULL_INTERNAL, subclassNumber);
 
 		AbstractColumn[] mapping = new AbstractColumn[csvFileFieldNames.size()]; 
-		
+
 		CsvColumnValueConsumer<?>[] consumers = new CsvColumnValueConsumer[mapping.length];
-		
+
 		boolean inline = true;
 		boolean consumer = false;
-		
+
 		int lastIndex = -1;
 		int firstIndex = -1;
 		for (int j = 0; j < csvFileFieldNames.size(); j++) {
 			String name = csvFileFieldNames.get(j);
 			AbstractColumn field = keys.get(name);
-			
+
 			if(field != null) {
 				mapping[j] = field;
-				
+
 				if(firstIndex == -1) {
 					firstIndex = j;
 				}
-				
+
 				consumers[j] = field.getConsumer();
 				if(consumers[j] != null) {
 					consumer = true;
 				}
-				
+
 				lastIndex = j;
 			}
 		}
-		
+
 		if(lastIndex == -1) {
 			return null;
 		}
-		
+
 		// https://stackoverflow.com/questions/34589435/get-the-enclosing-class-of-a-java-lambda-expression
 		CsvReaderStaticInitializer.add(subClassName, consumers);
-		
+
 		// generics does not work when generating multiple classes; 
 		// fails for class number 2 because of failing method signature
 		// TODO still generate such a beast for the first?
 		classWriter.visit(Opcodes.V1_8,
 				ACC_FINAL | ACC_PUBLIC,
-		        subClassInternalName,
-		        null,
-		        superClassInternalName,
-		        null);
+				subClassInternalName,
+				null,
+				superClassInternalName,
+				null);
 
 		if(consumer) {
 			// write fields
 			fields(classWriter, mapping);
-			
+
 			// static initializer
 			staticInitializer(classWriter, mapping, subClassInternalName, subClassName);
 		}
-		
+
 		// constructor with reader
 		constructor(classWriter, subClassInternalName);
 
@@ -286,19 +284,19 @@ public class CsvMapper<T> {
 			mv.visitCode();
 			Label startVariableScope = new Label();
 			mv.visitLabel(startVariableScope);
-			
+
 			// init offset and char array
 			// int currentOffset = this.currentOffset;
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitFieldInsn(GETFIELD, superClassInternalName, "currentOffset", "I");
 			mv.visitVarInsn(ISTORE, currentOffsetIndex);
-			
+
 			mv.visitVarInsn(ILOAD, 1);
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitFieldInsn(GETFIELD, superClassInternalName, "currentRange", "I");
 			Label l2 = new Label();
 			mv.visitJumpInsn(IF_ICMPLT, l2);
-			
+
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitMethodInsn(INVOKEVIRTUAL, superClassInternalName, "fill", "()I", false);
 			Label l4 = new Label();
@@ -314,23 +312,27 @@ public class CsvMapper<T> {
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitFieldInsn(GETFIELD, superClassInternalName, "current", "[C");
 			mv.visitVarInsn(ASTORE, currentArrayIndex);		    	
-			
-			
+
+
 			// try-catch block
 			Label startTryCatch = new Label();
-			
+
 			Label endVariableScope = new Label();
 
 			//Label endTryCatch = new Label();
 			Label exceptionHandling = new Label();
 			mv.visitTryCatchBlock(startTryCatch, endVariableScope, exceptionHandling, "java/lang/ArrayIndexOutOfBoundsException");
-			
+
 			mv.visitLabel(startTryCatch);
-			
-			if(skipEmptyLines) {
+
+			if(skipEmptyLines && skipComments) {
+				writeSkipEmptyOrCommentedLines(mv, subClassInternalName, carriageReturns);
+			} else if(skipEmptyLines) {
 				writeSkipEmptyLines(mv, subClassInternalName, carriageReturns);
+			} else if(skipComments) {
+				writeSkipComments(mv, subClassInternalName);
 			}
-			
+
 			// init value object, i.e. the object to which data-binding will occur
 			mv.visitTypeInsn(NEW, getInternalName(mappedClass.getName()));
 			mv.visitInsn(DUP);
@@ -341,17 +343,17 @@ public class CsvMapper<T> {
 				// skip first column(s)
 				skipColumns(mv, firstIndex);
 			}
-			
+
 			int current = firstIndex;
 			do {
 				AbstractColumn column = mapping[current];
-				
+
 				if(current == mapping.length - 1) {
 					column.last(mv, subClassInternalName, carriageReturns, inline);
 				} else {
 					column.middle(mv, subClassInternalName, inline);
 				}
-				
+
 				// at last
 				if(current == lastIndex) {
 					if(lastIndex + 1 < mapping.length) {
@@ -361,23 +363,23 @@ public class CsvMapper<T> {
 					break;
 				} else {
 					int previous = current;
-					
+
 					current++;
-					
+
 					while(mapping[current] == null) {
 						current++;
 					}
-					
+
 					if(current - previous > 1) {
 						// skip middle column
 						skipColumns(mv, current - previous - 1);
 					}
 				}
 			} while(true);
-			
+
 			// save value
 			saveCurrentOffset(mv, superClassInternalName, currentOffsetIndex);		    	
-			
+
 			// return object
 			mv.visitVarInsn(ALOAD, objectIndex);
 			mv.visitInsn(ARETURN);
@@ -397,9 +399,6 @@ public class CsvMapper<T> {
 			mv.visitMethodInsn(INVOKESPECIAL, "com/github/skjolber/stcsv/CsvException", "<init>", "(Ljava/lang/Throwable;)V", false);
 			mv.visitInsn(ATHROW);
 
-			
-			
-			
 			mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, startVariableScope, endVariableScope, 0);
 			mv.visitLocalVariable("value", "L" + mappedClassInternalName + ";", null, startVariableScope, endVariableScope, objectIndex);
 			mv.visitLocalVariable("currentOffset", "I", null, startVariableScope, endVariableScope, currentOffsetIndex);
@@ -412,9 +411,63 @@ public class CsvMapper<T> {
 			mv.visitMaxs(0, 0); // calculated by the asm library
 			mv.visitEnd();
 		}
-		
+
 		classWriter.visitEnd();
 		return subClassName;
+	}
+
+	private void writeSkipComments(MethodVisitor mv, String subClassInternalName) {
+		final int rangeVariableIndex = 3;
+
+		Label l12 = new Label();
+		mv.visitJumpInsn(GOTO, l12);
+		Label l13 = new Label();
+		mv.visitLabel(l13);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, subClassInternalName, "currentRange", "I");
+		mv.visitVarInsn(ISTORE, rangeVariableIndex);
+		Label l14 = new Label();
+		mv.visitLabel(l14);
+		mv.visitIincInsn(currentOffsetIndex, 1);
+		mv.visitVarInsn(ALOAD, currentArrayIndex);
+		mv.visitVarInsn(ILOAD, currentOffsetIndex);
+		mv.visitInsn(CALOAD);
+		mv.visitIntInsn(BIPUSH, 10);
+		mv.visitJumpInsn(IF_ICMPNE, l14);
+		Label l16 = new Label();
+		mv.visitLabel(l16);
+		mv.visitVarInsn(ILOAD, currentOffsetIndex);
+		mv.visitVarInsn(ILOAD, rangeVariableIndex);
+		Label l17 = new Label();
+		mv.visitJumpInsn(IF_ICMPNE, l17);
+		Label l18 = new Label();
+		mv.visitLabel(l18);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "()I", false);
+		mv.visitInsn(DUP);
+		mv.visitVarInsn(ISTORE, rangeVariableIndex);
+				
+		
+		Label l10 = new Label();
+		mv.visitJumpInsn(IFNE, l10);
+		mv.visitInsn(ACONST_NULL);
+		mv.visitInsn(ARETURN);
+		mv.visitLabel(l10);	
+		
+		mv.visitInsn(ICONST_0);
+		mv.visitVarInsn(ISTORE, currentOffsetIndex);
+		mv.visitJumpInsn(GOTO, l12);
+		mv.visitLabel(l17);
+		mv.visitIincInsn(currentOffsetIndex, 1);
+		mv.visitLabel(l12);
+		mv.visitVarInsn(ALOAD, currentArrayIndex);
+		mv.visitVarInsn(ILOAD, currentOffsetIndex);
+		mv.visitInsn(CALOAD);
+		mv.visitIntInsn(BIPUSH, 35); // #
+		mv.visitJumpInsn(IF_ICMPEQ, l13);
+
+
+
 	}
 
 	protected void skipToLinebreak(MethodVisitor mv) {
@@ -453,6 +506,92 @@ public class CsvMapper<T> {
 		}
 	}
 
+	protected void writeSkipEmptyOrCommentedLines(MethodVisitor mv, String subClassInternalName, boolean carriageReturns) {
+		/*
+
+			while (current[currentOffset] == '#' || current[currentOffset] == '\n' ) {
+				int value = this.currentRange;
+
+				while(true) {
+					if(current[currentOffset] == '\n') {
+						if (currentOffset == value) {
+							if ((value = this.fill()) == 0) {
+								return null;
+							}
+	
+							currentOffset = 0;
+						} else {
+							currentOffset++;
+						}
+						break;
+					}
+					currentOffset++;
+				}
+			}
+			
+		
+		*/
+		final int rangeVariableIndex = 3;
+
+		Label l11 = new Label();
+		mv.visitLabel(l11);
+		Label l12 = new Label();
+		mv.visitJumpInsn(GOTO, l12);
+		Label l13 = new Label();
+		mv.visitLabel(l13);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, subClassInternalName, "currentRange", "I");
+		mv.visitVarInsn(ISTORE, rangeVariableIndex);
+		Label l14 = new Label();
+		mv.visitLabel(l14);
+		mv.visitVarInsn(ALOAD, currentArrayIndex);
+		mv.visitVarInsn(ILOAD, currentOffsetIndex);
+		mv.visitInsn(CALOAD);
+		mv.visitIntInsn(BIPUSH, 10);
+		Label l15 = new Label();
+		mv.visitJumpInsn(IF_ICMPNE, l15);
+		Label l16 = new Label();
+		mv.visitLabel(l16);
+		mv.visitVarInsn(ILOAD, currentOffsetIndex);
+		mv.visitVarInsn(ILOAD, rangeVariableIndex);
+		Label l17 = new Label();
+		mv.visitJumpInsn(IF_ICMPNE, l17);
+		Label l18 = new Label();
+		mv.visitLabel(l18);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "()I", false);
+		mv.visitInsn(DUP);
+		mv.visitVarInsn(ISTORE, rangeVariableIndex);
+		
+		Label l10 = new Label();
+		mv.visitJumpInsn(IFNE, l10);
+		mv.visitInsn(ACONST_NULL);
+		mv.visitInsn(ARETURN);
+		mv.visitLabel(l10);
+		
+		mv.visitInsn(ICONST_0);
+		mv.visitVarInsn(ISTORE, currentOffsetIndex);
+		mv.visitJumpInsn(GOTO, l12);
+		mv.visitLabel(l17);
+		mv.visitIincInsn(currentOffsetIndex, 1);
+		mv.visitJumpInsn(GOTO, l12);
+		mv.visitLabel(l15);
+		mv.visitIincInsn(currentOffsetIndex, 1);
+		mv.visitJumpInsn(GOTO, l14);
+		mv.visitLabel(l12);
+		mv.visitVarInsn(ALOAD, currentArrayIndex);
+		mv.visitVarInsn(ILOAD, currentOffsetIndex);
+		mv.visitInsn(CALOAD);
+		mv.visitIntInsn(BIPUSH, 35); // #
+		mv.visitJumpInsn(IF_ICMPEQ, l13);
+		mv.visitVarInsn(ALOAD, currentArrayIndex);
+		mv.visitVarInsn(ILOAD, currentOffsetIndex);
+		mv.visitInsn(CALOAD);
+		mv.visitIntInsn(BIPUSH, carriageReturns ? 13: 10); // n or r
+		mv.visitJumpInsn(IF_ICMPEQ, l13);
+
+	}
+
 	protected void writeSkipEmptyLines(MethodVisitor mv, String subClassInternalName, boolean carriageReturns) {
 		if(!carriageReturns) {
 			/**
@@ -471,7 +610,7 @@ public class CsvMapper<T> {
 					}
 				} while (current[currentOffset] != '\n');
 			}					
-			*/
+			 */
 			final int rangeVariableIndex = 3;
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
@@ -510,14 +649,14 @@ public class CsvMapper<T> {
 			mv.visitIntInsn(BIPUSH, 10); // \n
 			mv.visitJumpInsn(IF_ICMPEQ, l7);
 			mv.visitLabel(l5);
-			
+
 		} else {
-			
+
 			/**
 			if (current[currentOffset] == '\r') {
 				int currentRange = this.currentRange;
 				++currentOffset;
-				
+
 				while (current[currentOffset] == '\n') {
 					if (currentOffset == currentRange) {
 						if ((currentRange = this.fill()) == 0) {
@@ -527,14 +666,14 @@ public class CsvMapper<T> {
 						currentOffset = 0;
 					} else {
 						++currentOffset;
-						
+
 						if(current[currentOffset] == '\r') {
 							++currentOffset;
 						}
 					}
 				}
 			}					
-			*/
+			 */
 			final int rangeVariableIndex = 3;
 
 			Label l4 = new Label();
@@ -589,10 +728,10 @@ public class CsvMapper<T> {
 		{
 			MethodVisitor mv = classWriter.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
 			mv.visitCode();
-			
+
 			Label startLabel = new Label();
 			mv.visitLabel(startLabel);
-			
+
 			int consumerArrayIndex = 1;
 
 			mv.visitLdcInsn(className);
@@ -609,10 +748,10 @@ public class CsvMapper<T> {
 					mv.visitLdcInsn(new Integer(k));
 					mv.visitInsn(AALOAD);
 					mv.visitTypeInsn(CHECKCAST, columns[k].getConsumerInternalName());
-			    	mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + columns[k].getConsumerInternalName() + ";");
+					mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + columns[k].getConsumerInternalName() + ";");
 				}
 			}
-			
+
 			Label endLabel = new Label();
 			mv.visitLabel(endLabel);
 			mv.visitInsn(RETURN);
@@ -627,9 +766,9 @@ public class CsvMapper<T> {
 		// static final fields
 		for (int k = 0; k < mapping.length; k++) {
 			if(mapping[k] != null && mapping[k].isConsumer()) {
-		    	classWriter
-		    		.visitField(ACC_STATIC + ACC_PRIVATE + ACC_FINAL, "v" + mapping[k].getIndex(), "L" + mapping[k].getConsumerInternalName() + ";", null, null)
-		    		.visitEnd();
+				classWriter
+				.visitField(ACC_STATIC + ACC_PRIVATE + ACC_FINAL, "v" + mapping[k].getIndex(), "L" + mapping[k].getConsumerInternalName() + ";", null, null)
+				.visitEnd();
 			}
 		}
 	}
@@ -681,10 +820,10 @@ public class CsvMapper<T> {
 
 	protected String parseStaticFieldName(Class<?> cls) {
 		String simpleName = cls.getSimpleName();
-		
+
 		return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
 	}
-	
+
 	protected void saveCurrentOffset(MethodVisitor mv, String superClassInternalName, int currentOffsetIndex) {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
@@ -705,7 +844,7 @@ public class CsvMapper<T> {
 				start = i + 1;
 			}
 		}
-		
+
 		if(start < writer.length()) {
 			String trim = writer.substring(start, writer.length()).trim();
 			if(trim.charAt(0) == '"' && trim.charAt(trim.length() - 1) == '"') {
@@ -716,7 +855,7 @@ public class CsvMapper<T> {
 		}
 		return names;
 	}
-	
+
 	public String getMappedClassInternalName() {
 		return mappedClassInternalName;
 	}
