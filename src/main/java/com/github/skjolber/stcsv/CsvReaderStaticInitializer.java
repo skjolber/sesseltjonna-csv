@@ -3,16 +3,23 @@ package com.github.skjolber.stcsv;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.tri.CsvColumnValueTriConsumer;
 
 public class CsvReaderStaticInitializer {
 
 	public static class CsvStaticFields {
-		private CsvColumnValueConsumer<?>[] consumers;
+		private CsvColumnValueConsumer<?>[] biConsumers;
+		private CsvColumnValueTriConsumer<?, ?>[] triConsumers;
 		
-		public CsvColumnValueConsumer<?>[] getConsumers() {
-			return consumers;
+		public CsvColumnValueConsumer<?>[] getBiConsumers() {
+			return biConsumers;
 		}
+		
+		public CsvColumnValueTriConsumer<?, ?>[] getTriConsumers() {
+			return triConsumers;
+		}
+
 	}
 	
 	/**
@@ -27,9 +34,10 @@ public class CsvReaderStaticInitializer {
 		return values.remove(className);
 	}
 	
-	public static void add(String className, CsvColumnValueConsumer<?>[] consumers) {
+	public static void add(String className, CsvColumnValueConsumer<?>[] biConsumers, CsvColumnValueTriConsumer<?, ?>[] triConsumers) {
 		CsvStaticFields wrapper = new CsvStaticFields();
-		wrapper.consumers = consumers;
+		wrapper.biConsumers = biConsumers;
+		wrapper.triConsumers = triConsumers;
 		
 		values.put(className, wrapper);
 	}

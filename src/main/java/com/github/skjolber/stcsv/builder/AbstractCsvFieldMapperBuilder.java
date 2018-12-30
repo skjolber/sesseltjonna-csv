@@ -6,9 +6,9 @@ import com.github.skjolber.stcsv.PlainColumn;
 import com.github.skjolber.stcsv.PlainFixedColumn;
 import com.github.skjolber.stcsv.QuotedColumn;
 import com.github.skjolber.stcsv.QuotedFixedColumn;
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 
-public abstract class AbstractCsvFieldMapperBuilder<T> {
+public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder> {
 
 	protected final String name;
 	protected boolean optional;
@@ -19,9 +19,9 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 	protected boolean trimTrailingWhitespaces = false;
 	protected boolean trimLeadingWhitespaces = false;
 
-	protected CsvMappingBuilder<T> parent;
+	protected B parent;
 
-	public AbstractCsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
+	public AbstractCsvFieldMapperBuilder(B parent, String name) {
 		super();
 		this.parent = parent;
 		this.name = name;
@@ -35,20 +35,20 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 		return optional;
 	}
 
-	public CsvMappingBuilder<T> optional() {
+	public B optional() {
 		this.optional = true;
 		parent.field(this);
 		
 		return parent;
 	}
 	
-	public AbstractCsvFieldMapperBuilder<T> fixedSize(int fixedSize) {
+	public AbstractCsvFieldMapperBuilder<T, B> fixedSize(int fixedSize) {
 		this.fixedSize = fixedSize;
 		
 		return this;
 	}
 
-	public CsvMappingBuilder<T> required() {
+	public B required() {
 		this.optional = false;
 
 		parent.field(this);
@@ -75,7 +75,7 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 	 * @return this instance.
 	 */
 	
-	public AbstractCsvFieldMapperBuilder<T> quoted() {
+	public AbstractCsvFieldMapperBuilder<T, B> quoted() {
 		quoted = true;
 		linebreaks = true;
 		
@@ -87,20 +87,20 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 	 * 
 	 * @return this instance.
 	 */
-	public AbstractCsvFieldMapperBuilder<T> quotedWithoutLinebreaks() {
+	public AbstractCsvFieldMapperBuilder<T, B> quotedWithoutLinebreaks() {
 		quoted = true;
 		linebreaks = false;
 		
 		return this;
 	}
 
-	public AbstractCsvFieldMapperBuilder<T> trimTrailingWhitespaces() {
+	public AbstractCsvFieldMapperBuilder<T, B> trimTrailingWhitespaces() {
 		this.trimTrailingWhitespaces = true;
 		
 		return this;
 	}
 
-	public AbstractCsvFieldMapperBuilder<T> trimLeadingWhitespaces() {
+	public AbstractCsvFieldMapperBuilder<T, B> trimLeadingWhitespaces() {
 		this.trimLeadingWhitespaces = true;
 		
 		return this;
@@ -114,7 +114,13 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 		return trimTrailingWhitespaces;
 	}
 	
-	public abstract CsvColumnValueConsumer<T> getValueConsumer();
+	protected CsvColumnValueConsumer<T> getBiConsumer() {
+		return null;
+	}
+
+	protected CsvColumnValueConsumer<T> getTriConsumer() {
+		return null;
+	}
 
 	public AbstractColumn build(int index) {
 		AbstractColumn column;
@@ -171,6 +177,15 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 	protected boolean hasSetter() {
 		return false;
 	}
+	
+	protected boolean hasBiConsumer() {
+		return false;
+	}
+
+	protected boolean hasTriConsumer() {
+		return false;
+	}
+
 }
 
 

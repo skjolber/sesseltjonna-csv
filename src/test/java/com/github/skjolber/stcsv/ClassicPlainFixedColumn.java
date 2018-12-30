@@ -11,8 +11,8 @@ import org.objectweb.asm.MethodVisitor;
 
 import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 import com.github.skjolber.stcsv.CsvException;
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
 
 public class ClassicPlainFixedColumn extends AbstractColumn {
 
@@ -131,13 +131,13 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 
 	@Override
 	public void middle(MethodVisitor mv, String subClassInternalName, boolean inline) {
-		if(consumer == null) {
+		if(biConsumer == null) {
 			throw new IllegalArgumentException();
 		}
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitLdcInsn(new Integer(fixedSize));
-		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
+		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + biConsumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
 		mv.visitLdcInsn(new Integer(parent.getDivider()));
 		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Middle", optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;C)I", false);
@@ -146,7 +146,7 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 
 	@Override
 	public void last(MethodVisitor mv, String subClassInternalName, boolean carriageReturn, boolean inline) {
-		if(consumer == null) {
+		if(biConsumer == null) {
 			throw new IllegalArgumentException();
 		}
 		String newLineType = carriageReturn ? "NewLineCarriageReturn" : "NewLine";
@@ -154,7 +154,7 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitLdcInsn(new Integer(fixedSize));
-		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
+		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + biConsumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
 		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);		

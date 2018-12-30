@@ -11,7 +11,7 @@ import static org.objectweb.asm.Opcodes.ISTORE;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 
 public class ClassicQuotedFixedColumn extends AbstractColumn {
 
@@ -167,14 +167,14 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 
 	@Override
 	public void middle(MethodVisitor mv, String subClassInternalName, boolean inline) {
-		if(consumer == null) {
+		if(biConsumer == null) {
 			throw new IllegalArgumentException();
 		}
 		
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitLdcInsn(new Integer(fixedSize));
-		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
+		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + biConsumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
 		mv.visitLdcInsn(new Integer(parent.getDivider()));
 		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedFixedColumn$Middle", optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;C)I", false);
@@ -183,7 +183,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 
 	@Override
 	public void last(MethodVisitor mv, String subClassInternalName, boolean carriageReturn, boolean inline) {
-		if(consumer == null) {
+		if(biConsumer == null) {
 			throw new IllegalArgumentException();
 		}
 		
@@ -192,7 +192,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitLdcInsn(new Integer(fixedSize));
-		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
+		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + biConsumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
 		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedFixedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);		

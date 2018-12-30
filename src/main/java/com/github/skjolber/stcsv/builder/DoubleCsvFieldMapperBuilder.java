@@ -2,32 +2,32 @@ package com.github.skjolber.stcsv.builder;
 
 import java.util.function.ObjDoubleConsumer;
 
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
-import com.github.skjolber.stcsv.column.DoubleCsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.DoubleCsvColumnValueConsumer;
 
-public class DoubleCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<T> {
+public class DoubleCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> extends AbstractCsvFieldMapperBuilder<T, D> {
 
 	protected ObjDoubleConsumer<T> consumer;
 	protected ObjDoubleConsumer<T> setter;
 
-	public DoubleCsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
+	public DoubleCsvFieldMapperBuilder(D parent, String name) {
 		super(parent, name);
 	}
 
-	public DoubleCsvFieldMapperBuilder<T> consumer(ObjDoubleConsumer<T> consumer) {
+	public DoubleCsvFieldMapperBuilder<T, D> consumer(ObjDoubleConsumer<T> consumer) {
 		this.consumer = consumer;
 		
 		return this;
 	}
 	
 
-	public DoubleCsvFieldMapperBuilder<T> setter(ObjDoubleConsumer<T> setter) {
+	public DoubleCsvFieldMapperBuilder<T, D> setter(ObjDoubleConsumer<T> setter) {
 		this.setter = setter;
 		
 		return this;
 	}	
 	
-	public DoubleCsvFieldMapperBuilder<T> fixedSize(int fixedSize) {
+	public DoubleCsvFieldMapperBuilder<T, D> fixedSize(int fixedSize) {
 		super.fixedSize(fixedSize);
 		
 		return this;
@@ -40,7 +40,7 @@ public class DoubleCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilde
 	 * @return this instance.
 	 */
 	
-	public DoubleCsvFieldMapperBuilder<T> quoted() {
+	public DoubleCsvFieldMapperBuilder<T, D> quoted() {
 		super.quoted();
 		
 		return this;
@@ -52,26 +52,26 @@ public class DoubleCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilde
 	 * @return this instance.
 	 */
 	
-	public DoubleCsvFieldMapperBuilder<T> quotedWithoutLinebreaks() {
+	public DoubleCsvFieldMapperBuilder<T, D> quotedWithoutLinebreaks() {
 		super.quotedWithoutLinebreaks();
 		
 		return this;
 	}
 
-	public DoubleCsvFieldMapperBuilder<T> trimTrailingWhitespaces() {
+	public DoubleCsvFieldMapperBuilder<T, D> trimTrailingWhitespaces() {
 		super.trimTrailingWhitespaces();
 		
 		return this;
 	}
 
-	public DoubleCsvFieldMapperBuilder<T> trimLeadingWhitespaces() {
+	public DoubleCsvFieldMapperBuilder<T, D> trimLeadingWhitespaces() {
 		super.trimLeadingWhitespaces();
 		
 		return this;
 	}
 
 	@Override
-	public CsvColumnValueConsumer<T> getValueConsumer() {
+	public CsvColumnValueConsumer<T> getBiConsumer() {
 		if(consumer != null) {
 			return new DoubleCsvColumnValueConsumer<>(consumer);	
 		}

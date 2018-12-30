@@ -2,31 +2,31 @@ package com.github.skjolber.stcsv.builder;
 
 import java.util.function.ObjIntConsumer;
 
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
-import com.github.skjolber.stcsv.column.IntCsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.IntCsvColumnValueConsumer;
 
-public class IntCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<T> {
+public class IntCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> extends AbstractCsvFieldMapperBuilder<T, D> {
 
 	protected ObjIntConsumer<T> consumer;
 	protected ObjIntConsumer<T> setter;
 
-	public IntCsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
+	public IntCsvFieldMapperBuilder(D parent, String name) {
 		super(parent, name);
 	}
 
-	public IntCsvFieldMapperBuilder<T> consumer(ObjIntConsumer<T> consumer) {
+	public IntCsvFieldMapperBuilder<T, D> consumer(ObjIntConsumer<T> consumer) {
 		this.consumer = consumer;
 		
 		return this;
 	}
 	
-	public IntCsvFieldMapperBuilder<T> setter(ObjIntConsumer<T> setter) {
+	public IntCsvFieldMapperBuilder<T, D> setter(ObjIntConsumer<T> setter) {
 		this.setter = setter;
 		
 		return this;
 	}	
 	
-	public IntCsvFieldMapperBuilder<T> fixedSize(int fixedSize) {
+	public IntCsvFieldMapperBuilder<T, D> fixedSize(int fixedSize) {
 		super.fixedSize(fixedSize);
 		
 		return this;
@@ -39,7 +39,7 @@ public class IntCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<T
 	 * @return this instance.
 	 */
 	
-	public IntCsvFieldMapperBuilder<T> quoted() {
+	public IntCsvFieldMapperBuilder<T, D> quoted() {
 		super.quoted();
 		
 		return this;
@@ -50,26 +50,26 @@ public class IntCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<T
 	 * 
 	 * @return this instance.
 	 */
-	public IntCsvFieldMapperBuilder<T> quotedWithoutLinebreaks() {
+	public IntCsvFieldMapperBuilder<T, D> quotedWithoutLinebreaks() {
 		super.quotedWithoutLinebreaks();
 		
 		return this;
 	}
 
-	public IntCsvFieldMapperBuilder<T> trimTrailingWhitespaces() {
+	public IntCsvFieldMapperBuilder<T, D> trimTrailingWhitespaces() {
 		super.trimTrailingWhitespaces();
 		
 		return this;
 	}
 
-	public IntCsvFieldMapperBuilder<T> trimLeadingWhitespaces() {
+	public IntCsvFieldMapperBuilder<T, D> trimLeadingWhitespaces() {
 		super.trimLeadingWhitespaces();
 		
 		return this;
 	}
 
 	@Override
-	public CsvColumnValueConsumer<T> getValueConsumer() {
+	public CsvColumnValueConsumer<T> getBiConsumer() {
 		if(consumer != null) {
 			return new IntCsvColumnValueConsumer<>(consumer);
 		}

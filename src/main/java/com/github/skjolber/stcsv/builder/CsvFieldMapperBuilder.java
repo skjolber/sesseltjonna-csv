@@ -1,26 +1,26 @@
 package com.github.skjolber.stcsv.builder;
 
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 
-public class CsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<T> {
+public class CsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> extends AbstractCsvFieldMapperBuilder<T, D> {
 
 	protected CsvColumnValueConsumer<T> consumer;
 
-	public CsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
+	public CsvFieldMapperBuilder(D parent, String name) {
 		super(parent, name);
 	}
 
-	public CsvFieldMapperBuilder<T> consumer(CsvColumnValueConsumer<T> consumer) {
+	public CsvFieldMapperBuilder<T, D> consumer(CsvColumnValueConsumer<T> consumer) {
 		this.consumer = consumer;
 		
 		return this;
 	}
 	
-	public CsvColumnValueConsumer<T> getValueConsumer() {
+	public CsvColumnValueConsumer<T> getBiConsumer() {
 		return consumer;
 	}
 
-	public CsvFieldMapperBuilder<T> fixedSize(int fixedSize) {
+	public CsvFieldMapperBuilder<T, D> fixedSize(int fixedSize) {
 		super.fixedSize(fixedSize);
 		
 		return this;
@@ -33,7 +33,7 @@ public class CsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<T> {
 	 * @return this instance.
 	 */
 	
-	public CsvFieldMapperBuilder<T> quoted() {
+	public CsvFieldMapperBuilder<T, D> quoted() {
 		super.quoted();
 		
 		return this;
@@ -44,19 +44,19 @@ public class CsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<T> {
 	 * 
 	 * @return this instance.
 	 */
-	public CsvFieldMapperBuilder<T> quotedWithoutLinebreaks() {
+	public CsvFieldMapperBuilder<T, D> quotedWithoutLinebreaks() {
 		super.quotedWithoutLinebreaks();
 		
 		return this;
 	}
 
-	public CsvFieldMapperBuilder<T> trimTrailingWhitespaces() {
+	public CsvFieldMapperBuilder<T, D> trimTrailingWhitespaces() {
 		super.trimTrailingWhitespaces();
 		
 		return this;
 	}
 
-	public CsvFieldMapperBuilder<T> trimLeadingWhitespaces() {
+	public CsvFieldMapperBuilder<T, D> trimLeadingWhitespaces() {
 		super.trimLeadingWhitespaces();
 		
 		return this;

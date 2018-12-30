@@ -22,8 +22,10 @@ import static org.objectweb.asm.Opcodes.NEW;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
-import com.github.skjolber.stcsv.column.StringCsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.StringCsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.tri.CsvColumnValueTriConsumer;
+import com.github.skjolber.stcsv.column.tri.StringCsvColumnValueTriConsumer;
 
 public abstract class AbstractColumn {
 
@@ -34,7 +36,7 @@ public abstract class AbstractColumn {
 	protected final boolean trimTrailingWhitespaces;
 	protected final boolean trimLeadingWhitespaces;
 
-	protected CsvMapper<?> parent;
+	protected AbstractCsvMapper<?> parent;
 
 	protected int currentArrayIndex;
 	protected int currentOffsetIndex;
@@ -42,8 +44,11 @@ public abstract class AbstractColumn {
 	protected int startIndex;
 	protected int rangeIndex;
 	
-	protected String consumerInternalName;
-	protected CsvColumnValueConsumer<?> consumer;
+	protected String biConsumerInternalName;
+	protected CsvColumnValueConsumer<?> biConsumer;
+	
+	protected String triConsumerInternalName;
+	protected CsvColumnValueTriConsumer<?, ?> triConsumer;
 
 	protected String setterName;
 	protected Class<?> setterClass;
@@ -83,15 +88,19 @@ public abstract class AbstractColumn {
 		return name;
 	}
 	
-	public CsvColumnValueConsumer<?> getConsumer() {
-		return consumer;
+	public CsvColumnValueConsumer<?> getBiConsumer() {
+		return biConsumer;
 	}
 	
-	public void setConsumer(CsvColumnValueConsumer<?> consumer) {
-		this.consumer = consumer;
+	public void setBiConsumer(CsvColumnValueConsumer<?> consumer) {
+		this.biConsumer = consumer;
 	}
-	
-	public void setParent(CsvMapper<?> parent) {
+
+	public void setTriConsumer(CsvColumnValueTriConsumer<?, ?> consumer) {
+		this.triConsumer = consumer;
+	}
+
+	public void setParent(AbstractCsvMapper<?> parent) {
 		this.parent = parent;
 	}
 
@@ -99,25 +108,43 @@ public abstract class AbstractColumn {
 		return index;
 	}
 	
-	public String getConsumerInternalName() {
-		if(consumerInternalName == null) {
-			if(consumer.getClass().getPackage().equals(StringCsvColumnValueConsumer.class.getPackage())) {
-				consumerInternalName = CsvMapper.getInternalName(consumer.getClass());
+	public String getBiConsumerInternalName() {
+		if(biConsumerInternalName == null) {
+			if(biConsumer.getClass().getPackage().equals(StringCsvColumnValueConsumer.class.getPackage())) {
+				biConsumerInternalName = CsvMapper.getInternalName(biConsumer.getClass());
 			} else {
-				consumerInternalName = CsvMapper.consumerName;
+				biConsumerInternalName = CsvMapper.biConsumerName;
 			}
 			
 		}
-		return consumerInternalName;
+		return biConsumerInternalName;
 	}
+	
+
+	public String getTriConsumerInternalName() {
+		if(triConsumerInternalName == null) {
+			if(triConsumer.getClass().getPackage().equals(StringCsvColumnValueTriConsumer.class.getPackage())) {
+				// specific subclass
+				triConsumerInternalName = CsvMapper.getInternalName(triConsumer.getClass());
+			} else {
+				triConsumerInternalName = CsvMapper.triConsumerName;
+			}
+		}
+		return triConsumerInternalName;
+	}
+
 	
 	public void setSetter(String setterName, Class<?> setterClass) {
 		this.setterName = setterName;
 		this.setterClass = setterClass;
 	}
 	
-	public boolean isConsumer() {
-		return consumer != null;
+	public boolean isBiConsumer() {
+		return biConsumer != null;
+	}
+
+	public boolean isTriConsumer() {
+		return triConsumer != null;
 	}
 
 	protected void doubleSetter(MethodVisitor mv, int endIndex) {
@@ -185,16 +212,16 @@ public abstract class AbstractColumn {
 		}
 	}
 
-	protected void writeConsumer(MethodVisitor mv, String subClassInternalName, int endIndex) {
-		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
+	protected void writeBiConsumer(MethodVisitor mv, String subClassInternalName, int endIndex) {
+		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + biConsumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, startIndex);
 		mv.visitVarInsn(ILOAD, endIndex);
-		if(consumerInternalName == CsvMapper.consumerName) {
-			mv.visitMethodInsn(INVOKEINTERFACE, CsvMapper.consumerName, "consume", "(Ljava/lang/Object;[CII)V", true);
+		if(biConsumerInternalName == CsvMapper.biConsumerName) {
+			mv.visitMethodInsn(INVOKEINTERFACE, CsvMapper.biConsumerName, "consume", "(Ljava/lang/Object;[CII)V", true);
 		} else {
-			mv.visitMethodInsn(INVOKEVIRTUAL, consumerInternalName, "consume", "(Ljava/lang/Object;[CII)V", false);
+			mv.visitMethodInsn(INVOKEVIRTUAL, biConsumerInternalName, "consume", "(Ljava/lang/Object;[CII)V", false);
 		}
 	}
 	
@@ -309,7 +336,7 @@ public abstract class AbstractColumn {
 		if(setterName != null) {
 			writeSetter(mv, subClassInternalName, endIndex);
 		} else {
-			writeConsumer(mv, subClassInternalName, endIndex);
+			writeBiConsumer(mv, subClassInternalName, endIndex);
 		}
 		
 		if(emptyValueLabel != null) {
@@ -348,5 +375,11 @@ public abstract class AbstractColumn {
 		mv.visitIntInsn(BIPUSH, 9);
 		mv.visitJumpInsn(IF_ICMPEQ, add);
 	}
+
+	public CsvColumnValueTriConsumer<?, ?> getTriConsumer() {
+		return triConsumer;
+	}
+
+
 	
 }

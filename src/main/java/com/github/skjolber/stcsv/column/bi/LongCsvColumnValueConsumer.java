@@ -1,4 +1,4 @@
-package com.github.skjolber.stcsv.column;
+package com.github.skjolber.stcsv.column.bi;
 
 import java.util.function.ObjLongConsumer;
 

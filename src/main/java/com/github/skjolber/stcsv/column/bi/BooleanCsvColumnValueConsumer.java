@@ -1,4 +1,4 @@
-package com.github.skjolber.stcsv.column;
+package com.github.skjolber.stcsv.column.bi;
 
 public class BooleanCsvColumnValueConsumer<T> implements CsvColumnValueConsumer<T> {
 

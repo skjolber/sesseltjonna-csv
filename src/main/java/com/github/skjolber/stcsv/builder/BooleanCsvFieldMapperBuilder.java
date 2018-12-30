@@ -1,25 +1,25 @@
 package com.github.skjolber.stcsv.builder;
 
-import com.github.skjolber.stcsv.column.BooleanCsvColumnValueConsumer;
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
-import com.github.skjolber.stcsv.column.ObjBooleanConsumer;
+import com.github.skjolber.stcsv.column.bi.BooleanCsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.ObjBooleanConsumer;
 
-public class BooleanCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<T> {
+public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> extends AbstractCsvFieldMapperBuilder<T, D> {
 
 	protected ObjBooleanConsumer<T> consumer;
 	protected ObjBooleanConsumer<T> setter;
 
-	public BooleanCsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
+	public BooleanCsvFieldMapperBuilder(D parent, String name) {
 		super(parent, name);
 	}
 
-	public BooleanCsvFieldMapperBuilder<T> consumer(ObjBooleanConsumer<T> consumer) {
+	public BooleanCsvFieldMapperBuilder<T, D> consumer(ObjBooleanConsumer<T> consumer) {
 		this.consumer = consumer;
 		
 		return this;
 	}
 	
-	public BooleanCsvFieldMapperBuilder<T> setter(ObjBooleanConsumer<T> setter) {
+	public BooleanCsvFieldMapperBuilder<T, D> setter(ObjBooleanConsumer<T> setter) {
 		this.setter = setter;
 		
 		return this;
@@ -29,7 +29,7 @@ public class BooleanCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuild
 		return consumer;
 	}
 	
-	public BooleanCsvFieldMapperBuilder<T> fixedSize(int fixedSize) {
+	public BooleanCsvFieldMapperBuilder<T, D> fixedSize(int fixedSize) {
 		super.fixedSize(fixedSize);
 		
 		return this;
@@ -42,7 +42,7 @@ public class BooleanCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuild
 	 * @return this instance.
 	 */
 	
-	public BooleanCsvFieldMapperBuilder<T> quoted() {
+	public BooleanCsvFieldMapperBuilder<T, D> quoted() {
 		super.quoted();
 		
 		return this;
@@ -53,26 +53,26 @@ public class BooleanCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuild
 	 * 
 	 * @return this instance.
 	 */
-	public BooleanCsvFieldMapperBuilder<T> quotedWithoutLinebreaks() {
+	public BooleanCsvFieldMapperBuilder<T, D> quotedWithoutLinebreaks() {
 		super.quotedWithoutLinebreaks();
 		
 		return this;
 	}
 
-	public BooleanCsvFieldMapperBuilder<T> trimTrailingWhitespaces() {
+	public BooleanCsvFieldMapperBuilder<T, D> trimTrailingWhitespaces() {
 		super.trimTrailingWhitespaces();
 		
 		return this;
 	}
 
-	public BooleanCsvFieldMapperBuilder<T> trimLeadingWhitespaces() {
+	public BooleanCsvFieldMapperBuilder<T, D> trimLeadingWhitespaces() {
 		super.trimLeadingWhitespaces();
 		
 		return this;
 	}
 
 	@Override
-	public CsvColumnValueConsumer<T> getValueConsumer() {
+	public CsvColumnValueConsumer<T> getBiConsumer() {
 		if(consumer != null) {
 			return new BooleanCsvColumnValueConsumer<>(consumer);
 		}

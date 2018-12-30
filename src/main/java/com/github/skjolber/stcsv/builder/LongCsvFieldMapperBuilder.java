@@ -2,31 +2,31 @@ package com.github.skjolber.stcsv.builder;
 
 import java.util.function.ObjLongConsumer;
 
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
-import com.github.skjolber.stcsv.column.LongCsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.LongCsvColumnValueConsumer;
 
-public class LongCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<T> {
+public class LongCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> extends AbstractCsvFieldMapperBuilder<T, D> {
 
 	protected ObjLongConsumer<T> consumer;
 	protected ObjLongConsumer<T> setter;
 
-	public LongCsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
+	public LongCsvFieldMapperBuilder(D parent, String name) {
 		super(parent, name);
 	}
 
-	public LongCsvFieldMapperBuilder<T> consumer(ObjLongConsumer<T> consumer) {
+	public LongCsvFieldMapperBuilder<T, D> consumer(ObjLongConsumer<T> consumer) {
 		this.consumer = consumer;
 		
 		return this;
 	}
 
-	public LongCsvFieldMapperBuilder<T> setter(ObjLongConsumer<T> setter) {
+	public LongCsvFieldMapperBuilder<T, D> setter(ObjLongConsumer<T> setter) {
 		this.setter = setter;
 		
 		return this;
 	}
 	
-	public LongCsvFieldMapperBuilder<T> fixedSize(int fixedSize) {
+	public LongCsvFieldMapperBuilder<T, D> fixedSize(int fixedSize) {
 		super.fixedSize(fixedSize);
 		
 		return this;
@@ -39,7 +39,7 @@ public class LongCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<
 	 * @return this instance.
 	 */
 	
-	public LongCsvFieldMapperBuilder<T> quoted() {
+	public LongCsvFieldMapperBuilder<T, D> quoted() {
 		super.quoted();
 		
 		return this;
@@ -50,26 +50,26 @@ public class LongCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<
 	 * 
 	 * @return this instance.
 	 */
-	public LongCsvFieldMapperBuilder<T> quotedWithoutLinebreaks() {
+	public LongCsvFieldMapperBuilder<T, D> quotedWithoutLinebreaks() {
 		super.quotedWithoutLinebreaks();
 		
 		return this;
 	}
 
-	public LongCsvFieldMapperBuilder<T> trimTrailingWhitespaces() {
+	public LongCsvFieldMapperBuilder<T, D> trimTrailingWhitespaces() {
 		super.trimTrailingWhitespaces();
 		
 		return this;
 	}
 
-	public LongCsvFieldMapperBuilder<T> trimLeadingWhitespaces() {
+	public LongCsvFieldMapperBuilder<T, D> trimLeadingWhitespaces() {
 		super.trimLeadingWhitespaces();
 		
 		return this;
 	}
 
 	@Override
-	public CsvColumnValueConsumer<T> getValueConsumer() {
+	public CsvColumnValueConsumer<T> getBiConsumer() {
 		if(consumer != null) {
 			return new LongCsvColumnValueConsumer<>(consumer);
 		}

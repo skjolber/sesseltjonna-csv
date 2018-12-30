@@ -7,8 +7,8 @@ import java.util.function.BiConsumer;
 import com.github.skjolber.stcsv.AbstractCsvReader;
 import com.github.skjolber.stcsv.CsvReaderStaticInitializer;
 import com.github.skjolber.stcsv.CsvReaderStaticInitializer.CsvStaticFields;
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
-import com.github.skjolber.stcsv.column.StringCsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.StringCsvColumnValueConsumer;
 
 public class CsvLineObjectScannerDefaultFinalInitializer extends AbstractCsvReader<CsvLineObject> {
 
@@ -16,7 +16,7 @@ public class CsvLineObjectScannerDefaultFinalInitializer extends AbstractCsvRead
 		BiConsumer<CsvLineObject, String> value = CsvLineObject::setStringValue;
 		StringCsvColumnValueConsumer parser = new StringCsvColumnValueConsumer(value);
 		
-		CsvReaderStaticInitializer.add(CsvLineObjectScannerDefaultFinalInitializer.class.getName(), new CsvColumnValueConsumer[] {parser});
+		CsvReaderStaticInitializer.add(CsvLineObjectScannerDefaultFinalInitializer.class.getName(), new CsvColumnValueConsumer[] {parser}, null);
 	}
 	
 	public CsvLineObjectScannerDefaultFinalInitializer(Reader reader) {
@@ -26,7 +26,7 @@ public class CsvLineObjectScannerDefaultFinalInitializer extends AbstractCsvRead
 	static {
 		CsvStaticFields fields = CsvReaderStaticInitializer.remove(CsvLineObjectScannerDefaultFinalInitializer.class.getName());
 		
-		CsvColumnValueConsumer[] biConsumerList = fields.getConsumers();
+		CsvColumnValueConsumer[] biConsumerList = fields.getBiConsumers();
 		
 		stringValue0 = (StringCsvColumnValueConsumer) biConsumerList[0];
 	}

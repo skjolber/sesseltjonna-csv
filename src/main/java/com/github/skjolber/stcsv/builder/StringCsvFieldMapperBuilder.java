@@ -2,31 +2,31 @@ package com.github.skjolber.stcsv.builder;
 
 import java.util.function.BiConsumer;
 
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
-import com.github.skjolber.stcsv.column.StringCsvColumnValueConsumer;
+import com.github.skjolber.stcsv.AbstractColumn;
+import com.github.skjolber.stcsv.column.bi.StringCsvColumnValueConsumer;
 
-public class StringCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilder<T> {
+public class StringCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder> extends AbstractCsvFieldMapperBuilder<T, B> {
 
 	protected BiConsumer<T, String> consumer;
 	protected BiConsumer<T, String> setter;
 
-	public StringCsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
+	public StringCsvFieldMapperBuilder(B parent, String name) {
 		super(parent, name);
 	}
 
-	public StringCsvFieldMapperBuilder<T> consumer(BiConsumer<T, String> consumer) {
+	public StringCsvFieldMapperBuilder<T, B> consumer(BiConsumer<T, String> consumer) {
 		this.consumer = consumer;
 		
 		return this;
 	}
 
-	public StringCsvFieldMapperBuilder<T> setter(BiConsumer<T, String> setter) {
+	public StringCsvFieldMapperBuilder<T, B> setter(BiConsumer<T, String> setter) {
 		this.setter = setter;
 		
 		return this;
 	}
 	
-	public StringCsvFieldMapperBuilder<T> fixedSize(int fixedSize) {
+	public StringCsvFieldMapperBuilder<T, B> fixedSize(int fixedSize) {
 		super.fixedSize(fixedSize);
 		
 		return this;
@@ -39,7 +39,7 @@ public class StringCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilde
 	 * @return this instance.
 	 */
 	
-	public StringCsvFieldMapperBuilder<T> quoted() {
+	public StringCsvFieldMapperBuilder<T, B> quoted() {
 		super.quoted();
 		
 		return this;
@@ -50,32 +50,32 @@ public class StringCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilde
 	 * 
 	 * @return this instance.
 	 */
-	public StringCsvFieldMapperBuilder<T> quotedWithoutLinebreaks() {
+	public StringCsvFieldMapperBuilder<T, B> quotedWithoutLinebreaks() {
 		super.quotedWithoutLinebreaks();
 		
 		return this;
 	}
 
-	public StringCsvFieldMapperBuilder<T> trimTrailingWhitespaces() {
+	public StringCsvFieldMapperBuilder<T, B> trimTrailingWhitespaces() {
 		super.trimTrailingWhitespaces();
 		
 		return this;
 	}
 
-	public StringCsvFieldMapperBuilder<T> trimLeadingWhitespaces() {
+	public StringCsvFieldMapperBuilder<T, B> trimLeadingWhitespaces() {
 		super.trimLeadingWhitespaces();
 		
 		return this;
 	}
-	
-	@Override
-	public CsvColumnValueConsumer<T> getValueConsumer() {
-		if(consumer != null) {
-			return new StringCsvColumnValueConsumer<>(consumer);
-		}
-		return null;
-	}
 
+	public AbstractColumn build(int index) {
+		AbstractColumn build = super.build(index);
+		if(consumer != null) {
+			build.setBiConsumer(new StringCsvColumnValueConsumer<>(consumer));
+		}
+		return build;
+	}
+	
 	@Override
 	protected Class<?> getColumnClass() {
 		return String.class;
@@ -90,6 +90,10 @@ public class StringCsvFieldMapperBuilder<T> extends AbstractCsvFieldMapperBuilde
 	protected boolean hasSetter() {
 		return setter != null;
 	}
-
+	
+	protected boolean hasBiConsumer() {
+		return consumer != null;
+	}
+	
 }
 
