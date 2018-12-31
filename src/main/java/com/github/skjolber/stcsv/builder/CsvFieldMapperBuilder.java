@@ -1,8 +1,9 @@
 package com.github.skjolber.stcsv.builder;
 
+import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 
-public class CsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> extends AbstractCsvFieldMapperBuilder<T, D> {
+public class CsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>> extends AbstractCsvFieldMapperBuilder<T, D> {
 
 	protected CsvColumnValueConsumer<T> consumer;
 
@@ -60,6 +61,14 @@ public class CsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> exten
 		super.trimLeadingWhitespaces();
 		
 		return this;
+	}
+
+	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy) {
+		if(consumer != null) {
+			column.setBiConsumer(getBiConsumer());
+		} else {
+			super.buildProjection(column, proxy);
+		}
 	}
 
 }

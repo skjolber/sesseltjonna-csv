@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.column.tri.TriConsumer;
 import com.github.skjolber.stcsv.CsvMapper;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
@@ -27,8 +28,8 @@ public class TripsTest {
 	private File file = new File("src/test/resources/gtfs/trips-plain-5000.txt");
 	private File quotedFile = new File("src/test/resources/gtfs/trips-quoted-5000.txt");
 
-	private CsvMapper<Trip, ?> plain;
-	private CsvMapper<Trip, ?> quoted;
+	private CsvMapper<Trip> plain;
+	private CsvMapper<Trip> quoted;
 	
 	@BeforeEach
 	public void init() throws Exception {

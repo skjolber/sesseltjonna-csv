@@ -16,7 +16,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.column.tri.StringCsvColumnValueTriConsumer;
+import com.github.skjolber.stcsv.column.tri.TriConsumer;
 import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.CsvMapper2;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 /**
@@ -28,9 +31,9 @@ public class TripsDelegateTest {
 
 	private File file = new File("src/test/resources/gtfs/trips-plain-5000.txt");
 
-	private CsvMapper<Trip, Cache> plain;
+	private CsvMapper2<Trip, Cache> plain;
 
-	private static class Cache {
+	public static class Cache {
 		Set<String> routes = new HashSet<>();
 		
 		public void add(String str) {
@@ -45,9 +48,12 @@ public class TripsDelegateTest {
 	@BeforeEach
 	public void init() throws Exception {
 		
-		plain = CsvMapper.builder(Trip.class, Cache.class)
+		plain = CsvMapper2.builder(Trip.class, Cache.class)
 				.stringField("route_id")
-					.consumer((a, b, c) -> System.out.println("TEST") )
+					.consumer((a, b, c) -> {
+						System.out.println("Consume for " + a + " " + b + " " + c);
+						b.add(c);
+					})
 					.setter(Trip::setRouteId)
 					.quoted()
 					.optional()
@@ -61,23 +67,55 @@ public class TripsDelegateTest {
 					.setter(Trip::setTripHeadsign)
 					.quoted()
 					.optional()
+					/*
 				.integerField("direction_id")
 					.setter(Trip::setDirectionId)
 					.optional()
+					*/
 				.stringField("shape_id")
 					.setter(Trip::setShapeId)
 					.optional()
+					/*
 				.integerField("wheelchair_accessible")
 					.setter(Trip::setWheelchairAccessible)
 					.optional()
+					*/
 				.build();
 	}
+
+	static TriConsumer<Trip, Cache, String> c = new TriConsumer<Trip, Cache, String>() {
+
+		@Override
+		public void accept(Trip s, Cache t, String u) {
+			System.out.println("ACCEPT");
+		}
+	};
+
+	static Cache cache = new Cache();
+
+	@Test
+	public  void testStuff() {
+
+		StringCsvColumnValueTriConsumer<Trip, Cache> d = new StringCsvColumnValueTriConsumer<>(c);
+		
+		System.out.println("BEFORE");
+		
+		Trip trip = new Trip();
+
+		char[] part = "ABCDEF".toCharArray();
+		
+		d.consume(trip, cache, part, 0, 6);
+		
+		System.out.println("AFTER");
+	}
 	
+
 	@Test
 	public void compareToConventionalParserWithoutQuotes() throws Exception {
 
+		Cache cache = new Cache();
 		CsvParser referenceParser = referenceParser(file, StandardCharsets.UTF_8);
-		CsvReader<Trip> factory = parser(file, StandardCharsets.UTF_8);
+		CsvReader<Trip> factory = parser(file, StandardCharsets.UTF_8, cache);
 		
 		int count = 0;
 		
@@ -123,11 +161,11 @@ public class TripsDelegateTest {
 
 	}
 
-	public CsvReader<Trip> parser(File file, Charset charste) throws Exception {
+	public CsvReader<Trip> parser(File file, Charset charset, Cache cache) throws Exception {
 		InputStream input = new FileInputStream(file);
 		
-		InputStreamReader reader1 = new InputStreamReader(input, charste);
-		return plain.create(reader1);
+		InputStreamReader reader1 = new InputStreamReader(input, charset);
+		return plain.create(reader1, cache);
 	}
 
 	public static CsvParser referenceParser(File file, Charset charset) throws Exception {

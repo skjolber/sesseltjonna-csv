@@ -1,9 +1,19 @@
 package com.github.skjolber.stcsv;
 
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.GETFIELD;
+
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
 
 import com.github.skjolber.stcsv.builder.CsvMappingBuilder2;
 
@@ -28,9 +38,12 @@ public class CsvMapper2<T, D> extends AbstractCsvMapper<T> {
 		super(cls, divider, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
 		
 		this.intermediate = intermediate;
+		this.intermediateInternalName = getInternalName(intermediate);
 	}
 
 	protected final Class<D> intermediate;
+	protected final String intermediateInternalName;
+	
 	protected final Map<String, CsvReaderConstructor2<T, D>> factories = new ConcurrentHashMap<>();
 
 	public CsvReader<T> create(Reader reader, D delegate) throws Exception {
@@ -77,10 +90,12 @@ public class CsvMapper2<T, D> extends AbstractCsvMapper<T> {
 		return constructor.newInstance(reader, current, offset, length, delegate);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CsvReaderConstructor2<T, D> createDefaultScannerFactory(boolean carriageReturns) throws Exception {
 		return new CsvReaderConstructor2(super.createDefaultReaderClass(carriageReturns), intermediate);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CsvReaderConstructor2<T, D> createScannerFactory(boolean carriageReturns, String header) throws Exception {
 		return new CsvReaderConstructor2(super.createReaderClass(carriageReturns, header), intermediate);
 	}
@@ -90,4 +105,24 @@ public class CsvMapper2<T, D> extends AbstractCsvMapper<T> {
 		return new CsvReaderConstructor2(super.createReaderClass(carriageReturns, csvFileFieldNames), intermediate);
 	}
 
+	protected void constructor(ClassWriter classWriter, String subClassInternalName) {
+		constructor(classWriter, subClassInternalName, intermediateInternalName);
+	}
+	
+	@Override
+	protected void fields(ClassWriter classWriter, AbstractColumn[] mapping) {
+		super.fields(classWriter, mapping);
+		
+		if(triConsumer) {
+			classWriter
+			.visitField(ACC_PRIVATE + ACC_FINAL, "intermediate", "L" + intermediateInternalName + ";", null, null)
+			.visitEnd();
+		}
+	}
+	
+	protected void writeTriConsumerVariable(String subClassInternalName, MethodVisitor mv) {
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, subClassInternalName, "intermediate", "L" + intermediateInternalName + ";");
+		mv.visitVarInsn(ASTORE, intermediateIndex);
+	}
 }

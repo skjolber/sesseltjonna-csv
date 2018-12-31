@@ -72,10 +72,12 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CsvReaderConstructor<T> createDefaultScannerFactory(boolean carriageReturns) throws Exception {
 		return new CsvReaderConstructor(super.createDefaultReaderClass(carriageReturns));
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CsvReaderConstructor<T> createScannerFactory(boolean carriageReturns, String header) throws Exception {
 		return new CsvReaderConstructor(super.createReaderClass(carriageReturns, header));
 	}

@@ -2,10 +2,11 @@ package com.github.skjolber.stcsv.builder;
 
 import java.util.function.ObjDoubleConsumer;
 
+import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 import com.github.skjolber.stcsv.column.bi.DoubleCsvColumnValueConsumer;
 
-public class DoubleCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> extends AbstractCsvFieldMapperBuilder<T, D> {
+public class DoubleCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>> extends AbstractCsvFieldMapperBuilder<T, D> {
 
 	protected ObjDoubleConsumer<T> consumer;
 	protected ObjDoubleConsumer<T> setter;
@@ -20,7 +21,6 @@ public class DoubleCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder>
 		return this;
 	}
 	
-
 	public DoubleCsvFieldMapperBuilder<T, D> setter(ObjDoubleConsumer<T> setter) {
 		this.setter = setter;
 		
@@ -71,14 +71,6 @@ public class DoubleCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder>
 	}
 
 	@Override
-	public CsvColumnValueConsumer<T> getBiConsumer() {
-		if(consumer != null) {
-			return new DoubleCsvColumnValueConsumer<>(consumer);	
-		}
-		return null;
-	}
-
-	@Override
 	protected Class<?> getColumnClass() {
 		return double.class;
 	}
@@ -91,6 +83,14 @@ public class DoubleCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder>
 	@Override
 	protected boolean hasSetter() {
 		return setter != null;
+	}
+
+	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy) {
+		if(consumer != null) {
+			column.setBiConsumer(new DoubleCsvColumnValueConsumer<>(consumer));
+		} else {
+			super.buildProjection(column, proxy);
+		}
 	}
 
 }

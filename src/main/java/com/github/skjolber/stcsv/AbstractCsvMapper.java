@@ -70,7 +70,7 @@ public class AbstractCsvMapper<T> {
 	protected static final String csvStaticInitializer = getInternalName(CsvReaderStaticInitializer.class);
 	protected static final String ignoredColumnName = getInternalName(IgnoredColumn.class);
 	protected static final String biConsumerName = getInternalName(CsvColumnValueConsumer.class);
-	protected static final String triConsumerName = getInternalName(CsvColumnValueConsumer.class);
+	protected static final String triConsumerName = getInternalName(CsvColumnValueTriConsumer.class);
 
 	protected static AtomicInteger counter = new AtomicInteger();
 
@@ -111,6 +111,7 @@ public class AbstractCsvMapper<T> {
 	protected final int objectIndex = 3;
 	protected final int startIndex = 4;
 	protected final int rangeIndex = 5;
+	protected final int intermediateIndex = 6;
 
 	protected final Map<String, CsvReaderConstructor<T>> factories = new ConcurrentHashMap<>();
 	protected ClassLoader classLoader;
@@ -136,11 +137,12 @@ public class AbstractCsvMapper<T> {
 			keys.put(column.getName(),  column);
 
 			column.setParent(this);
-			column.setVariableIndexes(currentArrayIndex, currentOffsetIndex, objectIndex, startIndex, rangeIndex);
+			column.setVariableIndexes(currentArrayIndex, currentOffsetIndex, objectIndex, startIndex, rangeIndex, intermediateIndex);
 			
 			if(column.isBiConsumer()) {
 				biConsumer = true;
 			}
+			
 			if(column.isTriConsumer()) {
 				triConsumer = true;
 			}
@@ -182,11 +184,11 @@ public class AbstractCsvMapper<T> {
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
 
-/*
+
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-*/
+
 		return loader.load(classWriter.toByteArray(), subClassName);
 	}
 
@@ -225,10 +227,7 @@ public class AbstractCsvMapper<T> {
 			return null;
 		}
 
-		// https://stackoverflow.com/questions/34589435/get-the-enclosing-class-of-a-java-lambda-expression
-		CsvReaderStaticInitializer.add(subClassName, biConsumers, triConsumers);
-
-		// generics does not work when generating multiple classes; 
+		// generics seems to not work when generating multiple classes; 
 		// fails for class number 2 because of failing method signature
 		// TODO still generate such a beast for the first?
 		classWriter.visit(Opcodes.V1_8,
@@ -239,7 +238,10 @@ public class AbstractCsvMapper<T> {
 				null);
 
 		if(biConsumer || triConsumer) {
-			// write fields
+			// place in-scope values which will be read by static initializer
+			CsvReaderStaticInitializer.add(subClassName, biConsumers, triConsumers);
+
+			// write static fields
 			fields(classWriter, mapping);
 
 			// static initializer
@@ -285,7 +287,6 @@ public class AbstractCsvMapper<T> {
 			mv.visitFieldInsn(GETFIELD, superClassInternalName, "current", "[C");
 			mv.visitVarInsn(ASTORE, currentArrayIndex);		    	
 
-
 			// try-catch block
 			Label startTryCatch = new Label();
 
@@ -303,6 +304,10 @@ public class AbstractCsvMapper<T> {
 				writeSkipEmptyLines(mv, subClassInternalName, carriageReturns);
 			} else if(skipComments) {
 				writeSkipComments(mv, subClassInternalName);
+			}
+			
+			if(triConsumer) {
+				writeTriConsumerVariable(subClassInternalName, mv); 	
 			}
 
 			// init value object, i.e. the object to which data-binding will occur
@@ -386,6 +391,13 @@ public class AbstractCsvMapper<T> {
 
 		classWriter.visitEnd();
 		return subClassName;
+	}
+
+	protected void writeTriConsumerVariable(String subClassInternalName, MethodVisitor mv) {
+	}
+
+	protected void constructor(ClassWriter classWriter, String subClassInternalName) {
+		constructor(classWriter, subClassInternalName, null);
 	}
 
 	private void writeSkipComments(MethodVisitor mv, String subClassInternalName) {
@@ -771,9 +783,16 @@ public class AbstractCsvMapper<T> {
 		}
 	}
 
-	protected void constructor(ClassWriter classWriter, String subClassInternalName) {
+	protected void constructor(ClassWriter classWriter, String subClassInternalName, String intermediateInternalName) {
 		{
-			MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", "(Ljava/io/Reader;)V", null, null);
+			String signature;
+			if(intermediateInternalName == null) {
+				signature = "(Ljava/io/Reader;)V";
+			} else {
+				signature = "(Ljava/io/Reader;L" + intermediateInternalName + ";)V";
+			}
+			
+			MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", signature, null, null);
 			mv.visitCode();
 			Label l0 = new Label();
 			mv.visitLabel(l0);
@@ -781,17 +800,36 @@ public class AbstractCsvMapper<T> {
 			mv.visitVarInsn(ALOAD, 1);
 			mv.visitLdcInsn(new Integer(bufferLength));
 			mv.visitMethodInsn(INVOKESPECIAL, superClassInternalName, "<init>", "(Ljava/io/Reader;I)V", false);
-			mv.visitInsn(RETURN);
+			
+			if(intermediateInternalName != null) {
+				mv.visitVarInsn(ALOAD, 0);
+				mv.visitVarInsn(ALOAD, 2);
+				mv.visitFieldInsn(PUTFIELD, subClassInternalName, "intermediate", "L" + intermediateInternalName + ";");				
+			}
+			
+ 			mv.visitInsn(RETURN);
 			Label l2 = new Label();
 			mv.visitLabel(l2);
 			mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, l0, l2, 0);
 			mv.visitLocalVariable("reader", "Ljava/io/Reader;", null, l0, l2, 1);
-			mv.visitMaxs(3, 2);
+			if(intermediateInternalName != null) {
+				mv.visitLocalVariable("intermediateInternalName", "Ljava/lang/String;", null, l0, l2, 2);
+			}
+			
+			mv.visitMaxs(0, 0);
 			mv.visitEnd();
 		}
 
 		{
-			MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", "(Ljava/io/Reader;[CII)V", null, null);
+			
+			String signature;
+			if(intermediateInternalName == null) {
+				signature = "(Ljava/io/Reader;[CII)V";
+			} else {
+				signature = "(Ljava/io/Reader;[CIIL" + intermediateInternalName + ";)V";
+			}
+
+			MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", signature, null, null);
 			mv.visitCode();
 			Label l0 = new Label();
 			mv.visitLabel(l0);
@@ -801,6 +839,14 @@ public class AbstractCsvMapper<T> {
 			mv.visitVarInsn(ILOAD, 3);
 			mv.visitVarInsn(ILOAD, 4);
 			mv.visitMethodInsn(INVOKESPECIAL, superClassInternalName, "<init>", "(Ljava/io/Reader;[CII)V", false);
+			
+			if(intermediateInternalName != null) {
+				mv.visitVarInsn(ALOAD, 0);
+				mv.visitVarInsn(ALOAD, 5);
+				mv.visitFieldInsn(PUTFIELD, subClassInternalName, "intermediate", "L" + intermediateInternalName + ";");				
+			}
+
+			
 			Label l1 = new Label();
 			mv.visitLabel(l1);
 			mv.visitInsn(RETURN);
@@ -811,7 +857,12 @@ public class AbstractCsvMapper<T> {
 			mv.visitLocalVariable("current", "[C", null, l0, l2, 2);
 			mv.visitLocalVariable("offset", "I", null, l0, l2, 3);
 			mv.visitLocalVariable("length", "I", null, l0, l2, 4);
-			mv.visitMaxs(5, 5);
+			
+			if(intermediateInternalName != null) {
+				mv.visitLocalVariable("intermediateInternalName", "Ljava/lang/String;", null, l0, l2, 5);
+			}
+
+			mv.visitMaxs(0, 0);
 			mv.visitEnd();
 		}
 	}

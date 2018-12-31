@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.column.bi.StringCsvColumnValueConsumer;
 
-public class StringCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder> extends AbstractCsvFieldMapperBuilder<T, B> {
+public class StringCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> extends AbstractCsvFieldMapperBuilder<T, B> {
 
 	protected BiConsumer<T, String> consumer;
 	protected BiConsumer<T, String> setter;
@@ -68,12 +68,12 @@ public class StringCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder>
 		return this;
 	}
 
-	public AbstractColumn build(int index) {
-		AbstractColumn build = super.build(index);
+	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy) {
 		if(consumer != null) {
-			build.setBiConsumer(new StringCsvColumnValueConsumer<>(consumer));
+			column.setBiConsumer(new StringCsvColumnValueConsumer<>(consumer));
+		} else {
+			super.buildProjection(column, proxy);
 		}
-		return build;
 	}
 	
 	@Override
@@ -89,10 +89,6 @@ public class StringCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder>
 	@Override
 	protected boolean hasSetter() {
 		return setter != null;
-	}
-	
-	protected boolean hasBiConsumer() {
-		return consumer != null;
 	}
 	
 }

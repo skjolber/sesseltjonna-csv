@@ -149,7 +149,7 @@ public class ClassicPlainColumn extends AbstractColumn {
 		mv.visitVarInsn(ALOAD, objectIndex);
 
 		mv.visitLdcInsn(new Integer(parent.getDivider()));
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainColumn$Middle", optional ? "orSkip" : "orException", "([CIL" + CsvMapper.consumerName + ";Ljava/lang/Object;C)I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainColumn$Middle", optional ? "orSkip" : "orException", "([CIL" + CsvMapper.biConsumerName + ";Ljava/lang/Object;C)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);
 	}
 
@@ -165,7 +165,7 @@ public class ClassicPlainColumn extends AbstractColumn {
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + biConsumerInternalName + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIL" + CsvMapper.consumerName + ";Ljava/lang/Object;)I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIL" + CsvMapper.biConsumerName + ";Ljava/lang/Object;)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);		
 	}
 	

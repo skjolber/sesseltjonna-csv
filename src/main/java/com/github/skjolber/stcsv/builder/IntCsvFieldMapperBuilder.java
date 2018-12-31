@@ -2,10 +2,11 @@ package com.github.skjolber.stcsv.builder;
 
 import java.util.function.ObjIntConsumer;
 
+import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 import com.github.skjolber.stcsv.column.bi.IntCsvColumnValueConsumer;
 
-public class IntCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> extends AbstractCsvFieldMapperBuilder<T, D> {
+public class IntCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>> extends AbstractCsvFieldMapperBuilder<T, D> {
 
 	protected ObjIntConsumer<T> consumer;
 	protected ObjIntConsumer<T> setter;
@@ -69,14 +70,6 @@ public class IntCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> ex
 	}
 
 	@Override
-	public CsvColumnValueConsumer<T> getBiConsumer() {
-		if(consumer != null) {
-			return new IntCsvColumnValueConsumer<>(consumer);
-		}
-		return null;
-	}
-
-	@Override
 	protected Class<?> getColumnClass() {
 		return int.class;
 	}
@@ -89,6 +82,14 @@ public class IntCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> ex
 	@Override
 	protected boolean hasSetter() {
 		return setter != null;
+	}
+
+	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy) {
+		if(consumer != null) {
+			column.setBiConsumer(new IntCsvColumnValueConsumer<>(consumer));
+		} else {
+			super.buildProjection(column, proxy);
+		}
 	}
 
 }

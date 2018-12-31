@@ -1,5 +1,7 @@
 package com.github.skjolber.stcsv.builder;
 
+import java.lang.reflect.Method;
+
 import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.NoLineBreakQuotedColumn;
 import com.github.skjolber.stcsv.PlainColumn;
@@ -8,7 +10,7 @@ import com.github.skjolber.stcsv.QuotedColumn;
 import com.github.skjolber.stcsv.QuotedFixedColumn;
 import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 
-public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder> {
+public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> {
 
 	protected final String name;
 	protected boolean optional;
@@ -113,16 +115,8 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 	protected boolean isTrimTrailingWhitespaces() {
 		return trimTrailingWhitespaces;
 	}
-	
-	protected CsvColumnValueConsumer<T> getBiConsumer() {
-		return null;
-	}
 
-	protected CsvColumnValueConsumer<T> getTriConsumer() {
-		return null;
-	}
-
-	public AbstractColumn build(int index) {
+	public AbstractColumn build(int index, SetterProjectionHelper<T> proxy) {
 		AbstractColumn column;
 		if(quoted) {
 			if(fixedSize != null) {
@@ -139,31 +133,16 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 				column = new PlainColumn(name, index, optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
 			}
 		}
+		
+		buildProjection(column, proxy);
+		
 		return column;
 	}
 
-	protected String getSetterName() {
-		return "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-	}
-
-	protected String getNormalizedSetterName() {
+	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy) {
+		Method method = proxy.toMethod(this);
 		
-		StringBuilder builder = new StringBuilder("set");
-		
-		boolean high = true;
-		for(int i = 0; i < name.length(); i++) {
-			if(high) {
-				builder.append(Character.toUpperCase(name.charAt(i)));
-				
-				high = false;
-			} else if(name.charAt(i) == '_') {
-				high = true;
-			} else {
-				builder.append(name.charAt(i));
-			}
-		}
-		
-		return builder.toString();
+		column.setSetter(method.getName(), method.getParameterTypes()[0]);
 	}
 	
 	protected Class<?> getColumnClass() {

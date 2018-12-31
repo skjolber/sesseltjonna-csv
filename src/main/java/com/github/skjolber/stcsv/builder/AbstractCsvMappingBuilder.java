@@ -11,7 +11,7 @@ import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.AbstractCsvReader;
 import com.github.skjolber.stcsv.CsvMapper;
 
-public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingBuilder> implements InvocationHandler {
+public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>>  {
 
 	protected static boolean isSafeByteUTF8Delimiter(char c) {
 		//https://en.wikipedia.org/wiki/UTF-8#Description
@@ -35,9 +35,7 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 	
 	protected ClassLoader classLoader;
 
-	protected List<AbstractCsvFieldMapperBuilder<T, ? extends AbstractCsvMappingBuilder<T, B>>> fields = new ArrayList<>();
-
-	protected Method method;
+	protected List<AbstractCsvFieldMapperBuilder<T, ? extends AbstractCsvMappingBuilder<T, ?>>> fields = new ArrayList<>();
 
 	public AbstractCsvMappingBuilder(Class<T> cls) {
 		this.target = cls;
@@ -104,8 +102,8 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 	protected List<AbstractColumn> toColumns() {
 		List<AbstractColumn> columns = new ArrayList<>(fields.size());
 		Set<String> fieldNames = new HashSet<>(fields.size() * 2);
-		
-		T proxy = null;
+
+		SetterProjectionHelper<T> proxy = new SetterProjectionHelper<T>(target);
 		
 		for (int i = 0; i < fields.size(); i++) {
 			AbstractCsvFieldMapperBuilder<T, ?> builder = fields.get(i);
@@ -120,37 +118,7 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 				throw new RuntimeException();
 			}
 
-			AbstractColumn build = builder.build(i);
-
-			if(!builder.hasBiConsumer() && !builder.hasTriConsumer()) {
-				if(builder.hasSetter()) {
-					// detect setter using proxy class
-					if(proxy == null) {
-						try {
-							proxy = generateProxy();
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					}
-					builder.invokeSetter(proxy); // populates the 'method' field
-				} else {
-					// detect setter using reflection, based on the name
-					try {
-						this.method = target.getMethod(builder.getSetterName(), builder.getColumnClass());
-					} catch (NoSuchMethodException e1) {
-						try {
-							this.method = target.getMethod(builder.getNormalizedSetterName(), builder.getColumnClass());
-						} catch (NoSuchMethodException e2) {
-							throw new IllegalArgumentException("Unable to detect setter for class " + target.getName() + " field '" + builder.getName() + "' (" + builder.getSetterName() + "/ "+ builder.getNormalizedSetterName() + ").");
-						}
-					}
-				}
-				build.setSetter(method.getName(), method.getParameterTypes()[0]);
-				
-				this.method = null;
-			}
-
-			columns.add(build);
+			columns.add(builder.build(i, proxy));
 		}
 		return columns;
 	}
@@ -158,26 +126,7 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 	protected ClassLoader getDefaultClassLoader() {
 		return Thread.currentThread().getContextClassLoader();
 	}
-	
-	protected T generateProxy() throws Exception {
-		return (T) new net.bytebuddy.ByteBuddy()
-				  .subclass(target)
-				  .method(net.bytebuddy.matcher.ElementMatchers.any())
-				  .intercept(net.bytebuddy.implementation.InvocationHandlerAdapter.of(this))
-				  .make()
-				  .load(target.getClassLoader()).getLoaded().newInstance();		
-	}
-	
-	public Class<T> getTarget() {
-		return target;
-	}
 
-	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		this.method = method;
-		
-		return null;
-	}
 	
 	public char getEscapeCharacter() {
 		return escapeCharacter;
@@ -187,7 +136,7 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 		return quoteCharacter;
 	}
 
-	protected B field(AbstractCsvFieldMapperBuilder<T, ? extends AbstractCsvMappingBuilder<T, B>> field) {
+	protected B field(AbstractCsvFieldMapperBuilder<T, ? extends AbstractCsvMappingBuilder<T, ?>> field) {
 		this.fields.add(field);
 		
 		return (B) this;

@@ -1,10 +1,13 @@
 package com.github.skjolber.stcsv.builder;
 
+import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.column.bi.BooleanCsvColumnValueConsumer;
 import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 import com.github.skjolber.stcsv.column.bi.ObjBooleanConsumer;
+import com.github.skjolber.stcsv.column.bi.StringCsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.tri.StringCsvColumnValueTriConsumer;
 
-public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder> extends AbstractCsvFieldMapperBuilder<T, D> {
+public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>> extends AbstractCsvFieldMapperBuilder<T, D> {
 
 	protected ObjBooleanConsumer<T> consumer;
 	protected ObjBooleanConsumer<T> setter;
@@ -72,14 +75,6 @@ public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder
 	}
 
 	@Override
-	public CsvColumnValueConsumer<T> getBiConsumer() {
-		if(consumer != null) {
-			return new BooleanCsvColumnValueConsumer<>(consumer);
-		}
-		return null;
-	}
-
-	@Override
 	protected Class<?> getColumnClass() {
 		return boolean.class;
 	}
@@ -93,6 +88,16 @@ public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder
 	protected boolean hasSetter() {
 		return setter != null;
 	}
+	
+	@Override
+	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy) {
+		if(consumer != null) {
+			column.setBiConsumer(new BooleanCsvColumnValueConsumer<>(consumer));
+		} else {
+			super.buildProjection(column, proxy);
+		}
+	}
+
 }
 
 
