@@ -156,14 +156,6 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 	protected boolean hasSetter() {
 		return false;
 	}
-	
-	protected boolean hasBiConsumer() {
-		return false;
-	}
-
-	protected boolean hasTriConsumer() {
-		return false;
-	}
 
 }
 

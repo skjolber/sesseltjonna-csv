@@ -233,7 +233,7 @@ public class CsvLineObjectScannerDefaultTest {
 		builder.append(doubleValue.toString());
 		builder.append("\n");
 
-		CsvReader<CsvLineObject> scanner = reflectionSetterMapping.createDefaultScannerFactory(false).newInstance(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = reflectionSetterMapping.buildDefaultStaticCsvMapper(false).newInstance(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();

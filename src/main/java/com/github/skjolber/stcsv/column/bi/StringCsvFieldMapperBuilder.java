@@ -1,9 +1,11 @@
-package com.github.skjolber.stcsv.builder;
+package com.github.skjolber.stcsv.column.bi;
 
 import java.util.function.BiConsumer;
 
 import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.column.bi.StringCsvColumnValueConsumer;
+import com.github.skjolber.stcsv.builder.AbstractCsvFieldMapperBuilder;
+import com.github.skjolber.stcsv.builder.AbstractCsvMappingBuilder;
+import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
 
 public class StringCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> extends AbstractCsvFieldMapperBuilder<T, B> {
 

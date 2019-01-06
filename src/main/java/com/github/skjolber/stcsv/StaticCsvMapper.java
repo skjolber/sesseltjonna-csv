@@ -4,19 +4,21 @@ import java.io.Reader;
 import java.lang.reflect.Constructor;
 
 /**
- * Wrapper for specific parser implementation
- *
- * @param <T> expected value object
+ * 
+ * Static CSV parser generator - for specific parser implementation
+ * <br><br>
+ * Thread-safe.
+ * @param <T> csv line output value 
  */
 
-public class CsvReaderConstructor<T> {
+public class StaticCsvMapper<T> {
 	
 	// https://stackoverflow.com/questions/28030465/performance-of-invoking-constructor-by-reflection
 	
 	private final Constructor<? extends AbstractCsvReader<T>> readerConstructor;
 	private final Constructor<? extends AbstractCsvReader<T>> readerArrayConstructor;
 
-	public CsvReaderConstructor(Class<? extends AbstractCsvReader<T>> cls) throws Exception {
+	public StaticCsvMapper(Class<? extends AbstractCsvReader<T>> cls) throws Exception {
 		this.readerConstructor = cls.getConstructor(Reader.class);
 		this.readerArrayConstructor  = cls.getConstructor(Reader.class, char[].class, int.class, int.class);
 	}

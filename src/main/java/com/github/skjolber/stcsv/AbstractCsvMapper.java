@@ -33,7 +33,6 @@ import static org.objectweb.asm.Opcodes.RETURN;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -113,8 +112,8 @@ public class AbstractCsvMapper<T> {
 	protected final int rangeIndex = 5;
 	protected final int intermediateIndex = 6;
 
-	protected final Map<String, CsvReaderConstructor<T>> factories = new ConcurrentHashMap<>();
-	protected ClassLoader classLoader;
+	protected final Map<String, StaticCsvMapper<T>> factories = new ConcurrentHashMap<>();
+	protected final ClassLoader classLoader;
 	
 	protected final boolean biConsumer;
 	protected final boolean triConsumer;
@@ -306,10 +305,6 @@ public class AbstractCsvMapper<T> {
 				writeSkipComments(mv, subClassInternalName);
 			}
 			
-			if(triConsumer) {
-				writeTriConsumerVariable(subClassInternalName, mv); 	
-			}
-
 			// init value object, i.e. the object to which data-binding will occur
 			mv.visitTypeInsn(NEW, getInternalName(mappedClass.getName()));
 			mv.visitInsn(DUP);
@@ -321,10 +316,14 @@ public class AbstractCsvMapper<T> {
 				skipColumns(mv, firstIndex);
 			}
 
+			boolean wroteTriConsumer = false;
+			
 			int current = firstIndex;
 			do {
 				AbstractColumn column = mapping[current];
-
+				if(column.isTriConsumer() && !wroteTriConsumer) {
+					writeTriConsumerVariable(subClassInternalName, mv); 	
+				}
 				if(current == mapping.length - 1) {
 					column.last(mv, subClassInternalName, carriageReturns, inline);
 				} else {

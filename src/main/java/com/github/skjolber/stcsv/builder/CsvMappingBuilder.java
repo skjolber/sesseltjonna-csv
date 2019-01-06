@@ -4,13 +4,18 @@ import java.util.List;
 
 import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.column.bi.BooleanCsvFieldMapperBuilder;
+import com.github.skjolber.stcsv.column.bi.CsvFieldMapperBuilder;
+import com.github.skjolber.stcsv.column.bi.DoubleCsvFieldMapperBuilder;
+import com.github.skjolber.stcsv.column.bi.IntCsvFieldMapperBuilder;
+import com.github.skjolber.stcsv.column.bi.LongCsvFieldMapperBuilder;
+import com.github.skjolber.stcsv.column.bi.StringCsvFieldMapperBuilder;
 
 public class CsvMappingBuilder<T> extends AbstractCsvMappingBuilder<T, CsvMappingBuilder<T>> {
 
 	public CsvMappingBuilder(Class<T> cls) {
 		super(cls);
 	}
-	
 
 	public CsvMapper<T> build() {
 		List<AbstractColumn> columns = toColumns();

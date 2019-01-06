@@ -2,7 +2,6 @@ package com.github.skjolber.stcsv;
 
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.GETFIELD;
@@ -22,18 +21,18 @@ import com.github.skjolber.stcsv.builder.CsvMappingBuilder2;
  * Dynamic CSV parser generator. Adapts the underlying implementation according 
  * to the first (header) line.
  * <br><br>
- * Uses ASM to build the parsers.
+ * Uses ASM to build the parser implementations.
  * <br><br>
  * Thread-safe.
  */
 
-public class CsvMapper2<T, D> extends AbstractCsvMapper<T> {
+public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 
 	public static <T, D> CsvMappingBuilder2<T, D> builder(Class<T> cls, Class<D> delegate) {
 		return new CsvMappingBuilder2<T, D>(cls, delegate);
 	}
 
-	public CsvMapper2(Class<T> cls, Class<D> intermediate, char divider, List<AbstractColumn> columns, boolean skipEmptyLines,
+	public CsvMapper2(Class<T> cls, Class<H> intermediate, char divider, List<AbstractColumn> columns, boolean skipEmptyLines,
 			boolean skipComments, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
 		super(cls, divider, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
 		
@@ -41,12 +40,12 @@ public class CsvMapper2<T, D> extends AbstractCsvMapper<T> {
 		this.intermediateInternalName = getInternalName(intermediate);
 	}
 
-	protected final Class<D> intermediate;
+	protected final Class<H> intermediate;
 	protected final String intermediateInternalName;
 	
-	protected final Map<String, CsvReaderConstructor2<T, D>> factories = new ConcurrentHashMap<>();
+	protected final Map<String, StaticCsvMapper2<T, H>> factories = new ConcurrentHashMap<>();
 
-	public CsvReader<T> create(Reader reader, D delegate) throws Exception {
+	public CsvReader<T> create(Reader reader, H helper) throws Exception {
 		// avoid multiple calls to read when locating the first line
 		// so read a full buffer
 		char[] current = new char[bufferLength + 1];
@@ -63,7 +62,7 @@ public class CsvMapper2<T, D> extends AbstractCsvMapper<T> {
 
 			for(int i = start; i < end; i++) {
 				if(current[i] == '\n') {
-					return create(reader, new String(current, 0, i), current, i + 1, end, delegate);
+					return create(reader, new String(current, 0, i), current, i + 1, end, helper);
 				}
 			}
 			start += end;
@@ -72,37 +71,37 @@ public class CsvMapper2<T, D> extends AbstractCsvMapper<T> {
 		throw new IllegalArgumentException("No linebreak found in " + current.length + " characters");
 	}
 
-	public CsvReader<T> create(Reader reader, String header, char[] current, int offset, int length, D delegate) throws Exception {
-		CsvReaderConstructor2<T, D> constructor = factories.get(header); // note: using the stringbuilder as a key does not work
+	public CsvReader<T> create(Reader reader, String header, char[] current, int offset, int length, H helper) throws Exception {
+		StaticCsvMapper2<T, H> constructor = factories.get(header); // note: using the stringbuilder as a key does not work
 		if(constructor == null) {
 			boolean carriageReturns = header.length() > 1 && header.charAt(header.length() - 1) == '\r';
 			List<String> fields = parseNames(header);
 
-			constructor = createScannerFactory(carriageReturns, fields);
+			constructor = buildStaticCsvMapper(carriageReturns, fields);
 			if(constructor == null) {
 				return new EmptyCsvReader<>();
 			}
 			factories.put(header, constructor);
 		}
-		if(delegate != null) {
-			return constructor.newInstance(reader, current, offset, length, delegate);
+		if(helper != null) {
+			return constructor.newInstance(reader, current, offset, length, helper);
 		}
-		return constructor.newInstance(reader, current, offset, length, delegate);
+		return constructor.newInstance(reader, current, offset, length, helper);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public CsvReaderConstructor2<T, D> createDefaultScannerFactory(boolean carriageReturns) throws Exception {
-		return new CsvReaderConstructor2(super.createDefaultReaderClass(carriageReturns), intermediate);
+	public StaticCsvMapper2<T, H> buildDefaultStaticCsvMapper(boolean carriageReturns) throws Exception {
+		return new StaticCsvMapper2(super.createDefaultReaderClass(carriageReturns), intermediate);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public CsvReaderConstructor2<T, D> createScannerFactory(boolean carriageReturns, String header) throws Exception {
-		return new CsvReaderConstructor2(super.createReaderClass(carriageReturns, header), intermediate);
+	public StaticCsvMapper2<T, H> buildStaticCsvMapper(boolean carriageReturns, String header) throws Exception {
+		return new StaticCsvMapper2(super.createReaderClass(carriageReturns, header), intermediate);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public CsvReaderConstructor2<T, D> createScannerFactory(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
-		return new CsvReaderConstructor2(super.createReaderClass(carriageReturns, csvFileFieldNames), intermediate);
+	public StaticCsvMapper2<T, H> buildStaticCsvMapper(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
+		return new StaticCsvMapper2(super.createReaderClass(carriageReturns, csvFileFieldNames), intermediate);
 	}
 
 	protected void constructor(ClassWriter classWriter, String subClassInternalName) {

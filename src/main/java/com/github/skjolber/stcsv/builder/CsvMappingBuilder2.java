@@ -4,6 +4,12 @@ import java.util.List;
 
 import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.CsvMapper2;
+import com.github.skjolber.stcsv.column.tri.BooleanCsvFieldMapperTriBuilder;
+import com.github.skjolber.stcsv.column.tri.CsvFieldMapperTriBuilder;
+import com.github.skjolber.stcsv.column.tri.DoubleCsvFieldMapperTriBuilder;
+import com.github.skjolber.stcsv.column.tri.IntCsvFieldMapperTriBuilder;
+import com.github.skjolber.stcsv.column.tri.LongCsvFieldMapperTriBuilder;
+import com.github.skjolber.stcsv.column.tri.StringCsvFieldMapperTriBuilder;
 
 public class CsvMappingBuilder2<T, D> extends AbstractCsvMappingBuilder<T, CsvMappingBuilder2<T, D>> {
 
@@ -31,34 +37,31 @@ public class CsvMappingBuilder2<T, D> extends AbstractCsvMappingBuilder<T, CsvMa
 	}
 
 	public StringCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>> stringField(String name) {
-		return new StringCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>>(this, name);
+		return new StringCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>>(this, name, intermediate);
 	}
 	
 	public Class<D> getIntermediate() {
 		return intermediate;
 	}
 
-
-	/*
-	public CsvFieldMapperBuilder<T, CsvMappingBuilder3<T>> field(String name) {
-		return new CsvFieldMapperBuilder<T, CsvMappingBuilder3<T>>(this, name);
+	public CsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>> field(String name) {
+		return new CsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>>(this, name, intermediate);
 	}
 
-	public DoubleCsvFieldMapperBuilder<T, CsvMappingBuilder3<T>> doubleField(String name) {
-		return new DoubleCsvFieldMapperBuilder<T, CsvMappingBuilder3<T>>(this, name);
+	public DoubleCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>> doubleField(String name) {
+		return new DoubleCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>>(this, name, intermediate);
+	}
+	
+	public LongCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>> longField(String name) {
+		return new LongCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>>(this, name, intermediate);
+	}
+	
+	public IntCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>> integerField(String name) {
+		return new IntCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>>(this, name, intermediate);
 	}
 
-	public LongCsvFieldMapperBuilder<T, CsvMappingBuilder3<T>> longField(String name) {
-		return new LongCsvFieldMapperBuilder<T, CsvMappingBuilder3<T>>(this, name);
+	public BooleanCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>> booleanField(String name) {
+		return new BooleanCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>>(this, name, intermediate);
 	}
-
-	public IntCsvFieldMapperBuilder<T, CsvMappingBuilder3<T>> integerField(String name) {
-		return new IntCsvFieldMapperBuilder<T, CsvMappingBuilder3<T>>(this, name);
-	}
-
-	public BooleanCsvFieldMapperBuilder<T, CsvMappingBuilder3<T>> booleanField(String name) {
-		return new BooleanCsvFieldMapperBuilder<T, CsvMappingBuilder3<T>>(this, name);
-	}
-	*/
 
 }

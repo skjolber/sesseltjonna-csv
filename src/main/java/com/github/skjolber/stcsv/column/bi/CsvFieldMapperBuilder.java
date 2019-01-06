@@ -1,7 +1,9 @@
-package com.github.skjolber.stcsv.builder;
+package com.github.skjolber.stcsv.column.bi;
 
 import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.builder.AbstractCsvFieldMapperBuilder;
+import com.github.skjolber.stcsv.builder.AbstractCsvMappingBuilder;
+import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
 
 public class CsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>> extends AbstractCsvFieldMapperBuilder<T, D> {
 
@@ -17,10 +19,6 @@ public class CsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>>
 		return this;
 	}
 	
-	public CsvColumnValueConsumer<T> getBiConsumer() {
-		return consumer;
-	}
-
 	public CsvFieldMapperBuilder<T, D> fixedSize(int fixedSize) {
 		super.fixedSize(fixedSize);
 		
@@ -65,7 +63,7 @@ public class CsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>>
 
 	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy) {
 		if(consumer != null) {
-			column.setBiConsumer(getBiConsumer());
+			column.setBiConsumer(consumer);
 		} else {
 			super.buildProjection(column, proxy);
 		}
