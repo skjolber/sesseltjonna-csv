@@ -48,6 +48,8 @@ import org.objectweb.asm.Opcodes;
 import com.github.skjolber.stcsv.builder.CsvMappingBuilder;
 import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 import com.github.skjolber.stcsv.column.tri.CsvColumnValueTriConsumer;
+import com.github.skjolber.stcsv.projection.BiConsumerProjection;
+import com.github.skjolber.stcsv.projection.TriConsumerProjection;
 
 /**
  * 
@@ -61,6 +63,13 @@ import com.github.skjolber.stcsv.column.tri.CsvColumnValueTriConsumer;
 
 public class AbstractCsvMapper<T> {
 
+	public static final int VAR_CURRENT_OFFSET = 1;
+	public static final int VAR_CURRENT_ARRAY = 2;
+	public static final int VAR_OBJECT = 3;
+	public static final int VAR_START = 4;
+	public static final int VAR_RANGE = 5;
+	public static final int VAR_INTERMEDIATE_OBJECT = 6;
+	
 	protected static final String GENERATED_CLASS_SIMPLE_NAME = "GeneratedCsvClassFactory%d";
 	protected static final String GENERATED_CLASS_FULL_NAME = "com.github.skjolber.stcsv." + GENERATED_CLASS_SIMPLE_NAME;
 	protected static final String GENERATED_CLASS_FULL_INTERNAL = "com/github/skjolber/stcsv/" + GENERATED_CLASS_SIMPLE_NAME;
@@ -68,8 +77,6 @@ public class AbstractCsvMapper<T> {
 	protected static final String superClassInternalName = getInternalName(AbstractCsvReader.class);
 	protected static final String csvStaticInitializer = getInternalName(CsvReaderStaticInitializer.class);
 	protected static final String ignoredColumnName = getInternalName(IgnoredColumn.class);
-	protected static final String biConsumerName = getInternalName(CsvColumnValueConsumer.class);
-	protected static final String triConsumerName = getInternalName(CsvColumnValueTriConsumer.class);
 
 	protected static AtomicInteger counter = new AtomicInteger();
 
@@ -105,12 +112,12 @@ public class AbstractCsvMapper<T> {
 	 * 
 	 */
 
-	protected final int currentOffsetIndex = 1;
-	protected final int currentArrayIndex = 2;
-	protected final int objectIndex = 3;
-	protected final int startIndex = 4;
-	protected final int rangeIndex = 5;
-	protected final int intermediateIndex = 6;
+	protected final int currentOffsetIndex = VAR_CURRENT_OFFSET;
+	protected final int currentArrayIndex = VAR_CURRENT_ARRAY;
+	protected final int objectIndex = VAR_OBJECT;
+	protected final int startIndex = VAR_START;
+	protected final int rangeIndex = VAR_RANGE;
+	protected final int intermediateIndex = VAR_INTERMEDIATE_OBJECT;
 
 	protected final Map<String, StaticCsvMapper<T>> factories = new ConcurrentHashMap<>();
 	protected final ClassLoader classLoader;
@@ -216,8 +223,12 @@ public class AbstractCsvMapper<T> {
 					firstIndex = j;
 				}
 
-				biConsumers[j] = field.getBiConsumer();
-				triConsumers[j] = field.getTriConsumer();
+				if(field.isBiConsumer()) {
+					biConsumers[j] = ((BiConsumerProjection)field.getProjection()).getBiConsumer();
+				} else if(field.isTriConsumer()) {
+					triConsumers[j] = ((TriConsumerProjection)field.getProjection()).getTriConsumer();
+				}
+				
 				lastIndex = j;
 			}
 		}
@@ -723,12 +734,12 @@ public class AbstractCsvMapper<T> {
 		mv.visitVarInsn(ALOAD, 0);
 		
 		if(biConsumer) {
-			mv.visitMethodInsn(INVOKEVIRTUAL, "com/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields", "getBiConsumers", "()[L" + biConsumerName + ";", false);
+			mv.visitMethodInsn(INVOKEVIRTUAL, "com/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields", "getBiConsumers", "()[L" + BiConsumerProjection.biConsumerName + ";", false);
 			mv.visitVarInsn(ASTORE, biConsumerArrayIndex);
 		}
 		
 		if(triConsumer) {
-			mv.visitMethodInsn(INVOKEVIRTUAL, "com/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields", "getTriConsumers", "()[L" + triConsumerName + ";", false);
+			mv.visitMethodInsn(INVOKEVIRTUAL, "com/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields", "getTriConsumers", "()[L" + TriConsumerProjection.triConsumerName + ";", false);
 			mv.visitVarInsn(ASTORE, triConsumerArrayIndex);
 		}
 		
@@ -736,17 +747,19 @@ public class AbstractCsvMapper<T> {
 		for (int k = 0; k < columns.length; k++) {
 			if(columns[k] != null) {
 				if(biConsumer && columns[k].isBiConsumer()) {
+					BiConsumerProjection biConsumerProjection = (BiConsumerProjection)columns[k].getProjection();
 					mv.visitVarInsn(ALOAD, biConsumerArrayIndex);
 					mv.visitLdcInsn(new Integer(k));
 					mv.visitInsn(AALOAD);
-					mv.visitTypeInsn(CHECKCAST, columns[k].getBiConsumerInternalName());
-					mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + columns[k].getBiConsumerInternalName() + ";");
+					mv.visitTypeInsn(CHECKCAST, biConsumerProjection.getBiConsumerInternalName());
+					mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + biConsumerProjection.getBiConsumerInternalName() + ";");
 				} else if(triConsumer && columns[k].isTriConsumer()) {
+					TriConsumerProjection triConsumerProjection = (TriConsumerProjection)columns[k].getProjection();
 					mv.visitVarInsn(ALOAD, triConsumerArrayIndex);
 					mv.visitLdcInsn(new Integer(k));
 					mv.visitInsn(AALOAD);
-					mv.visitTypeInsn(CHECKCAST, columns[k].getTriConsumerInternalName());
-					mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + columns[k].getTriConsumerInternalName() + ";");
+					mv.visitTypeInsn(CHECKCAST, triConsumerProjection.getTriConsumerInternalName());
+					mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + triConsumerProjection.getTriConsumerInternalName() + ";");
 				}
 			}
 		}
@@ -756,10 +769,10 @@ public class AbstractCsvMapper<T> {
 		mv.visitInsn(RETURN);
 		mv.visitLocalVariable("fields", "Lcom/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields;", null, startLabel, endLabel, 0);
 		if(biConsumer) {
-			mv.visitLocalVariable("biConsumerList", "[L" + biConsumerName + ";", null, startLabel, endLabel, biConsumerArrayIndex);
+			mv.visitLocalVariable("biConsumerList", "[L" + BiConsumerProjection.biConsumerName + ";", null, startLabel, endLabel, biConsumerArrayIndex);
 		}
 		if(triConsumer) {
-			mv.visitLocalVariable("triConsumerList", "[L" + triConsumerName + ";", null, startLabel, endLabel, triConsumerArrayIndex);
+			mv.visitLocalVariable("triConsumerList", "[L" + TriConsumerProjection.triConsumerName + ";", null, startLabel, endLabel, triConsumerArrayIndex);
 		}
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();		    	
@@ -770,12 +783,14 @@ public class AbstractCsvMapper<T> {
 		for (int k = 0; k < mapping.length; k++) {
 			if(mapping[k] != null) {
 				if(mapping[k].isBiConsumer()) {
+					BiConsumerProjection biConsumerProjection = (BiConsumerProjection)mapping[k].getProjection();
 					classWriter
-					.visitField(ACC_STATIC + ACC_PRIVATE + ACC_FINAL, "v" + mapping[k].getIndex(), "L" + mapping[k].getBiConsumerInternalName() + ";", null, null)
+					.visitField(ACC_STATIC + ACC_PRIVATE + ACC_FINAL, "v" + mapping[k].getIndex(), "L" + biConsumerProjection.getBiConsumerInternalName() + ";", null, null)
 					.visitEnd();
 				} else if(mapping[k].isTriConsumer()) {
+					TriConsumerProjection triConsumerProjection = (TriConsumerProjection)mapping[k].getProjection();
 					classWriter
-					.visitField(ACC_STATIC + ACC_PRIVATE + ACC_FINAL, "v" + mapping[k].getIndex(), "L" + mapping[k].getTriConsumerInternalName() + ";", null, null)
+					.visitField(ACC_STATIC + ACC_PRIVATE + ACC_FINAL, "v" + mapping[k].getIndex(), "L" + triConsumerProjection.getTriConsumerInternalName() + ";", null, null)
 					.visitEnd();
 				}
 			}

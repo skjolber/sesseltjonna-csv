@@ -3,12 +3,14 @@ package com.github.skjolber.stcsv.builder;
 import java.lang.reflect.Method;
 
 import com.github.skjolber.stcsv.AbstractColumn;
+import com.github.skjolber.stcsv.CsvMapper;
 import com.github.skjolber.stcsv.NoLineBreakQuotedColumn;
 import com.github.skjolber.stcsv.PlainColumn;
 import com.github.skjolber.stcsv.PlainFixedColumn;
 import com.github.skjolber.stcsv.QuotedColumn;
 import com.github.skjolber.stcsv.QuotedFixedColumn;
 import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.projection.SetterValueProjection;
 
 public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> {
 
@@ -134,15 +136,15 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 			}
 		}
 		
-		buildProjection(column, proxy);
+		buildProjection(column, proxy, index);
 		
 		return column;
 	}
 
-	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy) {
+	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy, int index) {
 		Method method = proxy.toMethod(this);
 		
-		column.setSetter(method.getName(), method.getParameterTypes()[0]);
+		column.setProjection(new SetterValueProjection(method.getName(), method.getParameterTypes()[0], CsvMapper.getInternalName(parent.getTarget())));
 	}
 	
 	protected Class<?> getColumnClass() {

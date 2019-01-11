@@ -374,17 +374,12 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 
 	@Override
 	public void middle(MethodVisitor mv, String subClassInternalName, boolean inline) {
-		if(biConsumer == null) {
-			throw new IllegalArgumentException();
-		}
+		throw new IllegalArgumentException();
 	}
 
 	@Override
 	public void last(MethodVisitor mv, String subClassInternalName, boolean carriageReturn, boolean inline) {
-		if(biConsumer == null) {
-			throw new IllegalArgumentException();
-		}
-		
+		throw new IllegalArgumentException();
 	}
 	
 }

@@ -141,4 +141,9 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 		
 		return (B) this;
 	}
+
+	public Class<T> getTarget() {
+		return target;
+	}
+	
 }

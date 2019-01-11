@@ -26,6 +26,9 @@ import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 import com.github.skjolber.stcsv.column.bi.StringCsvColumnValueConsumer;
 import com.github.skjolber.stcsv.column.tri.CsvColumnValueTriConsumer;
 import com.github.skjolber.stcsv.column.tri.StringCsvColumnValueTriConsumer;
+import com.github.skjolber.stcsv.projection.BiConsumerProjection;
+import com.github.skjolber.stcsv.projection.TriConsumerProjection;
+import com.github.skjolber.stcsv.projection.ValueProjection;
 
 public abstract class AbstractColumn {
 
@@ -45,16 +48,8 @@ public abstract class AbstractColumn {
 	protected int rangeIndex;
 	protected int intermediateIndex;
 	
-	protected String biConsumerInternalName;
-	protected CsvColumnValueConsumer<?> biConsumer;
-	
-	protected String triConsumerInternalName;
-	protected CsvColumnValueTriConsumer<?, ?> triConsumer;
-
-	protected String setterName;
-	protected Class<?> setterClass;
-	
 	protected Class<?> intermediate;
+	protected ValueProjection projection;
 
 	public AbstractColumn(String name, int index, boolean optional, boolean trimTrailingWhitespaces, boolean trimLeadingWhitespaces) {
 		this.name = name;
@@ -91,19 +86,6 @@ public abstract class AbstractColumn {
 	public String getName() {
 		return name;
 	}
-	
-	public CsvColumnValueConsumer<?> getBiConsumer() {
-		return biConsumer;
-	}
-	
-	public void setBiConsumer(CsvColumnValueConsumer<?> consumer) {
-		this.biConsumer = consumer;
-	}
-
-	public void setTriConsumer(CsvColumnValueTriConsumer<?, ?> consumer, Class<?> intermediate) {
-		this.triConsumer = consumer;
-		this.intermediate = intermediate;
-	}
 
 	public void setParent(AbstractCsvMapper<?> parent) {
 		this.parent = parent;
@@ -113,122 +95,14 @@ public abstract class AbstractColumn {
 		return index;
 	}
 	
-	public String getBiConsumerInternalName() {
-		if(biConsumerInternalName == null) {
-			if(biConsumer.getClass().getPackage().equals(StringCsvColumnValueConsumer.class.getPackage())) {
-				biConsumerInternalName = CsvMapper.getInternalName(biConsumer.getClass());
-			} else {
-				biConsumerInternalName = CsvMapper.biConsumerName;
-			}
-			
-		}
-		return biConsumerInternalName;
-	}
-	
-
-	public String getTriConsumerInternalName() {
-		if(triConsumerInternalName == null) {
-			if(triConsumer.getClass().getPackage().equals(StringCsvColumnValueTriConsumer.class.getPackage())) {
-				// specific subclass
-				triConsumerInternalName = CsvMapper.getInternalName(triConsumer.getClass());
-			} else {
-				triConsumerInternalName = CsvMapper.triConsumerName;
-			}
-		}
-		return triConsumerInternalName;
-	}
-
-	
-	public void setSetter(String setterName, Class<?> setterClass) {
-		this.setterName = setterName;
-		this.setterClass = setterClass;
-	}
-	
 	public boolean isBiConsumer() {
-		return biConsumer != null;
+		return projection instanceof BiConsumerProjection;
 	}
 
 	public boolean isTriConsumer() {
-		return triConsumer != null;
-	}
-
-	protected void doubleSetter(MethodVisitor mv, int endIndex) {
-		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		mv.visitVarInsn(ILOAD, endIndex);
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/stcsv/column/bi/DoubleCsvColumnValueConsumer", "parseDouble", "([CII)D", false);
-		mv.visitMethodInsn(INVOKEVIRTUAL, parent.getMappedClassInternalName(), setterName, "(D)V", false);		
-	}
-
-	protected void booleanSetter(MethodVisitor mv, int endIndex) {
-		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		mv.visitVarInsn(ILOAD, endIndex);
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/stcsv/column/bi/BooleanCsvColumnValueConsumer", "parseBoolean", "([CII)Z", false);
-		mv.visitMethodInsn(INVOKEVIRTUAL, parent.getMappedClassInternalName(), setterName, "(Z)V", false);		
-	}
-
-	protected void longSetter(MethodVisitor mv, int endIndex) {
-		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		mv.visitVarInsn(ILOAD, endIndex);
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/stcsv/column/bi/LongCsvColumnValueConsumer", "parseLong", "([CII)J", false);
-		mv.visitMethodInsn(INVOKEVIRTUAL, parent.getMappedClassInternalName(), setterName, "(J)V", false);		
-	}	
-	
-	protected void intSetter(MethodVisitor mv, int endIndex) {
-		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		mv.visitVarInsn(ILOAD, endIndex);
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/stcsv/column/bi/IntCsvColumnValueConsumer", "parseInt", "([CII)I", false);
-		mv.visitMethodInsn(INVOKEVIRTUAL, parent.getMappedClassInternalName(), setterName, "(I)V", false);		
-	}
-
-	protected void stringSetter(MethodVisitor mv, int endIndex) {
-		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitTypeInsn(NEW, "java/lang/String");
-		mv.visitInsn(DUP);
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		mv.visitVarInsn(ILOAD, endIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		mv.visitInsn(ISUB);
-		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/String", "<init>", "([CII)V", false);
-		mv.visitMethodInsn(INVOKEVIRTUAL, parent.getMappedClassInternalName(), setterName, "(Ljava/lang/String;)V", false);
+		return projection instanceof TriConsumerProjection;
 	}
 	
-	protected void writeSetter(MethodVisitor mv, String subClassInternalName, int endIndex) {
-		if(setterClass == String.class) {
-			stringSetter(mv, endIndex);
-		} else if(setterClass == int.class) {
-			intSetter(mv, endIndex);
-		} else if(setterClass == long.class) {
-			longSetter(mv, endIndex);
-		} else if(setterClass == boolean.class) {
-			booleanSetter(mv, endIndex);
-		} else if(setterClass == double.class) {
-			doubleSetter(mv, endIndex);
-		} else {
-			throw new RuntimeException("No setter for " + getClass().getName());
-		}
-	}
-
-	protected void writeBiConsumer(MethodVisitor mv, String subClassInternalName, int endIndex) {
-		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + biConsumerInternalName + ";");
-		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		mv.visitVarInsn(ILOAD, endIndex);
-		if(biConsumerInternalName == CsvMapper.biConsumerName) {
-			mv.visitMethodInsn(INVOKEINTERFACE, CsvMapper.biConsumerName, "consume", "(Ljava/lang/Object;[CII)V", true);
-		} else {
-			mv.visitMethodInsn(INVOKEVIRTUAL, biConsumerInternalName, "consume", "(Ljava/lang/Object;[CII)V", false);
-		}
-	}
 	
 	protected Label ifNotAtChar(MethodVisitor mv, int character) {
 		// jump to label if the two integer refs are not equal
@@ -347,28 +221,7 @@ public abstract class AbstractColumn {
 	}
 
 	protected void writeValueProjection(MethodVisitor mv, String subClassInternalName, int endIndex) {
-		if(setterName != null) {
-			writeSetter(mv, subClassInternalName, endIndex);
-		} else if(biConsumer != null) {
-			writeBiConsumer(mv, subClassInternalName, endIndex);
-		} else if(triConsumer != null) {
-			writeTriConsumer(mv, subClassInternalName, endIndex);
-		}
-	}
-
-	protected void writeTriConsumer(MethodVisitor mv, String subClassInternalName, int endIndex) {
-		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + triConsumerInternalName + ";");
-		
-		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitVarInsn(ALOAD, intermediateIndex);
-		mv.visitVarInsn(ALOAD, currentArrayIndex);
-		mv.visitVarInsn(ILOAD, startIndex);
-		mv.visitVarInsn(ILOAD, endIndex);
-		if(triConsumerInternalName == CsvMapper.triConsumerName) {
-			mv.visitMethodInsn(INVOKEINTERFACE, CsvMapper.triConsumerName, "consume", "(Ljava/lang/Object;Ljava/lang/Object;[CII)V", true);
-		} else {
-			mv.visitMethodInsn(INVOKEVIRTUAL, triConsumerInternalName, "consume", "(Ljava/lang/Object;Ljava/lang/Object;[CII)V", false);
-		}		
+		projection.write(mv, subClassInternalName, endIndex);
 	}
 
 	protected Label ifLargerThanStart(MethodVisitor mv, int endIndex) {
@@ -402,8 +255,11 @@ public abstract class AbstractColumn {
 		mv.visitJumpInsn(IF_ICMPEQ, add);
 	}
 
-	public CsvColumnValueTriConsumer<?, ?> getTriConsumer() {
-		return triConsumer;
+	public ValueProjection getProjection() {
+		return projection;
 	}
 	
+	public void setProjection(ValueProjection projection) {
+		this.projection = projection;
+	}
 }

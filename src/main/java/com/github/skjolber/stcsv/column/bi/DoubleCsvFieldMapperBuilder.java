@@ -6,6 +6,7 @@ import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.builder.AbstractCsvFieldMapperBuilder;
 import com.github.skjolber.stcsv.builder.AbstractCsvMappingBuilder;
 import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
+import com.github.skjolber.stcsv.projection.BiConsumerProjection;
 
 public class DoubleCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>> extends AbstractCsvFieldMapperBuilder<T, D> {
 
@@ -86,11 +87,11 @@ public class DoubleCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<
 		return setter != null;
 	}
 
-	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy) {
+	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy, int index) {
 		if(consumer != null) {
-			column.setBiConsumer(new DoubleCsvColumnValueConsumer<>(consumer));
+			column.setProjection(new BiConsumerProjection(new DoubleCsvColumnValueConsumer<>(consumer), index));
 		} else {
-			super.buildProjection(column, proxy);
+			super.buildProjection(column, proxy, index);
 		}
 	}
 
