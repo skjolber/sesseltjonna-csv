@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.objectweb.asm.MethodVisitor;
+
 import com.github.skjolber.stcsv.builder.CsvMappingBuilder;
 
 /**
@@ -19,11 +21,11 @@ import com.github.skjolber.stcsv.builder.CsvMappingBuilder;
 
 public class CsvMapper<T> extends AbstractCsvMapper<T> {
 
+	protected final Map<String, StaticCsvMapper<T>> factories = new ConcurrentHashMap<>();
+
 	public static <T> CsvMappingBuilder<T> builder(Class<T> cls) {
 		return new CsvMappingBuilder<T>(cls);
 	}
-
-	protected final Map<String, StaticCsvMapper<T>> factories = new ConcurrentHashMap<>();
 
 	public CsvMapper(Class<T> cls, char divider, List<AbstractColumn> columns, boolean skipEmptyLines,
 			boolean skipComments, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
@@ -89,5 +91,8 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 		return new StaticCsvMapper(super.createReaderClass(carriageReturns, csvFileFieldNames));
 	}
 
+	@Override
+	protected void writeTriConsumerVariable(String subClassInternalName, MethodVisitor mv) {
+	}
 
 }

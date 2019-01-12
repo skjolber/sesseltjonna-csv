@@ -61,7 +61,7 @@ import com.github.skjolber.stcsv.projection.TriConsumerProjection;
  * Thread-safe.
  */
 
-public class AbstractCsvMapper<T> {
+public abstract class AbstractCsvMapper<T> {
 
 	public static final int VAR_CURRENT_OFFSET = 1;
 	public static final int VAR_CURRENT_ARRAY = 2;
@@ -402,8 +402,7 @@ public class AbstractCsvMapper<T> {
 		return subClassName;
 	}
 
-	protected void writeTriConsumerVariable(String subClassInternalName, MethodVisitor mv) {
-	}
+	protected abstract void writeTriConsumerVariable(String subClassInternalName, MethodVisitor mv);
 
 	protected void constructor(ClassWriter classWriter, String subClassInternalName) {
 		constructor(classWriter, subClassInternalName, null);

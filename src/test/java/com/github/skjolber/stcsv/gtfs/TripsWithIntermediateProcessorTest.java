@@ -28,7 +28,7 @@ public class TripsWithIntermediateProcessorTest {
 	private CsvMapper2<Trip, Cache> mapper;
 
 	public static class Cache {
-		Set<String> routes = new HashSet<>();
+		private Set<String> routes = new HashSet<>();
 		
 		public void add(String str) {
 			routes.add(str);

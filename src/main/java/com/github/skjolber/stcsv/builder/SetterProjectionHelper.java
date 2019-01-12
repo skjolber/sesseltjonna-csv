@@ -20,7 +20,7 @@ public class SetterProjectionHelper<T> implements InvocationHandler {
 				  .method(net.bytebuddy.matcher.ElementMatchers.any())
 				  .intercept(net.bytebuddy.implementation.InvocationHandlerAdapter.of(this))
 				  .make()
-				  .load(target.getClassLoader()).getLoaded().newInstance();		
+				  .load(target.getClassLoader()).getLoaded().getDeclaredConstructor().newInstance();		
 	}
 
 	@Override

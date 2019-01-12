@@ -28,6 +28,11 @@ import com.github.skjolber.stcsv.builder.CsvMappingBuilder2;
 
 public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 
+	protected final Class<H> intermediate;
+	protected final String intermediateInternalName;
+	
+	protected final Map<String, StaticCsvMapper2<T, H>> factories = new ConcurrentHashMap<>();
+
 	public static <T, D> CsvMappingBuilder2<T, D> builder(Class<T> cls, Class<D> delegate) {
 		return new CsvMappingBuilder2<T, D>(cls, delegate);
 	}
@@ -39,11 +44,6 @@ public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 		this.intermediate = intermediate;
 		this.intermediateInternalName = getInternalName(intermediate);
 	}
-
-	protected final Class<H> intermediate;
-	protected final String intermediateInternalName;
-	
-	protected final Map<String, StaticCsvMapper2<T, H>> factories = new ConcurrentHashMap<>();
 
 	public CsvReader<T> create(Reader reader, H helper) throws Exception {
 		// avoid multiple calls to read when locating the first line
