@@ -96,7 +96,7 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 		return (B) this;
 	}
 
-	protected List<AbstractColumn> toColumns() {
+	protected List<AbstractColumn> toColumns() throws CsvBuilderException {
 		List<AbstractColumn> columns = new ArrayList<>(fields.size());
 		Set<String> fieldNames = new HashSet<>(fields.size() * 2);
 

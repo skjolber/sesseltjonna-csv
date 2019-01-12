@@ -17,7 +17,7 @@ public class CsvMappingBuilder<T> extends AbstractCsvMappingBuilder<T, CsvMappin
 		super(cls);
 	}
 
-	public CsvMapper<T> build() {
+	public CsvMapper<T> build() throws CsvBuilderException {
 		List<AbstractColumn> columns = toColumns();
 		
 		ClassLoader classLoader = this.classLoader;

@@ -21,7 +21,7 @@ public class CsvMappingBuilder2<T, D> extends AbstractCsvMappingBuilder<T, CsvMa
 		this.intermediate = intermediate;
 	}
 
-	public CsvMapper2<T, D> build() {
+	public CsvMapper2<T, D> build() throws CsvBuilderException {
 		List<AbstractColumn> columns = toColumns();
 		
 		ClassLoader classLoader = this.classLoader;

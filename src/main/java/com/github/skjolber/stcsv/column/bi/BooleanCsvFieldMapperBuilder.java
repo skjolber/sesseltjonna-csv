@@ -1,10 +1,11 @@
 package com.github.skjolber.stcsv.column.bi;
 
-import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.builder.AbstractCsvFieldMapperBuilder;
 import com.github.skjolber.stcsv.builder.AbstractCsvMappingBuilder;
+import com.github.skjolber.stcsv.builder.CsvBuilderException;
 import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
 import com.github.skjolber.stcsv.projection.BiConsumerProjection;
+import com.github.skjolber.stcsv.projection.ValueProjection;
 
 public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>> extends AbstractCsvFieldMapperBuilder<T, D> {
 
@@ -89,12 +90,11 @@ public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder
 	}
 	
 	@Override
-	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy, int index) {
+	protected ValueProjection getProjection(int index, SetterProjectionHelper<T> proxy) throws CsvBuilderException {
 		if(consumer != null) {
-			column.setProjection(new BiConsumerProjection(new BooleanCsvColumnValueConsumer<>(consumer), index));
-		} else {
-			super.buildProjection(column, proxy, index);
+			return new BiConsumerProjection(new BooleanCsvColumnValueConsumer<>(consumer), index);
 		}
+		return super.getProjection(index, proxy);
 	}
 
 }

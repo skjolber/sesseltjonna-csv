@@ -93,6 +93,7 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 
 	@Override
 	protected void writeTriConsumerVariable(String subClassInternalName, MethodVisitor mv) {
+		throw new RuntimeException();
 	}
 
 }

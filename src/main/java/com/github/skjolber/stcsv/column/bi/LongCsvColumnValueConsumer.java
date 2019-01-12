@@ -4,10 +4,10 @@ import java.util.function.ObjLongConsumer;
 
 public class LongCsvColumnValueConsumer<T> implements CsvColumnValueConsumer<T> {
 
-    final static long L_BILLION = 1000000000;
+	protected final static long L_BILLION = 1000000000;
 
-    final static String MIN_LONG_STR_NO_SIGN = String.valueOf(Long.MIN_VALUE).substring(1);
-    final static String MAX_LONG_STR = String.valueOf(Long.MAX_VALUE);
+    protected final static String MIN_LONG_STR_NO_SIGN = String.valueOf(Long.MIN_VALUE).substring(1);
+    protected final static String MAX_LONG_STR = String.valueOf(Long.MAX_VALUE);
 
 	protected final ObjLongConsumer<T> setter;
 		

@@ -2,11 +2,12 @@ package com.github.skjolber.stcsv.column.bi;
 
 import java.util.function.ObjLongConsumer;
 
-import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.builder.AbstractCsvFieldMapperBuilder;
 import com.github.skjolber.stcsv.builder.AbstractCsvMappingBuilder;
+import com.github.skjolber.stcsv.builder.CsvBuilderException;
 import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
 import com.github.skjolber.stcsv.projection.BiConsumerProjection;
+import com.github.skjolber.stcsv.projection.ValueProjection;
 
 public class LongCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> extends AbstractCsvFieldMapperBuilder<T, B> {
 
@@ -86,12 +87,11 @@ public class LongCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder<T,
 		return setter != null;
 	}
 	
-	protected void buildProjection(AbstractColumn column, SetterProjectionHelper<T> proxy, int index) {
+	protected ValueProjection getProjection(int index, SetterProjectionHelper<T> proxy) throws CsvBuilderException {
 		if(consumer != null) {
-			column.setProjection(new BiConsumerProjection(new LongCsvColumnValueConsumer<>(consumer), index));
-		} else {
-			super.buildProjection(column, proxy, index);
+			return new BiConsumerProjection(new LongCsvColumnValueConsumer<>(consumer), index);
 		}
+		return super.getProjection(index, proxy);
 	}
 
 }

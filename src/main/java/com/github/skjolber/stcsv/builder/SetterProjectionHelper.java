@@ -30,12 +30,12 @@ public class SetterProjectionHelper<T> implements InvocationHandler {
 		return null;
 	}
 
-	public Method invokeSetter(AbstractCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) {
+	public Method invokeSetter(AbstractCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
 		if(proxy == null) {
 			try {
 				proxy = generateProxy();
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				throw new CsvBuilderException(e);
 			}
 		}
 		abstractCsvFieldMapperBuilder.invokeSetter(proxy);
@@ -81,13 +81,12 @@ public class SetterProjectionHelper<T> implements InvocationHandler {
 		return builder.toString();
 	}
 
-	public Method toMethod(AbstractCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) {
+	public Method toMethod(AbstractCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
 		if(abstractCsvFieldMapperBuilder.hasSetter()) {
 			// detect setter using proxy class
 			return invokeSetter(abstractCsvFieldMapperBuilder); // populates the 'method' field
-		} else {
-			// detect setter using reflection, based on the name
-			return invokeSetter(abstractCsvFieldMapperBuilder.getName(), abstractCsvFieldMapperBuilder.getColumnClass());
-		}
+		} 
+		// detect setter using reflection, based on the name
+		return invokeSetter(abstractCsvFieldMapperBuilder.getName(), abstractCsvFieldMapperBuilder.getColumnClass());
 	}
 }
