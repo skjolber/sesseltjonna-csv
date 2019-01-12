@@ -163,7 +163,7 @@ public abstract class AbstractCsvMapper<T> {
 		return mappedClass;
 	}
 
-	public int getDivider() {
+	protected int getDivider() {
 		return divider;
 	}
 
@@ -189,11 +189,11 @@ public abstract class AbstractCsvMapper<T> {
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
 
-
+/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-
+*/
 		return loader.load(classWriter.toByteArray(), subClassName);
 	}
 
@@ -408,7 +408,7 @@ public abstract class AbstractCsvMapper<T> {
 		constructor(classWriter, subClassInternalName, null);
 	}
 
-	private void writeSkipComments(MethodVisitor mv, String subClassInternalName) {
+	protected void writeSkipComments(MethodVisitor mv, String subClassInternalName) {
 		final int rangeVariableIndex = 3;
 
 		Label l12 = new Label();
@@ -916,7 +916,7 @@ public abstract class AbstractCsvMapper<T> {
 		return names;
 	}
 
-	public String getMappedClassInternalName() {
+	protected String getMappedClassInternalName() {
 		return mappedClassInternalName;
 	}
 	

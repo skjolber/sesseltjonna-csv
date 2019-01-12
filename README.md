@@ -81,28 +81,28 @@ CsvMapper<City> mapping = CsvMapper.builder(City.class)
 ```
 
 ## Intermediate processor
-The library supports a intermediate processor or helper for resolving complex references on a field basis,
+The library supports an `intermediate processor` for handling complex references. In other words when a column value maps to a child or parent object, it can be resolved at parse or post-processing time. For example by resolving a `Country` when parsing a `City` using an instance of `MyCountryLookup` - first the mapper:
 
 ```java
-CsvMapper<City> mapping = CsvMapper.builder(City.class, MyLookup.class)
+CsvMapper<City> mapping = CsvMapper.builder(City.class, MyCountryLookup.class)
     .longField("Country")
         .consumer((city, lookup, country) -> city.setCountry(lookup.getCountry(country))
         .optional()
 	.build();
 ```
 
-then supply an instance of of the intermediate processor when creating the reader:
+Then supply an instance of of the `intermediate processor` when creating the `CsvRader`:
 
 ```java
-MyLookup lookup = ...;
+MyCountryLookup lookup = ...;
 
 CsvReader<City> csvReader = mapper.create(reader, lookup);
 ```
 
-For parsing multiple CSV files in parallel, or even fragments of files in parallel, with entities referencing each other, store the values in intermediate processor and resolve references as a post-processing step. 
+Using this feature can be essential when parsing multiple CSV files in parallel, or even fragments of the same file in parallel, with entities referencing each other, storing the values in intermediate processors and resolving references as a post-processing step. 
 
 # Performance
-The generated instances are quite fast (i.e. as good as a __hardcoded__ version), but note that the assumption is that the number of different CSV files for a given application or format is limited, so that parsing effectively is performed by a JIT-compiled class and not by a newly generated class for each file.
+The generated instances are extremely fast (i.e. as good as a parser tailored very specifically to the file being parsed), but note that the assumption is that the number of different CSV files for a given application or format is limited, so that parsing effectively is performed by a JIT-compiled class and not by a newly generated class for each file.
 
 To maximize performance (like response time) it is always necessary to pre-warm the JVM regardless of the underlying implementation.
 
@@ -134,7 +134,8 @@ Contributions are welcome, especially those with unit tests ;)
 [Apache 2.0]
 
 # History
- - [1.0.3]: Support for skipping comment lines.
+ - [1.0.4]: Intermediate processor support.
+ - 1.0.3: Support for skipping comment lines.
  - 1.0.2: Support for custom quote and escape characters.
  - 1.0.1: Improve exception handling
  - 1.0.0: Initial release.
@@ -142,7 +143,7 @@ Contributions are welcome, especially those with unit tests ;)
 [Apache 2.0]: 			http://www.apache.org/licenses/LICENSE-2.0.html
 [issue-tracker]:		https://github.com/skjolber/sesseltjonna-csv/issues
 [Maven]:				http://maven.apache.org/
-[1.0.3]:		    	https://github.com/skjolber/sesseltjonna-csv/releases
+[1.0.4]:		    	https://github.com/skjolber/sesseltjonna-csv/releases
 [benchmarks]:			https://github.com/skjolber/csv-benchmark
 [hytta.jpg]:			http://skjolber.github.io/img/hytta.jpg
 [ASM]:					https://asm.ow2.io/
