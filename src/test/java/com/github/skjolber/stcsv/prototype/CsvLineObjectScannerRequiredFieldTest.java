@@ -3,15 +3,14 @@ package com.github.skjolber.stcsv.prototype;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.Reader;
 import java.io.StringReader;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvReader;
-import com.github.skjolber.stcsv.CsvMapper;
 import com.github.skjolber.stcsv.CsvException;
+import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.CsvReader;
 
 public class CsvLineObjectScannerRequiredFieldTest {
 

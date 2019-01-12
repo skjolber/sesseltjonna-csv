@@ -3,15 +3,12 @@ package com.github.skjolber.stcsv.projection;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 import org.objectweb.asm.MethodVisitor;
 
 import com.github.skjolber.stcsv.AbstractCsvMapper;
 import com.github.skjolber.stcsv.CsvMapper;
-import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
-import com.github.skjolber.stcsv.column.bi.StringCsvColumnValueConsumer;
 import com.github.skjolber.stcsv.column.tri.CsvColumnValueTriConsumer;
 import com.github.skjolber.stcsv.column.tri.StringCsvColumnValueTriConsumer;
 

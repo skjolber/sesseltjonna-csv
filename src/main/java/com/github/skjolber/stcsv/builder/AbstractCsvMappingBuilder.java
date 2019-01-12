@@ -1,7 +1,5 @@
 package com.github.skjolber.stcsv.builder;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,14 +7,13 @@ import java.util.Set;
 
 import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.AbstractCsvReader;
-import com.github.skjolber.stcsv.CsvMapper;
 
 public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>>  {
 
 	protected static boolean isSafeByteUTF8Delimiter(char c) {
 		//https://en.wikipedia.org/wiki/UTF-8#Description
 		// all char 2, 3 and 4 are negative numbers in UTF-8
-		return (int)c >= 0;
+		return c >= 0;
 	}
 	
 	protected static boolean isSafeCharDelimiter(char c) {

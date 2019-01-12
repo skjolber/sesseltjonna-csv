@@ -112,12 +112,12 @@ public class AbstractCsvMapper<T> {
 	 * 
 	 */
 
-	protected final int currentOffsetIndex = VAR_CURRENT_OFFSET;
-	protected final int currentArrayIndex = VAR_CURRENT_ARRAY;
-	protected final int objectIndex = VAR_OBJECT;
-	protected final int startIndex = VAR_START;
-	protected final int rangeIndex = VAR_RANGE;
-	protected final int intermediateIndex = VAR_INTERMEDIATE_OBJECT;
+	protected final static int currentOffsetIndex = VAR_CURRENT_OFFSET;
+	protected final static int currentArrayIndex = VAR_CURRENT_ARRAY;
+	protected final static int objectIndex = VAR_OBJECT;
+	protected final static int startIndex = VAR_START;
+	protected final static int rangeIndex = VAR_RANGE;
+	protected final static int intermediateIndex = VAR_INTERMEDIATE_OBJECT;
 
 	protected final Map<String, StaticCsvMapper<T>> factories = new ConcurrentHashMap<>();
 	protected final ClassLoader classLoader;
@@ -143,7 +143,6 @@ public class AbstractCsvMapper<T> {
 			keys.put(column.getName(),  column);
 
 			column.setParent(this);
-			column.setVariableIndexes(currentArrayIndex, currentOffsetIndex, objectIndex, startIndex, rangeIndex, intermediateIndex);
 			
 			if(column.isBiConsumer()) {
 				biConsumer = true;
@@ -441,7 +440,6 @@ public class AbstractCsvMapper<T> {
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ISTORE, rangeVariableIndex);
 				
-		
 		Label l10 = new Label();
 		mv.visitJumpInsn(IFNE, l10);
 		mv.visitInsn(ACONST_NULL);
@@ -485,16 +483,16 @@ public class AbstractCsvMapper<T> {
 		if(skippableFieldsWithoutLinebreaks) {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitLdcInsn(new Integer(divider));
-			mv.visitLdcInsn(new Integer(count));
+			mv.visitLdcInsn(Integer.valueOf(divider));
+			mv.visitLdcInsn(Integer.valueOf(count));
 			mv.visitMethodInsn(INVOKESTATIC, ignoredColumnName, "skipColumnsWithoutLinebreak", "([CICI)I", false);
 			mv.visitVarInsn(ISTORE, currentOffsetIndex);
 		} else {
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitLdcInsn(new Integer(divider));
-			mv.visitLdcInsn(new Integer(count));
+			mv.visitLdcInsn(Integer.valueOf(divider));
+			mv.visitLdcInsn(Integer.valueOf(count));
 			mv.visitMethodInsn(INVOKESTATIC, ignoredColumnName, "skipColumns", "(L" + superClassInternalName + ";[CICI)I", false);
 			mv.visitVarInsn(ISTORE, currentOffsetIndex);
 		}
@@ -749,14 +747,14 @@ public class AbstractCsvMapper<T> {
 				if(biConsumer && columns[k].isBiConsumer()) {
 					BiConsumerProjection biConsumerProjection = (BiConsumerProjection)columns[k].getProjection();
 					mv.visitVarInsn(ALOAD, biConsumerArrayIndex);
-					mv.visitLdcInsn(new Integer(k));
+					mv.visitLdcInsn(Integer.valueOf(k));
 					mv.visitInsn(AALOAD);
 					mv.visitTypeInsn(CHECKCAST, biConsumerProjection.getBiConsumerInternalName());
 					mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + biConsumerProjection.getBiConsumerInternalName() + ";");
 				} else if(triConsumer && columns[k].isTriConsumer()) {
 					TriConsumerProjection triConsumerProjection = (TriConsumerProjection)columns[k].getProjection();
 					mv.visitVarInsn(ALOAD, triConsumerArrayIndex);
-					mv.visitLdcInsn(new Integer(k));
+					mv.visitLdcInsn(Integer.valueOf(k));
 					mv.visitInsn(AALOAD);
 					mv.visitTypeInsn(CHECKCAST, triConsumerProjection.getTriConsumerInternalName());
 					mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + triConsumerProjection.getTriConsumerInternalName() + ";");
@@ -812,7 +810,7 @@ public class AbstractCsvMapper<T> {
 			mv.visitLabel(l0);
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ALOAD, 1);
-			mv.visitLdcInsn(new Integer(bufferLength));
+			mv.visitLdcInsn(Integer.valueOf(bufferLength));
 			mv.visitMethodInsn(INVOKESPECIAL, superClassInternalName, "<init>", "(Ljava/io/Reader;I)V", false);
 			
 			if(intermediateInternalName != null) {

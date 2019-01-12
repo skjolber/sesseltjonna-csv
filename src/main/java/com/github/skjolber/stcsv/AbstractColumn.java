@@ -5,27 +5,18 @@ import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CALOAD;
 import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
 import static org.objectweb.asm.Opcodes.IF_ICMPLT;
 import static org.objectweb.asm.Opcodes.IF_ICMPNE;
 import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.ISTORE;
-import static org.objectweb.asm.Opcodes.ISUB;
 import static org.objectweb.asm.Opcodes.NEW;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
-import com.github.skjolber.stcsv.column.bi.StringCsvColumnValueConsumer;
-import com.github.skjolber.stcsv.column.tri.CsvColumnValueTriConsumer;
-import com.github.skjolber.stcsv.column.tri.StringCsvColumnValueTriConsumer;
 import com.github.skjolber.stcsv.projection.BiConsumerProjection;
 import com.github.skjolber.stcsv.projection.TriConsumerProjection;
 import com.github.skjolber.stcsv.projection.ValueProjection;
@@ -41,12 +32,12 @@ public abstract class AbstractColumn {
 
 	protected AbstractCsvMapper<?> parent;
 
-	protected int currentArrayIndex;
-	protected int currentOffsetIndex;
-	protected int objectIndex;
-	protected int startIndex;
-	protected int rangeIndex;
-	protected int intermediateIndex;
+	protected final static int currentOffsetIndex = AbstractCsvMapper.VAR_CURRENT_OFFSET;
+	protected final static int currentArrayIndex = AbstractCsvMapper.VAR_CURRENT_ARRAY;
+	protected final static int objectIndex = AbstractCsvMapper.VAR_OBJECT;
+	protected final static int startIndex = AbstractCsvMapper.VAR_START;
+	protected final static int rangeIndex = AbstractCsvMapper.VAR_RANGE;
+	protected final static int intermediateIndex = AbstractCsvMapper.VAR_INTERMEDIATE_OBJECT;
 	
 	protected Class<?> intermediate;
 	protected ValueProjection projection;
@@ -57,15 +48,6 @@ public abstract class AbstractColumn {
 		this.optional = optional;
 		this.trimTrailingWhitespaces = trimTrailingWhitespaces;
 		this.trimLeadingWhitespaces = trimLeadingWhitespaces;
-	}
-
-	public void setVariableIndexes(int currentArrayIndex, int currentOffsetIndex, int objectIndex, int startIndex, int rangeIndex, int intermediateIndex) {
-		this.currentArrayIndex = currentArrayIndex;
-		this.currentOffsetIndex = currentOffsetIndex;
-		this.objectIndex = objectIndex;
-		this.startIndex = startIndex;
-		this.rangeIndex = rangeIndex;
-		this.intermediateIndex = intermediateIndex;
 	}
 
 	public void middle(MethodVisitor mv, String subClassInternalName, boolean inline) {
@@ -118,7 +100,7 @@ public abstract class AbstractColumn {
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitInsn(CALOAD);
-		mv.visitLdcInsn(new Integer(character));
+		mv.visitLdcInsn(Integer.valueOf(character));
 		Label l27 = new Label();
 		mv.visitJumpInsn(code, l27);
 		return l27;
@@ -139,7 +121,7 @@ public abstract class AbstractColumn {
 		mv.visitIincInsn(currentOffsetIndex, 1);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitInsn(CALOAD);
-		mv.visitLdcInsn(new Integer(divider));
+		mv.visitLdcInsn(Integer.valueOf(divider));
 		mv.visitJumpInsn(IF_ICMPNE, l29);
 	}
 	
@@ -212,16 +194,12 @@ public abstract class AbstractColumn {
 			mv.visitLabel(writeValueLabel);
 		}
 		
-		writeValueProjection(mv, subClassInternalName, endIndex);
+		projection.write(mv, subClassInternalName, endIndex);
 		
 		if(emptyValueLabel != null) {
 			mv.visitLabel(emptyValueLabel);
 		}
 			
-	}
-
-	protected void writeValueProjection(MethodVisitor mv, String subClassInternalName, int endIndex) {
-		projection.write(mv, subClassInternalName, endIndex);
 	}
 
 	protected Label ifLargerThanStart(MethodVisitor mv, int endIndex) {

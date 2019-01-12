@@ -4,7 +4,6 @@ import com.github.skjolber.stcsv.AbstractColumn;
 import com.github.skjolber.stcsv.builder.AbstractCsvFieldMapperBuilder;
 import com.github.skjolber.stcsv.builder.AbstractCsvMappingBuilder;
 import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
-import com.github.skjolber.stcsv.column.tri.StringCsvColumnValueTriConsumer;
 import com.github.skjolber.stcsv.projection.BiConsumerProjection;
 
 public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>> extends AbstractCsvFieldMapperBuilder<T, D> {

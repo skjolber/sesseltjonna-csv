@@ -9,25 +9,19 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvReader;
-import com.github.skjolber.stcsv.column.tri.StringCsvColumnValueTriConsumer;
-import com.github.skjolber.stcsv.column.tri.TriConsumer;
-import com.github.skjolber.stcsv.CsvMapper;
 import com.github.skjolber.stcsv.CsvMapper2;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
+import com.github.skjolber.stcsv.CsvReader;
 /**
  * 
  * This unit test demonstrates the use of a intermediate processor within the constumer lambda function.
  *
  */
-public class TripsWithHelperTest {
+public class TripsWithIntermediateProcessorTest {
 
 	private File file = new File("src/test/resources/gtfs/trips-plain-5000.txt");
 

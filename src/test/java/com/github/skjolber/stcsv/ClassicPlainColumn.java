@@ -1,7 +1,6 @@
 package com.github.skjolber.stcsv;
 
 import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -11,12 +10,8 @@ import java.io.IOException;
 
 import org.objectweb.asm.MethodVisitor;
 
-import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.AbstractCsvReader;
-import com.github.skjolber.stcsv.CsvMapper;
 import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 import com.github.skjolber.stcsv.projection.BiConsumerProjection;
-import com.github.skjolber.stcsv.CsvException;
 
 public class ClassicPlainColumn extends AbstractColumn {
 
@@ -151,7 +146,7 @@ public class ClassicPlainColumn extends AbstractColumn {
 		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + biConsumerProjection.getBiConsumerInternalName() + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
 
-		mv.visitLdcInsn(new Integer(parent.getDivider()));
+		mv.visitLdcInsn(Integer.valueOf(parent.getDivider()));
 		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainColumn$Middle", optional ? "orSkip" : "orException", "([CIL" + BiConsumerProjection.biConsumerName + ";Ljava/lang/Object;C)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);
 	}

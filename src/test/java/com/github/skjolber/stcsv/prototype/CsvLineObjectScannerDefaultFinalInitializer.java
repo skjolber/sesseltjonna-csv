@@ -14,7 +14,7 @@ public class CsvLineObjectScannerDefaultFinalInitializer extends AbstractCsvRead
 
 	static {
 		BiConsumer<CsvLineObject, String> value = CsvLineObject::setStringValue;
-		StringCsvColumnValueConsumer parser = new StringCsvColumnValueConsumer(value);
+		StringCsvColumnValueConsumer<?> parser = new StringCsvColumnValueConsumer<>(value);
 		
 		CsvReaderStaticInitializer.add(CsvLineObjectScannerDefaultFinalInitializer.class.getName(), new CsvColumnValueConsumer[] {parser}, null);
 	}
@@ -26,12 +26,12 @@ public class CsvLineObjectScannerDefaultFinalInitializer extends AbstractCsvRead
 	static {
 		CsvStaticFields fields = CsvReaderStaticInitializer.remove(CsvLineObjectScannerDefaultFinalInitializer.class.getName());
 		
-		CsvColumnValueConsumer[] biConsumerList = fields.getBiConsumers();
+		CsvColumnValueConsumer<?>[] biConsumerList = fields.getBiConsumers();
 		
-		stringValue0 = (StringCsvColumnValueConsumer) biConsumerList[0];
+		stringValue0 = (StringCsvColumnValueConsumer<?>) biConsumerList[0];
 	}
 	
-	private final static StringCsvColumnValueConsumer stringValue0;
+	private final static StringCsvColumnValueConsumer<?> stringValue0;
 	
 	@Override
 	public CsvLineObject next() throws IOException {

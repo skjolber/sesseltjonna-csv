@@ -101,7 +101,6 @@ CsvReader<City> csvReader = mapper.create(reader, lookup);
 
 For parsing multiple CSV files in parallel, or even fragments of files in parallel, with entities referencing each other, store the values in intermediate processor and resolve references as a post-processing step. 
 
-
 # Performance
 The generated instances are quite fast (i.e. as good as a __hardcoded__ version), but note that the assumption is that the number of different CSV files for a given application or format is limited, so that parsing effectively is performed by a JIT-compiled class and not by a newly generated class for each file.
 
@@ -143,7 +142,7 @@ Contributions are welcome, especially those with unit tests ;)
 [Apache 2.0]: 			http://www.apache.org/licenses/LICENSE-2.0.html
 [issue-tracker]:		https://github.com/skjolber/sesseltjonna-csv/issues
 [Maven]:				http://maven.apache.org/
-[1.0.2]:		    	https://github.com/skjolber/sesseltjonna-csv/releases
+[1.0.3]:		    	https://github.com/skjolber/sesseltjonna-csv/releases
 [benchmarks]:			https://github.com/skjolber/csv-benchmark
 [hytta.jpg]:			http://skjolber.github.io/img/hytta.jpg
 [ASM]:					https://asm.ow2.io/
