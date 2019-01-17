@@ -102,7 +102,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(new Integer(quoteCharacter));
+			mv.visitLdcInsn(Integer.valueOf(quoteCharacter));
 			Label l20 = new Label();
 			mv.visitJumpInsn(IF_ICMPNE, l20);
 			Label l21 = new Label();
@@ -112,7 +112,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 			mv.visitInsn(ICONST_1);
 			mv.visitInsn(IADD);
 			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(new Integer(quoteCharacter));
+			mv.visitLdcInsn(Integer.valueOf(quoteCharacter));
 			Label l22 = new Label();
 			mv.visitJumpInsn(IF_ICMPEQ, l22);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
@@ -120,11 +120,10 @@ public class QuotedFixedColumn extends AbstractColumn {
 			Label l24 = new Label();
 			mv.visitJumpInsn(IF_ICMPLE, l24);
 			
-			
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, startIndex);
 			mv.visitInsn(ISUB);
-			mv.visitLdcInsn(new Integer(fixedSize));
+			mv.visitLdcInsn(Integer.valueOf(fixedSize));
 			Label l46 = new Label();
 			mv.visitJumpInsn(IF_ICMPEQ, l46);
 			
@@ -145,7 +144,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 			mv.visitIincInsn(currentOffsetIndex, 1);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(new Integer(divider));
+			mv.visitLdcInsn(Integer.valueOf(divider));
 			mv.visitJumpInsn(IF_ICMPNE, l26);
 			Label l27 = new Label();
 			mv.visitLabel(l27);
@@ -216,7 +215,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(new Integer(escapeCharacter));
+			mv.visitLdcInsn(Integer.valueOf(escapeCharacter));
 			Label l32 = new Label();
 			mv.visitJumpInsn(IF_ICMPNE, l32);
 			mv.visitVarInsn(ALOAD, currentArrayIndex); 
@@ -240,7 +239,6 @@ public class QuotedFixedColumn extends AbstractColumn {
 			mv.visitIntInsn(SIPUSH, quoteCharacter);
 			Label l38 = new Label();
 			mv.visitJumpInsn(IF_ICMPNE, l38);
-
 			
 			// got value, check if optional
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
@@ -260,7 +258,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, startIndex);
 			mv.visitInsn(ISUB);
-			mv.visitLdcInsn(new Integer(fixedSize));
+			mv.visitLdcInsn(Integer.valueOf(fixedSize));
 			Label l46 = new Label();
 			mv.visitJumpInsn(IF_ICMPEQ, l46);
 			
@@ -277,20 +275,18 @@ public class QuotedFixedColumn extends AbstractColumn {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(new Integer(divider));
+			mv.visitLdcInsn(Integer.valueOf(divider));
 			mv.visitJumpInsn(IF_ICMPNE, l42);
 			
 			Label l45 = new Label();
 			mv.visitJumpInsn(GOTO, l45);
 			mv.visitLabel(l38);
 			
-			
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
 			mv.visitIntInsn(BIPUSH, 10);
 			mv.visitJumpInsn(IF_ICMPNE, l37);
-			
 			
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, rangeIndex);
@@ -317,8 +313,6 @@ public class QuotedFixedColumn extends AbstractColumn {
 			mv.visitIincInsn(currentOffsetIndex, 1);
 			mv.visitJumpInsn(GOTO, l31);
 			mv.visitLabel(l45);
-
-
 		}
 		mv.visitLabel(endLabel);
 		

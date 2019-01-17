@@ -75,7 +75,7 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(new Integer(quoteCharacter));
+			mv.visitLdcInsn(Integer.valueOf(quoteCharacter));
 			Label l20 = new Label();
 			mv.visitJumpInsn(IF_ICMPNE, l20);
 			Label l21 = new Label();
@@ -85,7 +85,7 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitInsn(ICONST_1);
 			mv.visitInsn(IADD);
 			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(new Integer(quoteCharacter));			
+			mv.visitLdcInsn(Integer.valueOf(quoteCharacter));			
 			Label l22 = new Label();
 			mv.visitJumpInsn(IF_ICMPEQ, l22);
 			
@@ -108,7 +108,7 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitIincInsn(currentOffsetIndex, 1);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(new Integer(divider));
+			mv.visitLdcInsn(Integer.valueOf(divider));
 			mv.visitJumpInsn(IF_ICMPNE, l26);
 			Label l27 = new Label();
 			mv.visitLabel(l27);
@@ -179,7 +179,7 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(new Integer(escapeCharacter));
+			mv.visitLdcInsn(Integer.valueOf(escapeCharacter));
 			Label l32 = new Label();
 			mv.visitJumpInsn(IF_ICMPNE, l32);
 			mv.visitVarInsn(ALOAD, currentArrayIndex); 
@@ -229,7 +229,7 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(new Integer(divider));
+			mv.visitLdcInsn(Integer.valueOf(divider));
 			mv.visitJumpInsn(IF_ICMPNE, l42);
 			
 			Label l45 = new Label();

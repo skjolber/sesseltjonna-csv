@@ -7,8 +7,8 @@ import java.io.StringReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvReader;
 import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.CsvReader;
 
 public class CsvLineObjectScannerDividerTest {
 

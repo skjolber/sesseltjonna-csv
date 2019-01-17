@@ -1,7 +1,6 @@
 package com.github.skjolber.stcsv;
 
 import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -9,10 +8,8 @@ import static org.objectweb.asm.Opcodes.ISTORE;
 
 import org.objectweb.asm.MethodVisitor;
 
-import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.CsvMapper;
-import com.github.skjolber.stcsv.CsvException;
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.projection.BiConsumerProjection;
 
 public class ClassicPlainFixedColumn extends AbstractColumn {
 
@@ -131,32 +128,35 @@ public class ClassicPlainFixedColumn extends AbstractColumn {
 
 	@Override
 	public void middle(MethodVisitor mv, String subClassInternalName, boolean inline) {
-		if(consumer == null) {
+		if(!isBiConsumer()) {
 			throw new IllegalArgumentException();
 		}
+		BiConsumerProjection biConsumerProjection = (BiConsumerProjection)projection;
+
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
-		mv.visitLdcInsn(new Integer(fixedSize));
-		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
+		mv.visitLdcInsn(Integer.valueOf(fixedSize));
+		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + biConsumerProjection.getBiConsumerInternalName() + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitLdcInsn(new Integer(parent.getDivider()));
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Middle", optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;C)I", false);
+		mv.visitLdcInsn(Integer.valueOf(parent.getDivider()));
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Middle", optional ? "orSkip" : "orException", "([CIIL" + BiConsumerProjection.biConsumerName + ";Ljava/lang/Object;C)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);
 	}
 
 	@Override
 	public void last(MethodVisitor mv, String subClassInternalName, boolean carriageReturn, boolean inline) {
-		if(consumer == null) {
+		if(!isBiConsumer()) {
 			throw new IllegalArgumentException();
 		}
+		BiConsumerProjection biConsumerProjection = (BiConsumerProjection)projection;
 		String newLineType = carriageReturn ? "NewLineCarriageReturn" : "NewLine";
 	
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
-		mv.visitLdcInsn(new Integer(fixedSize));
-		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + consumerInternalName + ";");
+		mv.visitLdcInsn(Integer.valueOf(fixedSize));
+		mv.visitFieldInsn(GETSTATIC, subClassInternalName, "v" + index, "L" + biConsumerProjection.getBiConsumerInternalName() + ";");
 		mv.visitVarInsn(ALOAD, objectIndex);
-		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIIL" + CsvMapper.consumerName + ";Ljava/lang/Object;)I", false);
+		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainFixedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIIL" + BiConsumerProjection.biConsumerName + ";Ljava/lang/Object;)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);		
 	}	
 }

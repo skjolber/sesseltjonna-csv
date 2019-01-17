@@ -7,8 +7,8 @@ import java.io.StringReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvReader;
 import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.CsvReader;
 
 public class CsvLineObjectScannerDefaultTest {
 
@@ -233,7 +233,7 @@ public class CsvLineObjectScannerDefaultTest {
 		builder.append(doubleValue.toString());
 		builder.append("\n");
 
-		CsvReader<CsvLineObject> scanner = reflectionSetterMapping.createDefaultScannerFactory(false).newInstance(new StringReader(builder.toString()));
+		CsvReader<CsvLineObject> scanner = reflectionSetterMapping.buildDefaultStaticCsvMapper(false).newInstance(new StringReader(builder.toString()));
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();

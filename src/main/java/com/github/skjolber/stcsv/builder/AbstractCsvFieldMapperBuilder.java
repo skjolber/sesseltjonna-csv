@@ -1,14 +1,18 @@
 package com.github.skjolber.stcsv.builder;
 
+import java.lang.reflect.Method;
+
 import com.github.skjolber.stcsv.AbstractColumn;
+import com.github.skjolber.stcsv.CsvMapper;
 import com.github.skjolber.stcsv.NoLineBreakQuotedColumn;
 import com.github.skjolber.stcsv.PlainColumn;
 import com.github.skjolber.stcsv.PlainFixedColumn;
 import com.github.skjolber.stcsv.QuotedColumn;
 import com.github.skjolber.stcsv.QuotedFixedColumn;
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.projection.SetterValueProjection;
+import com.github.skjolber.stcsv.projection.ValueProjection;
 
-public abstract class AbstractCsvFieldMapperBuilder<T> {
+public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> {
 
 	protected final String name;
 	protected boolean optional;
@@ -19,9 +23,9 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 	protected boolean trimTrailingWhitespaces = false;
 	protected boolean trimLeadingWhitespaces = false;
 
-	protected CsvMappingBuilder<T> parent;
+	protected B parent;
 
-	public AbstractCsvFieldMapperBuilder(CsvMappingBuilder<T> parent, String name) {
+	public AbstractCsvFieldMapperBuilder(B parent, String name) {
 		super();
 		this.parent = parent;
 		this.name = name;
@@ -35,20 +39,20 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 		return optional;
 	}
 
-	public CsvMappingBuilder<T> optional() {
+	public B optional() {
 		this.optional = true;
 		parent.field(this);
 		
 		return parent;
 	}
 	
-	public AbstractCsvFieldMapperBuilder<T> fixedSize(int fixedSize) {
+	public AbstractCsvFieldMapperBuilder<T, B> fixedSize(int fixedSize) {
 		this.fixedSize = fixedSize;
 		
 		return this;
 	}
 
-	public CsvMappingBuilder<T> required() {
+	public B required() {
 		this.optional = false;
 
 		parent.field(this);
@@ -75,7 +79,7 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 	 * @return this instance.
 	 */
 	
-	public AbstractCsvFieldMapperBuilder<T> quoted() {
+	public AbstractCsvFieldMapperBuilder<T, B> quoted() {
 		quoted = true;
 		linebreaks = true;
 		
@@ -87,20 +91,20 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 	 * 
 	 * @return this instance.
 	 */
-	public AbstractCsvFieldMapperBuilder<T> quotedWithoutLinebreaks() {
+	public AbstractCsvFieldMapperBuilder<T, B> quotedWithoutLinebreaks() {
 		quoted = true;
 		linebreaks = false;
 		
 		return this;
 	}
 
-	public AbstractCsvFieldMapperBuilder<T> trimTrailingWhitespaces() {
+	public AbstractCsvFieldMapperBuilder<T, B> trimTrailingWhitespaces() {
 		this.trimTrailingWhitespaces = true;
 		
 		return this;
 	}
 
-	public AbstractCsvFieldMapperBuilder<T> trimLeadingWhitespaces() {
+	public AbstractCsvFieldMapperBuilder<T, B> trimLeadingWhitespaces() {
 		this.trimLeadingWhitespaces = true;
 		
 		return this;
@@ -113,10 +117,8 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 	protected boolean isTrimTrailingWhitespaces() {
 		return trimTrailingWhitespaces;
 	}
-	
-	public abstract CsvColumnValueConsumer<T> getValueConsumer();
 
-	public AbstractColumn build(int index) {
+	public AbstractColumn build(int index, SetterProjectionHelper<T> proxy) throws CsvBuilderException {
 		AbstractColumn column;
 		if(quoted) {
 			if(fixedSize != null) {
@@ -133,31 +135,16 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 				column = new PlainColumn(name, index, optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
 			}
 		}
+		
+		column.setProjection(getProjection(index, proxy));
+		
 		return column;
 	}
 
-	protected String getSetterName() {
-		return "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-	}
-
-	protected String getNormalizedSetterName() {
+	protected ValueProjection getProjection(int index, SetterProjectionHelper<T> proxy) throws CsvBuilderException {
+		Method method = proxy.toMethod(this);
 		
-		StringBuilder builder = new StringBuilder("set");
-		
-		boolean high = true;
-		for(int i = 0; i < name.length(); i++) {
-			if(high) {
-				builder.append(Character.toUpperCase(name.charAt(i)));
-				
-				high = false;
-			} else if(name.charAt(i) == '_') {
-				high = true;
-			} else {
-				builder.append(name.charAt(i));
-			}
-		}
-		
-		return builder.toString();
+		return new SetterValueProjection(method.getName(), method.getParameterTypes()[0], CsvMapper.getInternalName(parent.getTarget()));
 	}
 	
 	protected Class<?> getColumnClass() {
@@ -171,6 +158,7 @@ public abstract class AbstractCsvFieldMapperBuilder<T> {
 	protected boolean hasSetter() {
 		return false;
 	}
+
 }
 
 

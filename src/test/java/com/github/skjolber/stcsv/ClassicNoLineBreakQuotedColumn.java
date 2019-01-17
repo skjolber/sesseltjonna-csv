@@ -4,9 +4,7 @@ import java.io.IOException;
 
 import org.objectweb.asm.MethodVisitor;
 
-import com.github.skjolber.stcsv.AbstractColumn;
-import com.github.skjolber.stcsv.CsvException;
-import com.github.skjolber.stcsv.column.CsvColumnValueConsumer;
+import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 
 public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 
@@ -374,17 +372,12 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 
 	@Override
 	public void middle(MethodVisitor mv, String subClassInternalName, boolean inline) {
-		if(consumer == null) {
-			throw new IllegalArgumentException();
-		}
+		throw new IllegalArgumentException();
 	}
 
 	@Override
 	public void last(MethodVisitor mv, String subClassInternalName, boolean carriageReturn, boolean inline) {
-		if(consumer == null) {
-			throw new IllegalArgumentException();
-		}
-		
+		throw new IllegalArgumentException();
 	}
 	
 }
