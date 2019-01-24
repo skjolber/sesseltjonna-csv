@@ -9,7 +9,7 @@ import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
 import com.github.skjolber.stcsv.projection.BiConsumerProjection;
 import com.github.skjolber.stcsv.projection.ValueProjection;
 
-public class DoubleCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>> extends AbstractCsvFieldMapperBuilder<T, D> {
+public class DoubleCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, ?>> extends AbstractCsvFieldMapperBuilder<T, D> {
 
 	protected ObjDoubleConsumer<T> consumer;
 	protected ObjDoubleConsumer<T> setter;
