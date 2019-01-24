@@ -21,7 +21,7 @@ import com.github.skjolber.stcsv.builder.CsvMappingBuilder;
 
 public class CsvMapper<T> extends AbstractCsvMapper<T> {
 
-	protected final Map<String, StaticCsvMapper<T>> factories = new ConcurrentHashMap<>();
+	protected final Map<String, DefaultStaticCsvMapper<T>> factories = new ConcurrentHashMap<>();
 
 	public static <T> CsvMappingBuilder<T> builder(Class<T> cls) {
 		return new CsvMappingBuilder<T>(cls);
@@ -59,7 +59,7 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 	}
 
 	public CsvReader<T> create(Reader reader, String header, char[] current, int offset, int length) throws Exception {
-		StaticCsvMapper<T> constructor = factories.get(header); // note: using the stringbuilder as a key does not work
+		DefaultStaticCsvMapper<T> constructor = factories.get(header); // note: using the stringbuilder as a key does not work
 		if(constructor == null) {
 			boolean carriageReturns = header.length() > 1 && header.charAt(header.length() - 1) == '\r';
 			List<String> fields = parseNames(header);
@@ -77,18 +77,18 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 	// TODO builder pattern
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public StaticCsvMapper<T> buildDefaultStaticCsvMapper(boolean carriageReturns) throws Exception {
-		return new StaticCsvMapper(super.createDefaultReaderClass(carriageReturns));
+	public DefaultStaticCsvMapper<T> buildDefaultStaticCsvMapper(boolean carriageReturns) throws Exception {
+		return new DefaultStaticCsvMapper(super.createDefaultReaderClass(carriageReturns));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public StaticCsvMapper<T> buildStaticCsvMapper(boolean carriageReturns, String header) throws Exception {
-		return new StaticCsvMapper(super.createReaderClass(carriageReturns, header));
+	public DefaultStaticCsvMapper<T> buildStaticCsvMapper(boolean carriageReturns, String header) throws Exception {
+		return new DefaultStaticCsvMapper(super.createReaderClass(carriageReturns, header));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public StaticCsvMapper<T> buildStaticCsvMapper(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
-		return new StaticCsvMapper(super.createReaderClass(carriageReturns, csvFileFieldNames));
+	public DefaultStaticCsvMapper<T> buildStaticCsvMapper(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
+		return new DefaultStaticCsvMapper(super.createReaderClass(carriageReturns, csvFileFieldNames));
 	}
 
 	@Override

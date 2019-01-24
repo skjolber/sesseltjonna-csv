@@ -101,7 +101,7 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 
 	public abstract T next() throws Exception;
 
-	public int getCurrentRange() {
+	protected int getCurrentRange() {
 		return currentRange;
 	}
 

@@ -119,7 +119,7 @@ public abstract class AbstractCsvMapper<T> {
 	protected final static int rangeIndex = VAR_RANGE;
 	protected final static int intermediateIndex = VAR_INTERMEDIATE_OBJECT;
 
-	protected final Map<String, StaticCsvMapper<T>> factories = new ConcurrentHashMap<>();
+	protected final Map<String, DefaultStaticCsvMapper<T>> factories = new ConcurrentHashMap<>();
 	protected final ClassLoader classLoader;
 	
 	protected final boolean biConsumer;
