@@ -31,7 +31,7 @@ public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 	protected final Class<H> intermediate;
 	protected final String intermediateInternalName;
 	
-	protected final Map<String, DefaultStaticCsvMapper2<T, H>> factories = new ConcurrentHashMap<>();
+	protected final Map<String, StaticCsvMapper2<T, H>> factories = new ConcurrentHashMap<>();
 
 	public static <T, D> CsvMappingBuilder2<T, D> builder(Class<T> cls, Class<D> delegate) {
 		return new CsvMappingBuilder2<T, D>(cls, delegate);
@@ -72,7 +72,7 @@ public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 	}
 
 	public CsvReader<T> create(Reader reader, String header, char[] current, int offset, int length, H helper) throws Exception {
-		DefaultStaticCsvMapper2<T, H> constructor = factories.get(header); // note: using the stringbuilder as a key does not work
+		StaticCsvMapper2<T, H> constructor = factories.get(header); // note: using the stringbuilder as a key does not work
 		if(constructor == null) {
 			boolean carriageReturns = header.length() > 1 && header.charAt(header.length() - 1) == '\r';
 			List<String> fields = parseNames(header);
@@ -90,17 +90,30 @@ public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public DefaultStaticCsvMapper2<T, H> buildDefaultStaticCsvMapper(boolean carriageReturns) throws Exception {
+	public StaticCsvMapper2<T, H> buildDefaultStaticCsvMapper(boolean carriageReturns) throws Exception {
 		return new DefaultStaticCsvMapper2(super.createDefaultReaderClass(carriageReturns), intermediate);
 	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public StaticCsvMapper2<T, H> buildStaticCsvMapper(String firstLine) throws Exception {
+		boolean carriageReturns = firstLine.charAt(firstLine.length() - 2) == '\r';
+		String line;
+		if(carriageReturns) {
+			line = firstLine.substring(0, firstLine.length() - 2);
+		} else {
+			line = firstLine.substring(0, firstLine.length() - 1);
+		}
+		return new DefaultStaticCsvMapper2(super.createReaderClass(carriageReturns, line), intermediate);
+	}
+	
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public DefaultStaticCsvMapper2<T, H> buildStaticCsvMapper(boolean carriageReturns, String header) throws Exception {
+	public StaticCsvMapper2<T, H> buildStaticCsvMapper(boolean carriageReturns, String header) throws Exception {
 		return new DefaultStaticCsvMapper2(super.createReaderClass(carriageReturns, header), intermediate);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public DefaultStaticCsvMapper2<T, H> buildStaticCsvMapper(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
+	public StaticCsvMapper2<T, H> buildStaticCsvMapper(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
 		return new DefaultStaticCsvMapper2(super.createReaderClass(carriageReturns, csvFileFieldNames), intermediate);
 	}
 
@@ -112,11 +125,9 @@ public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 	protected void fields(ClassWriter classWriter, AbstractColumn[] mapping) {
 		super.fields(classWriter, mapping);
 		
-		if(triConsumer) {
-			classWriter
-			.visitField(ACC_PRIVATE + ACC_FINAL, "intermediate", "L" + intermediateInternalName + ";", null, null)
-			.visitEnd();
-		}
+		classWriter
+		.visitField(ACC_PRIVATE + ACC_FINAL, "intermediate", "L" + intermediateInternalName + ";", null, null)
+		.visitEnd();
 	}
 	
 	protected void writeTriConsumerVariable(String subClassInternalName, MethodVisitor mv) {

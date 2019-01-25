@@ -189,11 +189,11 @@ public abstract class AbstractCsvMapper<T> {
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
 
-/*
+		/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-*/
+		*/
 		return loader.load(classWriter.toByteArray(), subClassName);
 	}
 
@@ -246,12 +246,12 @@ public abstract class AbstractCsvMapper<T> {
 				superClassInternalName,
 				null);
 
+		// write static fields
+		fields(classWriter, mapping);
+
 		if(biConsumer || triConsumer) {
 			// place in-scope values which will be read by static initializer
 			CsvReaderStaticInitializer.add(subClassName, biConsumers, triConsumers);
-
-			// write static fields
-			fields(classWriter, mapping);
 
 			// static initializer
 			staticInitializer(classWriter, mapping, subClassInternalName, subClassName);

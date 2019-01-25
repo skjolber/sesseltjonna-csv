@@ -27,7 +27,7 @@ public class DefaultStaticCsvMapper<T> implements StaticCsvMapper<T> {
 		try {
 			return readerConstructor.newInstance(reader);
 		} catch (Exception e) {
-			throw new RuntimeException(); // should never happen
+			throw new RuntimeException(e); // should never happen
 		}
 	}
 	
@@ -35,7 +35,7 @@ public class DefaultStaticCsvMapper<T> implements StaticCsvMapper<T> {
 		try {
 			return readerArrayConstructor.newInstance(reader, current, offset, length);
 		} catch (Exception e) {
-			throw new RuntimeException(); // should never happen
+			throw new RuntimeException(e); // should never happen
 		}
 	}
 
