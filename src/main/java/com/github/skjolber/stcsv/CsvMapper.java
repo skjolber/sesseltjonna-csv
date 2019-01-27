@@ -78,17 +78,29 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public StaticCsvMapper<T> buildDefaultStaticCsvMapper(boolean carriageReturns) throws Exception {
-		return new StaticCsvMapper(super.createDefaultReaderClass(carriageReturns));
+		return new DefaultStaticCsvMapper(super.createDefaultReaderClass(carriageReturns));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public StaticCsvMapper<T> buildStaticCsvMapper(String firstLine) throws Exception {
+		boolean carriageReturns = firstLine.charAt(firstLine.length() - 2) == '\r';
+		String line;
+		if(carriageReturns) {
+			line = firstLine.substring(0, firstLine.length() - 2);
+		} else {
+			line = firstLine.substring(0, firstLine.length() - 1);
+		}
+		return new DefaultStaticCsvMapper(super.createReaderClass(carriageReturns, line));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public StaticCsvMapper<T> buildStaticCsvMapper(boolean carriageReturns, String header) throws Exception {
-		return new StaticCsvMapper(super.createReaderClass(carriageReturns, header));
+		return new DefaultStaticCsvMapper(super.createReaderClass(carriageReturns, header));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public StaticCsvMapper<T> buildStaticCsvMapper(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
-		return new StaticCsvMapper(super.createReaderClass(carriageReturns, csvFileFieldNames));
+		return new DefaultStaticCsvMapper(super.createReaderClass(carriageReturns, csvFileFieldNames));
 	}
 
 	@Override

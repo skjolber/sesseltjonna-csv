@@ -7,7 +7,7 @@ import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
 import com.github.skjolber.stcsv.projection.BiConsumerProjection;
 import com.github.skjolber.stcsv.projection.ValueProjection;
 
-public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, D>> extends AbstractCsvFieldMapperBuilder<T, D> {
+public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, ?>> extends AbstractCsvFieldMapperBuilder<T, D> {
 
 	protected ObjBooleanConsumer<T> consumer;
 	protected ObjBooleanConsumer<T> setter;

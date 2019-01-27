@@ -91,17 +91,30 @@ public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public StaticCsvMapper2<T, H> buildDefaultStaticCsvMapper(boolean carriageReturns) throws Exception {
-		return new StaticCsvMapper2(super.createDefaultReaderClass(carriageReturns), intermediate);
+		return new DefaultStaticCsvMapper2(super.createDefaultReaderClass(carriageReturns), intermediate);
 	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public StaticCsvMapper2<T, H> buildStaticCsvMapper(String firstLine) throws Exception {
+		boolean carriageReturns = firstLine.charAt(firstLine.length() - 2) == '\r';
+		String line;
+		if(carriageReturns) {
+			line = firstLine.substring(0, firstLine.length() - 2);
+		} else {
+			line = firstLine.substring(0, firstLine.length() - 1);
+		}
+		return new DefaultStaticCsvMapper2(super.createReaderClass(carriageReturns, line), intermediate);
+	}
+	
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public StaticCsvMapper2<T, H> buildStaticCsvMapper(boolean carriageReturns, String header) throws Exception {
-		return new StaticCsvMapper2(super.createReaderClass(carriageReturns, header), intermediate);
+		return new DefaultStaticCsvMapper2(super.createReaderClass(carriageReturns, header), intermediate);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public StaticCsvMapper2<T, H> buildStaticCsvMapper(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
-		return new StaticCsvMapper2(super.createReaderClass(carriageReturns, csvFileFieldNames), intermediate);
+		return new DefaultStaticCsvMapper2(super.createReaderClass(carriageReturns, csvFileFieldNames), intermediate);
 	}
 
 	protected void constructor(ClassWriter classWriter, String subClassInternalName) {
@@ -112,11 +125,9 @@ public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 	protected void fields(ClassWriter classWriter, AbstractColumn[] mapping) {
 		super.fields(classWriter, mapping);
 		
-		if(triConsumer) {
-			classWriter
-			.visitField(ACC_PRIVATE + ACC_FINAL, "intermediate", "L" + intermediateInternalName + ";", null, null)
-			.visitEnd();
-		}
+		classWriter
+		.visitField(ACC_PRIVATE + ACC_FINAL, "intermediate", "L" + intermediateInternalName + ";", null, null)
+		.visitEnd();
 	}
 	
 	protected void writeTriConsumerVariable(String subClassInternalName, MethodVisitor mv) {
