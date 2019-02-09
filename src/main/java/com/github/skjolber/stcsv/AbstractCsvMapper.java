@@ -188,12 +188,11 @@ public abstract class AbstractCsvMapper<T> {
 			return null;
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
-
-		/*
+/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-		*/
+	*/	
 		return loader.load(classWriter.toByteArray(), subClassName);
 	}
 
@@ -722,20 +721,20 @@ public abstract class AbstractCsvMapper<T> {
 		Label startLabel = new Label();
 		mv.visitLabel(startLabel);
 
-		int biConsumerArrayIndex = 1;
-		int triConsumerArrayIndex = 2;
+		int biConsumerArrayIndex = 2;
+		int triConsumerArrayIndex = 3;
 
 		mv.visitLdcInsn(className);
 		mv.visitMethodInsn(INVOKESTATIC, csvStaticInitializer, "remove", "(Ljava/lang/String;)Lcom/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields;", false);
 		mv.visitVarInsn(ASTORE, 0);
-		mv.visitVarInsn(ALOAD, 0);
 		
 		if(biConsumer) {
+			mv.visitVarInsn(ALOAD, 0);
 			mv.visitMethodInsn(INVOKEVIRTUAL, "com/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields", "getBiConsumers", "()[L" + BiConsumerProjection.biConsumerName + ";", false);
 			mv.visitVarInsn(ASTORE, biConsumerArrayIndex);
 		}
-		
 		if(triConsumer) {
+			mv.visitVarInsn(ALOAD, 0);
 			mv.visitMethodInsn(INVOKEVIRTUAL, "com/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields", "getTriConsumers", "()[L" + TriConsumerProjection.triConsumerName + ";", false);
 			mv.visitVarInsn(ASTORE, triConsumerArrayIndex);
 		}
@@ -772,6 +771,7 @@ public abstract class AbstractCsvMapper<T> {
 			mv.visitLocalVariable("triConsumerList", "[L" + TriConsumerProjection.triConsumerName + ";", null, startLabel, endLabel, triConsumerArrayIndex);
 		}
 		mv.visitMaxs(0, 0);
+		
 		mv.visitEnd();		    	
 	}
 

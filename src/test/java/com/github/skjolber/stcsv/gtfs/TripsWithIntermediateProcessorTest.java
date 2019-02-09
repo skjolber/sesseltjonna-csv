@@ -98,4 +98,17 @@ public class TripsWithIntermediateProcessorTest {
 		return mapper.create(reader1, cache); // note additional cache parameter
 	}
 
+	@Test
+	public void testJustConsumers() throws Exception {
+		CsvMapper2 parser = CsvMapper2.builder(Trip.class, Cache.class)
+			.stringField("trip_id")
+				.consumer( (t, id) -> t.setTripId(id) )
+				.required()
+			.stringField("shape_id")
+				.consumer( (t, a, id) -> t.setShapeId(id) )
+				.optional()
+			.build();
+		
+		parser.buildDefaultStaticCsvMapper(true);
+	}
 }
