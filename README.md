@@ -27,7 +27,7 @@ Example dependency config:
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>sesseltjonna-csv</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
 </dependency>
 ```
 
@@ -134,7 +134,9 @@ Contributions are welcome, especially those with unit tests ;)
 [Apache 2.0]
 
 # History
- - [1.0.6]: Fix issue with using bi- and triconsumers at the same time.
+
+ - [1.0.7]: Fix integer parsing
+ - 1.0.6: Fix issue with using bi- and triconsumers at the same time.
  - 1.0.5: Bug fixes and minor refactorings
  - 1.0.4: Intermediate processor support.
  - 1.0.3: Support for skipping comment lines.
@@ -145,7 +147,7 @@ Contributions are welcome, especially those with unit tests ;)
 [Apache 2.0]: 			http://www.apache.org/licenses/LICENSE-2.0.html
 [issue-tracker]:		https://github.com/skjolber/sesseltjonna-csv/issues
 [Maven]:				http://maven.apache.org/
-[1.0.6]:		    	https://github.com/skjolber/sesseltjonna-csv/releases
+[1.0.7]:		    	https://github.com/skjolber/sesseltjonna-csv/releases
 [benchmarks]:			https://github.com/skjolber/csv-benchmark
 [hytta.jpg]:			http://skjolber.github.io/img/hytta.jpg
 [ASM]:					https://asm.ow2.io/
