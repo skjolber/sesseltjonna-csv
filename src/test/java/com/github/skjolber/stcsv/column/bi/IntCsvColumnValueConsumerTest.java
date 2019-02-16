@@ -27,20 +27,18 @@ public class IntCsvColumnValueConsumerTest {
         assertEquals(10, parseInt(testChars, 0, 2));
         assertEquals(0, parseInt(testChars, 1, 1));
         
-        for(int i = 0; i < 16; i++) {
-        	int number = Integer.MAX_VALUE >> i;
-        	String text = Integer.toString(number);
-        	assertEquals(number, parseInt(text.toCharArray(), 0, text.length()));
-        }
-        for(int i = 0; i < 16; i++) {
-        	int number = Integer.MIN_VALUE >> i;
-        	String text = Integer.toString(number);
-        	assertEquals(number, parseInt(text.toCharArray(), 0, text.length()));
+    	int number = Integer.MAX_VALUE;
+        for(int i = 0; i < 10; i++) {
+        	String p = Integer.toString(number);
+        	assertEquals(number, parseInt(p.toCharArray(), 0, p.length()));
+        	String n = Integer.toString(-number);
+        	assertEquals(-number, parseInt(n.toCharArray(), 0, n.length()));
+        	
+        	number = number / 10;
         }
     }
-	
+
 	private int parseInt(char[] ch, int i, int j) {
 		return IntCsvColumnValueConsumer.parseInt(ch, i, i + j);
 	}
-  	
 }

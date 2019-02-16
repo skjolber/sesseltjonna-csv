@@ -27,20 +27,22 @@ public class IntCsvColumnValueConsumer<T> implements CsvColumnValueConsumer<T> {
 	
     public static int parseInt(char[] ch, int offset, int end) {
         /* Ok: let's keep strategy simple: ignoring optional minus sign,
-         * we'll accept 1 - 10 digits and parse things efficiently;
+         * we'll parse 1 - 9 digits more efficiently;
          * otherwise just defer to JDK parse functionality.
          */
         int len = end - offset;
         boolean neg = (ch[offset] == '-');
-        // must have 1 - 10 digits after optional sign:
+        // must have 1 - 9 digits after optional sign:
         // negative?
         if (neg) {
-            if (len == 1 || len > 11) {
+            if (len == 1 || len > 10) {
+            	// this handles both overflow and numbers close to overflowing
                 return Integer.parseInt(new String(ch, end - len, len));
             }
             offset++;
         } else {
-            if (len > 10) {
+            if (len > 9) {
+            	// this handles both overflow and numbers close to overflowing
             	return Integer.parseInt(new String(ch, end - len, len));
             }
         }
