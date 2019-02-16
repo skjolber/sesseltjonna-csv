@@ -27,51 +27,53 @@ public class IntCsvColumnValueConsumer<T> implements CsvColumnValueConsumer<T> {
 	
     public static int parseInt(char[] ch, int offset, int end) {
         /* Ok: let's keep strategy simple: ignoring optional minus sign,
-         * we'll accept 1 - 9 digits and parse things efficiently;
+         * we'll parse 1 - 9 digits more efficiently;
          * otherwise just defer to JDK parse functionality.
          */
         int len = end - offset;
         boolean neg = (ch[offset] == '-');
-        
         // must have 1 - 9 digits after optional sign:
         // negative?
         if (neg) {
             if (len == 1 || len > 10) {
-                return Integer.parseInt(new String(ch, offset, end - offset));
+            	// this handles both overflow and numbers close to overflowing
+                return Integer.parseInt(new String(ch, end - len, len));
             }
             offset++;
         } else {
             if (len > 9) {
-            	Integer.parseInt(new String(ch, offset, end - offset));
+            	// this handles both overflow and numbers close to overflowing
+            	return Integer.parseInt(new String(ch, end - len, len));
             }
         }
         char c = ch[offset++];
         
         if (c > '9' || c < '0') {
-            return Integer.parseInt(new String(ch, offset, end - offset));
+            return Integer.parseInt(new String(ch, end - len, len));
         }
         int num = c - '0';
-        if (offset < len) {
+        
+        if (offset < end) {
             c = ch[offset++];
             if (c > '9' || c < '0') {
-                return Integer.parseInt(new String(ch, offset, end - offset));
+                return Integer.parseInt(new String(ch, end - len, len));
             }
             num = (num * 10) + (c - '0');
-            if (offset < len) {
+            if (offset < end) {
                 c = ch[offset++];
                 if (c > '9' || c < '0') {
-                    return Integer.parseInt(new String(ch, offset, end - offset));
+                    return Integer.parseInt(new String(ch, end - len, len));
                 }
                 num = (num * 10) + (c - '0');
                 // Let's just loop if we have more than 3 digits:
-                if (offset < len) {
+                if (offset < end) {
                     do {
                         c = ch[offset++];
                         if (c > '9' || c < '0') {
-                            return Integer.parseInt(new String(ch, offset, end - offset));
+                            return Integer.parseInt(new String(ch, end - len, len));
                         }
                         num = (num * 10) + (c - '0');
-                    } while (offset < len);
+                    } while (offset < end);
                 }
             }
         }

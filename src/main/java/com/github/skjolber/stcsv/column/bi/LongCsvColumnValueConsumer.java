@@ -21,16 +21,23 @@ public class LongCsvColumnValueConsumer<T> implements CsvColumnValueConsumer<T> 
 	}
 
     public static long parseLong(char[] ch, int off, int end) {
+    	boolean neg = (ch[off] == '-');
+    	if(neg) {
+    		off++;
+    	}
+    	
     	int len = end - off;
     	
     	if(len > 9) {
              int len1 = len-9;
     		
-    		 long val = parseInteger(ch, off, len1) * L_BILLION;    		
-
-    		 return val + (long) parseInteger(ch, off+len1, 9);
+    		 long val = parseInteger(ch, off, len1) * L_BILLION + parseInteger(ch, off+len1, 9);    		
+    		 
+    		 return neg ? -val : val;
     	} else {
-    		return (long) parseInteger(ch, off, end);
+    		long val =  parseInteger(ch, off, end - off);
+    		
+    		return neg ? -val : val;
     	}
     }
 
@@ -38,46 +45,38 @@ public class LongCsvColumnValueConsumer<T> implements CsvColumnValueConsumer<T> 
      * Fast method for parsing integers that are known to fit into
      * regular 32-bit signed int type. This means that length is
      * between 1 and 9 digits (inclusive)
-     *<p>
-     * Note: public to let unit tests call it
      * 
 	 * @param ch array
 	 * @param off start index (inclusive)
-	 * @param end end index (exclusive)
+	 * @param len length 
      * @return parsed value
      */
     
-    public static int parseInteger(char[] ch, int off, int end) {
-    	// https://stackoverflow.com/questions/1030479/most-efficient-way-of-converting-string-to-integer-in-java
-    	
-    	int len = end - off;
-        int num = ch[off] - '0';
-
-        if (len > 4) {
-            num = (num * 10) + (ch[++off] - '0');
-            num = (num * 10) + (ch[++off] - '0');
-            num = (num * 10) + (ch[++off] - '0');
-            num = (num * 10) + (ch[++off] - '0');
-            len -= 4;
-            if (len > 4) {
-                num = (num * 10) + (ch[++off] - '0');
-                num = (num * 10) + (ch[++off] - '0');
-                num = (num * 10) + (ch[++off] - '0');
-                num = (num * 10) + (ch[++off] - '0');
-                return num;
-            }
+    protected static int parseInteger(char[] ch, int off, int len)
+    {
+        int num = ch[off + len - 1] - '0'; // LSD
+        
+        switch(len) {
+        case 9: 
+            num += (ch[off++] - '0') * 100000000;
+        case 8: 
+            num += (ch[off++] - '0') * 10000000;
+        case 7: 
+            num += (ch[off++] - '0') * 1000000;
+        case 6: 
+            num += (ch[off++] - '0') * 100000;
+        case 5: 
+            num += (ch[off++] - '0') * 10000;
+        case 4: 
+            num += (ch[off++] - '0') * 1000;
+        case 3: 
+            num += (ch[off++] - '0') * 100;
+        case 2: 
+            num += (ch[off] - '0') * 10;
+        default: return num;
         }
-        if (len > 1) {
-            num = (num * 10) + (ch[++off] - '0');
-            if (len > 2) {
-                num = (num * 10) + (ch[++off] - '0');
-                if (len > 3) {
-                    num = (num * 10) + (ch[++off] - '0');
-                }
-            }
-        }
-        return num;
     }
+    
 
     
 
