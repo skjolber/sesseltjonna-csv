@@ -1,8 +1,6 @@
-# sesseltjonna-csv: High-performance CSV databinding
-![alt text][hytta.jpg]
-
 [![Build Status](https://travis-ci.org/skjolber/sesseltjonna-csv.svg)](https://travis-ci.org/skjolber/sesseltjonna-csv)
 
+# sesseltjonna-csv: High-performance CSV databinding
 **sesseltjonna-csv** is a high-performance CSV databinding library with developer-friendly configuration options.
 
 Projects using this library will benefit from:
