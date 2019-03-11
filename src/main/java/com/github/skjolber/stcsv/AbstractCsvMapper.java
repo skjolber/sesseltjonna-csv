@@ -188,11 +188,11 @@ public abstract class AbstractCsvMapper<T> {
 			return null;
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
-/*
+
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-	*/	
+	
 		return loader.load(classWriter.toByteArray(), subClassName);
 	}
 
@@ -721,8 +721,8 @@ public abstract class AbstractCsvMapper<T> {
 		Label startLabel = new Label();
 		mv.visitLabel(startLabel);
 
-		int biConsumerArrayIndex = 2;
-		int triConsumerArrayIndex = 3;
+		final int biConsumerArrayIndex = 2;
+		final int triConsumerArrayIndex = 3;
 
 		mv.visitLdcInsn(className);
 		mv.visitMethodInsn(INVOKESTATIC, csvStaticInitializer, "remove", "(Ljava/lang/String;)Lcom/github/skjolber/stcsv/CsvReaderStaticInitializer$CsvStaticFields;", false);
@@ -770,8 +770,11 @@ public abstract class AbstractCsvMapper<T> {
 		if(triConsumer) {
 			mv.visitLocalVariable("triConsumerList", "[L" + TriConsumerProjection.triConsumerName + ";", null, startLabel, endLabel, triConsumerArrayIndex);
 		}
-		mv.visitMaxs(0, 0);
-		
+		if(triConsumer && biConsumer) {
+			mv.visitMaxs(2, 4);
+		} else {
+			mv.visitMaxs(2, 3);
+		}
 		mv.visitEnd();		    	
 	}
 
@@ -796,6 +799,8 @@ public abstract class AbstractCsvMapper<T> {
 
 	protected void constructor(ClassWriter classWriter, String subClassInternalName, String intermediateInternalName) {
 		{
+			// write simple Reader constructor 
+			// 
 			String signature;
 			if(intermediateInternalName == null) {
 				signature = "(Ljava/io/Reader;)V";
@@ -805,6 +810,7 @@ public abstract class AbstractCsvMapper<T> {
 			
 			MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", signature, null, null);
 			mv.visitCode();
+			
 			Label l0 = new Label();
 			mv.visitLabel(l0);
 			mv.visitVarInsn(ALOAD, 0);
@@ -825,14 +831,17 @@ public abstract class AbstractCsvMapper<T> {
 			mv.visitLocalVariable("reader", "Ljava/io/Reader;", null, l0, l2, 1);
 			if(intermediateInternalName != null) {
 				mv.visitLocalVariable("intermediateInternalName", "Ljava/lang/String;", null, l0, l2, 2);
+				
+				mv.visitMaxs(3, 3);
+			} else {
+				mv.visitMaxs(3, 2);
 			}
 			
-			mv.visitMaxs(0, 0);
 			mv.visitEnd();
 		}
 
 		{
-			
+			// write simple Reader constructor with offset and range
 			String signature;
 			if(intermediateInternalName == null) {
 				signature = "(Ljava/io/Reader;[CII)V";
@@ -856,7 +865,6 @@ public abstract class AbstractCsvMapper<T> {
 				mv.visitVarInsn(ALOAD, 5);
 				mv.visitFieldInsn(PUTFIELD, subClassInternalName, "intermediate", "L" + intermediateInternalName + ";");				
 			}
-
 			
 			Label l1 = new Label();
 			mv.visitLabel(l1);
@@ -871,9 +879,11 @@ public abstract class AbstractCsvMapper<T> {
 			
 			if(intermediateInternalName != null) {
 				mv.visitLocalVariable("intermediateInternalName", "Ljava/lang/String;", null, l0, l2, 5);
+				mv.visitMaxs(5, 6);
+			} else {
+				mv.visitMaxs(5, 5);
 			}
 
-			mv.visitMaxs(0, 0);
 			mv.visitEnd();
 		}
 	}
