@@ -1,7 +1,5 @@
 package com.github.skjolber.stcsv;
 
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.GETFIELD;
@@ -75,7 +73,7 @@ public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 		StaticCsvMapper2<T, H> constructor = factories.get(header); // note: using the stringbuilder as a key does not work
 		if(constructor == null) {
 			boolean carriageReturns = header.length() > 1 && header.charAt(header.length() - 1) == '\r';
-			List<String> fields = parseNames(header);
+			List<String> fields = parseColumnNames(header);
 
 			constructor = buildStaticCsvMapper(carriageReturns, fields);
 			if(constructor == null) {
@@ -117,19 +115,11 @@ public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 		return new DefaultStaticCsvMapper2(super.createReaderClass(carriageReturns, csvFileFieldNames), intermediate);
 	}
 
-	protected void constructor(ClassWriter classWriter, String subClassInternalName) {
-		constructor(classWriter, subClassInternalName, intermediateInternalName);
-	}
-	
 	@Override
-	protected void fields(ClassWriter classWriter, AbstractColumn[] mapping) {
-		super.fields(classWriter, mapping);
-		
-		classWriter
-		.visitField(ACC_PRIVATE + ACC_FINAL, "intermediate", "L" + intermediateInternalName + ";", null, null)
-		.visitEnd();
+	protected void addConstructors(ClassWriter classWriter, String subClassInternalName) {
+		super.addConstructors(classWriter, subClassInternalName, intermediateInternalName);
 	}
-	
+
 	protected void writeTriConsumerVariable(String subClassInternalName, MethodVisitor mv) {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, subClassInternalName, "intermediate", "L" + intermediateInternalName + ";");
