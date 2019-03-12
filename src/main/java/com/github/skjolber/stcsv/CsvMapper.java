@@ -62,7 +62,7 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 		StaticCsvMapper<T> constructor = factories.get(header); // note: using the stringbuilder as a key does not work
 		if(constructor == null) {
 			boolean carriageReturns = header.length() > 1 && header.charAt(header.length() - 1) == '\r';
-			List<String> fields = parseNames(header);
+			List<String> fields = parseColumnNames(header);
 
 			constructor = buildStaticCsvMapper(carriageReturns, fields);
 			if(constructor == null) {
