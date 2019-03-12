@@ -176,7 +176,7 @@ public abstract class AbstractCsvMapper<T> {
 	}
 
 	public Class<? extends AbstractCsvReader<T>> createReaderClass(boolean carriageReturns, String header) throws Exception {
-		return createReaderClass(carriageReturns, parseNames(header));
+		return createReaderClass(carriageReturns, parseColumnNames(header));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -188,11 +188,11 @@ public abstract class AbstractCsvMapper<T> {
 			return null;
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
-
+/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-	
+*/	
 		return loader.load(classWriter.toByteArray(), subClassName);
 	}
 
@@ -245,166 +245,169 @@ public abstract class AbstractCsvMapper<T> {
 				superClassInternalName,
 				null);
 
-		// write static fields
-		fields(classWriter, mapping);
-
 		if(biConsumer || triConsumer) {
 			// place in-scope values which will be read by static initializer
 			CsvReaderStaticInitializer.add(subClassName, biConsumers, triConsumers);
 
-			// static initializer
-			staticInitializer(classWriter, mapping, subClassInternalName, subClassName);
+			// static initializer and fields
+			addStatics(classWriter, mapping, subClassInternalName, subClassName);
 		}
 
 		// constructor with reader
-		constructor(classWriter, subClassInternalName);
+		addConstructors(classWriter, subClassInternalName);
 
 		// parse main method
-		{
-			MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "next", "()Ljava/lang/Object;", null, new String[] { "java/io/IOException" });
-
-			mv.visitCode();
-			Label startVariableScope = new Label();
-			mv.visitLabel(startVariableScope);
-
-			// init offset and char array
-			// int currentOffset = this.currentOffset;
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitFieldInsn(GETFIELD, superClassInternalName, "currentOffset", "I");
-			mv.visitVarInsn(ISTORE, currentOffsetIndex);
-
-			mv.visitVarInsn(ILOAD, 1);
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitFieldInsn(GETFIELD, superClassInternalName, "currentRange", "I");
-			Label l2 = new Label();
-			mv.visitJumpInsn(IF_ICMPLT, l2);
-
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitMethodInsn(INVOKEVIRTUAL, superClassInternalName, "fill", "()I", false);
-			Label l4 = new Label();
-			mv.visitJumpInsn(IFNE, l4);
-			mv.visitInsn(ACONST_NULL);
-			mv.visitInsn(ARETURN);
-			mv.visitLabel(l4);
-			mv.visitInsn(ICONST_0);
-			mv.visitVarInsn(ISTORE, currentOffsetIndex);
-			mv.visitLabel(l2);
-
-			// final char[] current = this.current;
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitFieldInsn(GETFIELD, superClassInternalName, "current", "[C");
-			mv.visitVarInsn(ASTORE, currentArrayIndex);		    	
-
-			// try-catch block
-			Label startTryCatch = new Label();
-
-			Label endVariableScope = new Label();
-
-			//Label endTryCatch = new Label();
-			Label exceptionHandling = new Label();
-			mv.visitTryCatchBlock(startTryCatch, endVariableScope, exceptionHandling, "java/lang/ArrayIndexOutOfBoundsException");
-
-			mv.visitLabel(startTryCatch);
-
-			if(skipEmptyLines && skipComments) {
-				writeSkipEmptyOrCommentedLines(mv, subClassInternalName, carriageReturns);
-			} else if(skipEmptyLines) {
-				writeSkipEmptyLines(mv, subClassInternalName, carriageReturns);
-			} else if(skipComments) {
-				writeSkipComments(mv, subClassInternalName);
-			}
-			
-			// init value object, i.e. the object to which data-binding will occur
-			mv.visitTypeInsn(NEW, getInternalName(mappedClass.getName()));
-			mv.visitInsn(DUP);
-			mv.visitMethodInsn(INVOKESPECIAL, getInternalName(mappedClass.getName()), "<init>", "()V", false);
-			mv.visitVarInsn(ASTORE, objectIndex);
-
-			if(firstIndex > 0) {
-				// skip first column(s)
-				skipColumns(mv, firstIndex);
-			}
-
-			boolean wroteTriConsumer = false;
-			
-			int current = firstIndex;
-			do {
-				AbstractColumn column = mapping[current];
-				if(column.isTriConsumer() && !wroteTriConsumer) {
-					writeTriConsumerVariable(subClassInternalName, mv); 	
-				}
-				if(current == mapping.length - 1) {
-					column.last(mv, subClassInternalName, carriageReturns, inline);
-				} else {
-					column.middle(mv, subClassInternalName, inline);
-				}
-
-				// at last
-				if(current == lastIndex) {
-					if(lastIndex + 1 < mapping.length) {
-						// skip rest of line
-						skipToLinebreak(mv);
-					}
-					break;
-				} else {
-					int previous = current;
-
-					current++;
-
-					while(mapping[current] == null) {
-						current++;
-					}
-
-					if(current - previous > 1) {
-						// skip middle column
-						skipColumns(mv, current - previous - 1);
-					}
-				}
-			} while(true);
-
-			// save value
-			saveCurrentOffset(mv, superClassInternalName, currentOffsetIndex);		    	
-
-			// return object
-			mv.visitVarInsn(ALOAD, objectIndex);
-			mv.visitInsn(ARETURN);
-
-			mv.visitLabel(endVariableScope);
-
-			// throw block
-			mv.visitLabel(exceptionHandling);
-			mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {"java/lang/ArrayIndexOutOfBoundsException"});
-			mv.visitVarInsn(ASTORE, 1);
-			Label l3 = new Label();
-			mv.visitLabel(l3);
-			mv.visitLineNumber(33, l3);
-			mv.visitTypeInsn(NEW, "com/github/skjolber/stcsv/CsvException");
-			mv.visitInsn(DUP);
-			mv.visitVarInsn(ALOAD, 1);
-			mv.visitMethodInsn(INVOKESPECIAL, "com/github/skjolber/stcsv/CsvException", "<init>", "(Ljava/lang/Throwable;)V", false);
-			mv.visitInsn(ATHROW);
-
-			mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, startVariableScope, endVariableScope, 0);
-			mv.visitLocalVariable("value", "L" + mappedClassInternalName + ";", null, startVariableScope, endVariableScope, objectIndex);
-			mv.visitLocalVariable("currentOffset", "I", null, startVariableScope, endVariableScope, currentOffsetIndex);
-			mv.visitLocalVariable("current", "[C", null, startVariableScope, endVariableScope, currentArrayIndex);
-			if(inline) {
-				mv.visitLocalVariable("start", "I", null, startVariableScope, endVariableScope, startIndex);
-				mv.visitLocalVariable("rangeIndex", "I", null, startVariableScope, endVariableScope, rangeIndex);
-			}
-
-			mv.visitMaxs(0, 0); // calculated by the asm library
-			mv.visitEnd();
-		}
+		addMethod(classWriter, subClassInternalName, mapping, carriageReturns, inline, lastIndex, firstIndex);
 
 		classWriter.visitEnd();
 		return subClassName;
 	}
 
+	protected void addMethod(ClassWriter classWriter, String subClassInternalName, AbstractColumn[] mapping,
+			boolean carriageReturns, boolean inline, int lastIndex, int firstIndex) {
+		MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "next", "()Ljava/lang/Object;", null, new String[] { "java/io/IOException" });
+
+		mv.visitCode();
+		Label startLabel = new Label();
+		mv.visitLabel(startLabel);
+
+		// init offset and char array
+		// int currentOffset = this.currentOffset;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, superClassInternalName, "currentOffset", "I");
+		mv.visitVarInsn(ISTORE, currentOffsetIndex);
+
+		mv.visitVarInsn(ILOAD, 1);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, superClassInternalName, "currentRange", "I");
+		Label l2 = new Label();
+		mv.visitJumpInsn(IF_ICMPLT, l2);
+
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitMethodInsn(INVOKEVIRTUAL, superClassInternalName, "fill", "()I", false);
+		Label l4 = new Label();
+		mv.visitJumpInsn(IFNE, l4);
+		mv.visitInsn(ACONST_NULL);
+		mv.visitInsn(ARETURN);
+		mv.visitLabel(l4);
+		mv.visitInsn(ICONST_0);
+		mv.visitVarInsn(ISTORE, currentOffsetIndex);
+		mv.visitLabel(l2);
+
+		// final char[] current = this.current;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, superClassInternalName, "current", "[C");
+		mv.visitVarInsn(ASTORE, currentArrayIndex);
+
+		// try-catch block
+		Label startTryCatch = new Label();
+
+		Label endLabel = new Label();
+
+		Label exceptionHandling = new Label();
+		mv.visitTryCatchBlock(startTryCatch, endLabel, exceptionHandling, "java/lang/ArrayIndexOutOfBoundsException");
+
+		mv.visitLabel(startTryCatch);
+
+		if(skipEmptyLines && skipComments) {
+			writeSkipEmptyOrCommentedLines(mv, subClassInternalName, carriageReturns);
+		} else if(skipEmptyLines) {
+			writeSkipEmptyLines(mv, subClassInternalName, carriageReturns);
+		} else if(skipComments) {
+			writeSkipComments(mv, subClassInternalName);
+		}
+
+		// init value object, i.e. the object to which data-binding will occur
+		mv.visitTypeInsn(NEW, getInternalName(mappedClass.getName()));
+		mv.visitInsn(DUP); // add one
+		mv.visitMethodInsn(INVOKESPECIAL, getInternalName(mappedClass.getName()), "<init>", "()V", false); // consumes one
+		mv.visitVarInsn(ASTORE, objectIndex);
+
+		if(firstIndex > 0) {
+			// skip first column(s)
+			skipColumns(mv, firstIndex);
+		}
+
+		// don't introduce the intermediate processor variable 
+		// before it is necessary
+		boolean wroteTriConsumer = false;
+
+		int current = firstIndex;
+		do {
+			AbstractColumn column = mapping[current];
+			if(column.isTriConsumer() && !wroteTriConsumer) {
+				writeTriConsumerVariable(subClassInternalName, mv);
+
+				wroteTriConsumer = true;
+			}
+			if(current == mapping.length - 1) {
+				column.last(mv, subClassInternalName, carriageReturns, inline);
+			} else {
+				column.middle(mv, subClassInternalName, inline);
+			}
+
+			// at last
+			if(current == lastIndex) {
+				if(lastIndex + 1 < mapping.length) {
+					// skip rest of line
+					skipToLinebreak(mv);
+				}
+				break;
+			} else {
+				int previous = current;
+
+				current++;
+
+				while(mapping[current] == null) {
+					current++;
+				}
+
+				if(current - previous > 1) {
+					// skip middle column
+					skipColumns(mv, current - previous - 1);
+				}
+			}
+		} while(true);
+
+		// save value
+		saveCurrentOffset(mv, superClassInternalName, currentOffsetIndex);
+
+		// return object
+		mv.visitVarInsn(ALOAD, objectIndex);
+		mv.visitInsn(ARETURN);
+
+		mv.visitLabel(endLabel);
+
+		// catch / rethrow block
+		// https://stackoverflow.com/questions/12438567/java-bytecode-dup
+		mv.visitLabel(exceptionHandling);
+		mv.visitVarInsn(ASTORE, 1); // store exception
+		mv.visitTypeInsn(NEW, "com/github/skjolber/stcsv/CsvException");
+		mv.visitInsn(DUP);
+		mv.visitVarInsn(ALOAD, 1); // load exception
+		mv.visitMethodInsn(INVOKESPECIAL, "com/github/skjolber/stcsv/CsvException", "<init>", "(Ljava/lang/Throwable;)V", false);
+		mv.visitInsn(ATHROW);
+
+		// finish up method
+		mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, startLabel, endLabel, 0);
+		mv.visitLocalVariable("value", "L" + mappedClassInternalName + ";", null, startLabel, endLabel, objectIndex);
+		mv.visitLocalVariable("currentOffset", "I", null, startLabel, endLabel, currentOffsetIndex);
+		mv.visitLocalVariable("current", "[C", null, startLabel, endLabel, currentArrayIndex);
+		if(inline) {
+			mv.visitLocalVariable("start", "I", null, startLabel, endLabel, startIndex);
+			mv.visitLocalVariable("rangeIndex", "I", null, startLabel, endLabel, rangeIndex);
+			
+			mv.visitMaxs(7, 6);
+		} else {
+			mv.visitMaxs(7, 4);
+		}
+		mv.visitEnd();
+	}
+
 	protected abstract void writeTriConsumerVariable(String subClassInternalName, MethodVisitor mv);
 
-	protected void constructor(ClassWriter classWriter, String subClassInternalName) {
-		constructor(classWriter, subClassInternalName, null);
+	protected void addConstructors(ClassWriter classWriter, String subClassInternalName) {
+		addConstructors(classWriter, subClassInternalName, null);
 	}
 
 	protected void writeSkipComments(MethodVisitor mv, String subClassInternalName) {
@@ -455,9 +458,6 @@ public abstract class AbstractCsvMapper<T> {
 		mv.visitInsn(CALOAD);
 		mv.visitIntInsn(BIPUSH, 35); // #
 		mv.visitJumpInsn(IF_ICMPEQ, l13);
-
-
-
 	}
 
 	protected void skipToLinebreak(MethodVisitor mv) {
@@ -523,8 +523,6 @@ public abstract class AbstractCsvMapper<T> {
 		*/
 		final int rangeVariableIndex = 3;
 
-		Label l11 = new Label();
-		mv.visitLabel(l11);
 		Label l12 = new Label();
 		mv.visitJumpInsn(GOTO, l12);
 		Label l13 = new Label();
@@ -540,14 +538,10 @@ public abstract class AbstractCsvMapper<T> {
 		mv.visitIntInsn(BIPUSH, 10);
 		Label l15 = new Label();
 		mv.visitJumpInsn(IF_ICMPNE, l15);
-		Label l16 = new Label();
-		mv.visitLabel(l16);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitVarInsn(ILOAD, rangeVariableIndex);
 		Label l17 = new Label();
 		mv.visitJumpInsn(IF_ICMPNE, l17);
-		Label l18 = new Label();
-		mv.visitLabel(l18);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "()I", false);
 		mv.visitInsn(DUP);
@@ -714,7 +708,7 @@ public abstract class AbstractCsvMapper<T> {
 		}
 	}
 
-	protected void staticInitializer(ClassWriter classWriter, AbstractColumn[] columns, String classInternalName, String className) {
+	protected void addStatics(ClassWriter classWriter, AbstractColumn[] columns, String classInternalName, String className) {
 		MethodVisitor mv = classWriter.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
 		mv.visitCode();
 
@@ -742,21 +736,36 @@ public abstract class AbstractCsvMapper<T> {
 		// consumers
 		for (int k = 0; k < columns.length; k++) {
 			if(columns[k] != null) {
-				if(biConsumer && columns[k].isBiConsumer()) {
+				String consumerInternalName;
+				if(columns[k].isBiConsumer()) {
 					BiConsumerProjection biConsumerProjection = (BiConsumerProjection)columns[k].getProjection();
+					consumerInternalName = biConsumerProjection.getBiConsumerInternalName();
+					
+					// write source array
 					mv.visitVarInsn(ALOAD, biConsumerArrayIndex);
-					mv.visitLdcInsn(Integer.valueOf(k));
-					mv.visitInsn(AALOAD);
-					mv.visitTypeInsn(CHECKCAST, biConsumerProjection.getBiConsumerInternalName());
-					mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + biConsumerProjection.getBiConsumerInternalName() + ";");
-				} else if(triConsumer && columns[k].isTriConsumer()) {
+				} else if(columns[k].isTriConsumer()) {
 					TriConsumerProjection triConsumerProjection = (TriConsumerProjection)columns[k].getProjection();
+					consumerInternalName = triConsumerProjection.getTriConsumerInternalName();
+					
+					// write source array
 					mv.visitVarInsn(ALOAD, triConsumerArrayIndex);
-					mv.visitLdcInsn(Integer.valueOf(k));
-					mv.visitInsn(AALOAD);
-					mv.visitTypeInsn(CHECKCAST, triConsumerProjection.getTriConsumerInternalName());
-					mv.visitFieldInsn(PUTSTATIC, classInternalName, "v" + columns[k].getIndex(), "L" + triConsumerProjection.getTriConsumerInternalName() + ";");
+				} else {
+					continue;
 				}
+				
+				String fieldName = "v" + columns[k].getIndex();
+				String fieldDescriptor = "L" + consumerInternalName + ";";
+
+				// write static field
+				classWriter
+					.visitField(ACC_STATIC + ACC_PRIVATE + ACC_FINAL, fieldName, fieldDescriptor, null, null)
+					.visitEnd();
+				
+				// write field assignment
+				mv.visitLdcInsn(Integer.valueOf(k));
+				mv.visitInsn(AALOAD);
+				mv.visitTypeInsn(CHECKCAST, consumerInternalName);
+				mv.visitFieldInsn(PUTSTATIC, classInternalName, fieldName, fieldDescriptor);
 			}
 		}
 
@@ -778,114 +787,104 @@ public abstract class AbstractCsvMapper<T> {
 		mv.visitEnd();		    	
 	}
 
-	protected void fields(ClassWriter classWriter, AbstractColumn[] mapping) {
-		// static final fields
-		for (int k = 0; k < mapping.length; k++) {
-			if(mapping[k] != null) {
-				if(mapping[k].isBiConsumer()) {
-					BiConsumerProjection biConsumerProjection = (BiConsumerProjection)mapping[k].getProjection();
-					classWriter
-					.visitField(ACC_STATIC + ACC_PRIVATE + ACC_FINAL, "v" + mapping[k].getIndex(), "L" + biConsumerProjection.getBiConsumerInternalName() + ";", null, null)
-					.visitEnd();
-				} else if(mapping[k].isTriConsumer()) {
-					TriConsumerProjection triConsumerProjection = (TriConsumerProjection)mapping[k].getProjection();
-					classWriter
-					.visitField(ACC_STATIC + ACC_PRIVATE + ACC_FINAL, "v" + mapping[k].getIndex(), "L" + triConsumerProjection.getTriConsumerInternalName() + ";", null, null)
-					.visitEnd();
-				}
-			}
-		}
+	protected void addConstructors(ClassWriter classWriter, String subClassInternalName, String intermediateInternalName) {
+		writeReaderConstructor(classWriter, subClassInternalName, intermediateInternalName);
+		writeReaderWithBufferConstructor(classWriter, subClassInternalName, intermediateInternalName);
 	}
 
-	protected void constructor(ClassWriter classWriter, String subClassInternalName, String intermediateInternalName) {
-		{
-			// write simple Reader constructor 
-			// 
-			String signature;
-			if(intermediateInternalName == null) {
-				signature = "(Ljava/io/Reader;)V";
-			} else {
-				signature = "(Ljava/io/Reader;L" + intermediateInternalName + ";)V";
-			}
-			
-			MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", signature, null, null);
-			mv.visitCode();
-			
-			Label l0 = new Label();
-			mv.visitLabel(l0);
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitVarInsn(ALOAD, 1);
-			mv.visitLdcInsn(Integer.valueOf(bufferLength));
-			mv.visitMethodInsn(INVOKESPECIAL, superClassInternalName, "<init>", "(Ljava/io/Reader;I)V", false);
-			
-			if(intermediateInternalName != null) {
-				mv.visitVarInsn(ALOAD, 0);
-				mv.visitVarInsn(ALOAD, 2);
-				mv.visitFieldInsn(PUTFIELD, subClassInternalName, "intermediate", "L" + intermediateInternalName + ";");				
-			}
-			
- 			mv.visitInsn(RETURN);
-			Label l2 = new Label();
-			mv.visitLabel(l2);
-			mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, l0, l2, 0);
-			mv.visitLocalVariable("reader", "Ljava/io/Reader;", null, l0, l2, 1);
-			if(intermediateInternalName != null) {
-				mv.visitLocalVariable("intermediateInternalName", "Ljava/lang/String;", null, l0, l2, 2);
-				
-				mv.visitMaxs(3, 3);
-			} else {
-				mv.visitMaxs(3, 2);
-			}
-			
-			mv.visitEnd();
+	protected void writeReaderWithBufferConstructor(ClassWriter classWriter, String subClassInternalName,
+			String intermediateInternalName) {
+		// write simple Reader constructor with offset and range
+		String signature;
+		if(intermediateInternalName == null) {
+			signature = "(Ljava/io/Reader;[CII)V";
+		} else {
+			signature = "(Ljava/io/Reader;[CIIL" + intermediateInternalName + ";)V";
 		}
 
-		{
-			// write simple Reader constructor with offset and range
-			String signature;
-			if(intermediateInternalName == null) {
-				signature = "(Ljava/io/Reader;[CII)V";
-			} else {
-				signature = "(Ljava/io/Reader;[CIIL" + intermediateInternalName + ";)V";
-			}
+		MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", signature, null, null);
+		mv.visitCode();
+		Label startLabel = new Label();
+		mv.visitLabel(startLabel);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitVarInsn(ALOAD, 2);
+		mv.visitVarInsn(ILOAD, 3);
+		mv.visitVarInsn(ILOAD, 4);
+		mv.visitMethodInsn(INVOKESPECIAL, superClassInternalName, "<init>", "(Ljava/io/Reader;[CII)V", false);
+		
+		if(intermediateInternalName != null) {
+			classWriter
+				.visitField(ACC_PRIVATE + ACC_FINAL, "intermediate", "L" + intermediateInternalName + ";", null, null)
+				.visitEnd();
 
-			MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", signature, null, null);
-			mv.visitCode();
-			Label l0 = new Label();
-			mv.visitLabel(l0);
 			mv.visitVarInsn(ALOAD, 0);
-			mv.visitVarInsn(ALOAD, 1);
+			mv.visitVarInsn(ALOAD, 5);
+			mv.visitFieldInsn(PUTFIELD, subClassInternalName, "intermediate", "L" + intermediateInternalName + ";");				
+		}
+		
+		Label l1 = new Label();
+		mv.visitLabel(l1);
+		mv.visitInsn(RETURN);
+		Label endLabel = new Label();
+		mv.visitLabel(endLabel);
+		mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, startLabel, endLabel, 0);
+		mv.visitLocalVariable("reader", "Ljava/io/Reader;", null, startLabel, endLabel, 1);
+		mv.visitLocalVariable("current", "[C", null, startLabel, endLabel, 2);
+		mv.visitLocalVariable("offset", "I", null, startLabel, endLabel, 3);
+		mv.visitLocalVariable("length", "I", null, startLabel, endLabel, 4);
+		
+		if(intermediateInternalName != null) {
+			mv.visitLocalVariable("intermediateInternalName", "Ljava/lang/String;", null, startLabel, endLabel, 5);
+			mv.visitMaxs(5, 6);
+		} else {
+			mv.visitMaxs(5, 5);
+		}
+
+		mv.visitEnd();
+	}
+
+	protected void writeReaderConstructor(ClassWriter classWriter, String subClassInternalName,
+			String intermediateInternalName) {
+		// write simple Reader constructor 
+		// 
+		String signature;
+		if(intermediateInternalName == null) {
+			signature = "(Ljava/io/Reader;)V";
+		} else {
+			signature = "(Ljava/io/Reader;L" + intermediateInternalName + ";)V";
+		}
+		
+		MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", signature, null, null);
+		mv.visitCode();
+		
+		Label startLabel = new Label();
+		mv.visitLabel(startLabel);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitLdcInsn(Integer.valueOf(bufferLength));
+		mv.visitMethodInsn(INVOKESPECIAL, superClassInternalName, "<init>", "(Ljava/io/Reader;I)V", false);
+		
+		if(intermediateInternalName != null) {
+			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ALOAD, 2);
-			mv.visitVarInsn(ILOAD, 3);
-			mv.visitVarInsn(ILOAD, 4);
-			mv.visitMethodInsn(INVOKESPECIAL, superClassInternalName, "<init>", "(Ljava/io/Reader;[CII)V", false);
-			
-			if(intermediateInternalName != null) {
-				mv.visitVarInsn(ALOAD, 0);
-				mv.visitVarInsn(ALOAD, 5);
-				mv.visitFieldInsn(PUTFIELD, subClassInternalName, "intermediate", "L" + intermediateInternalName + ";");				
-			}
-			
-			Label l1 = new Label();
-			mv.visitLabel(l1);
-			mv.visitInsn(RETURN);
-			Label l2 = new Label();
-			mv.visitLabel(l2);
-			mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, l0, l2, 0);
-			mv.visitLocalVariable("reader", "Ljava/io/Reader;", null, l0, l2, 1);
-			mv.visitLocalVariable("current", "[C", null, l0, l2, 2);
-			mv.visitLocalVariable("offset", "I", null, l0, l2, 3);
-			mv.visitLocalVariable("length", "I", null, l0, l2, 4);
-			
-			if(intermediateInternalName != null) {
-				mv.visitLocalVariable("intermediateInternalName", "Ljava/lang/String;", null, l0, l2, 5);
-				mv.visitMaxs(5, 6);
-			} else {
-				mv.visitMaxs(5, 5);
-			}
-
-			mv.visitEnd();
+			mv.visitFieldInsn(PUTFIELD, subClassInternalName, "intermediate", "L" + intermediateInternalName + ";");				
 		}
+		
+		mv.visitInsn(RETURN);
+		Label endLabel = new Label();
+		mv.visitLabel(endLabel);
+		mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, startLabel, endLabel, 0);
+		mv.visitLocalVariable("reader", "Ljava/io/Reader;", null, startLabel, endLabel, 1);
+		if(intermediateInternalName != null) {
+			mv.visitLocalVariable("intermediateInternalName", "Ljava/lang/String;", null, startLabel, endLabel, 2);
+			
+			mv.visitMaxs(3, 3);
+		} else {
+			mv.visitMaxs(3, 2);
+		}
+		
+		mv.visitEnd();
 	}
 
 	protected String parseStaticFieldName(Class<?> cls) {
@@ -900,7 +899,7 @@ public abstract class AbstractCsvMapper<T> {
 		mv.visitFieldInsn(PUTFIELD, superClassInternalName, "currentOffset", "I");		
 	}
 
-	protected List<String> parseNames(String writer) {
+	protected List<String> parseColumnNames(String writer) {
 		List<String> names = new ArrayList<>();
 		int start = 0;
 		for(int i = 0; i < writer.length(); i++) {
