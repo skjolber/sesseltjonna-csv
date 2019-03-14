@@ -1,6 +1,6 @@
 package com.github.skjolber.stcsv;
 
-import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CALOAD;
 import static org.objectweb.asm.Opcodes.DUP;
@@ -67,17 +67,36 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "getCurrentRange", "()I", false);
 			mv.visitVarInsn(ISTORE, rangeIndex);
-			mv.visitIincInsn(currentOffsetIndex, 1);
+
+			// start = currentOffset + 1
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitInsn(ICONST_1);
+			mv.visitInsn(IADD);
 			mv.visitVarInsn(ISTORE, startIndex);
+			
+			
+			// start quote while
 			Label l19 = new Label();
 			mv.visitLabel(l19);
+			
+			// scan to any char <= int value of quote character
+			// tight inner loop
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitIincInsn(currentOffsetIndex, 1);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitInsn(CALOAD);
+			mv.visitIntInsn(BIPUSH, Integer.valueOf(quoteCharacter));
+			mv.visitJumpInsn(IF_ICMPGT, l19);
+			
+			// check if quote or newline
+			
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
 			mv.visitLdcInsn(Integer.valueOf(quoteCharacter));
 			Label l20 = new Label();
 			mv.visitJumpInsn(IF_ICMPNE, l20);
+			
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(ICONST_1);
@@ -86,7 +105,6 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitLdcInsn(Integer.valueOf(quoteCharacter));			
 			Label l22 = new Label();
 			mv.visitJumpInsn(IF_ICMPEQ, l22);
-			
 			
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, startIndex);
@@ -128,17 +146,16 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
 			mv.visitIincInsn(currentOffsetIndex, 1);
 			mv.visitIincInsn(startIndex, 1);
-			Label l31 = new Label();
-			mv.visitJumpInsn(GOTO, l31);
+			mv.visitJumpInsn(GOTO, l19);
 			mv.visitLabel(l20);
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
 			mv.visitIntInsn(BIPUSH, 10);
-			mv.visitJumpInsn(IF_ICMPNE, l31);
+			mv.visitJumpInsn(IF_ICMPNE, l19);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, rangeIndex);
-			mv.visitJumpInsn(IF_ICMPNE, l31);
+			mv.visitJumpInsn(IF_ICMPNE, l19);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, startIndex);
 			mv.visitInsn(ISUB);
@@ -157,21 +174,55 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitLabel(l34);
 			mv.visitInsn(ICONST_0);
 			mv.visitVarInsn(ISTORE, startIndex);
-			mv.visitLabel(l31);
-			mv.visitIincInsn(currentOffsetIndex, 1);
-			mv.visitJumpInsn(GOTO, l19);
+			
 		} else {
 			// handle quoted
 			mv.visitLabel(quoted);
+			
+			// add tight inner loop for scanning
+			// for a character higher than the maximum of escape and quote
+			// if that is actually a character outside the most commonly used
+			// characthers (digits, a-z)
+			
+			boolean isLowAsciiCharacter = escapeCharacter < '0' && quoteCharacter < '0';
 
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "getCurrentRange", "()I", false);
 			mv.visitVarInsn(ISTORE, rangeIndex);
-			mv.visitIincInsn(currentOffsetIndex, 1);
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitVarInsn(ISTORE, startIndex);
+			
+			if(isLowAsciiCharacter) {
+				// start = currentOffset + 1
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitInsn(ICONST_1);
+				mv.visitInsn(IADD);
+				mv.visitVarInsn(ISTORE, startIndex);
+			} else {
+				// ++currentOffset;
+				// start = currentOffset;
+				mv.visitIincInsn(currentOffsetIndex, 1);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitVarInsn(ISTORE, startIndex);
+			}
+			
 			Label l31 = new Label();
 			mv.visitLabel(l31);
+			
+			Label afterCheckingForEscapeAndQuotes;
+			if(isLowAsciiCharacter) {
+				// scan to any char <= int value of max(quote character, escape character)
+				// tight inner loop
+				mv.visitVarInsn(ALOAD, currentArrayIndex);
+				mv.visitIincInsn(currentOffsetIndex, 1);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitInsn(CALOAD);
+				mv.visitIntInsn(BIPUSH, Integer.valueOf(Math.max(quoteCharacter, escapeCharacter)));
+				mv.visitJumpInsn(IF_ICMPGT, l31);
+				
+				afterCheckingForEscapeAndQuotes = l31;
+			} else {
+				afterCheckingForEscapeAndQuotes = new Label();
+			}
+			
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
@@ -190,8 +241,7 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
 			mv.visitIincInsn(currentOffsetIndex, 1);
 			mv.visitIincInsn(startIndex, 1);
-			Label l37 = new Label();
-			mv.visitJumpInsn(GOTO, l37);
+			mv.visitJumpInsn(GOTO, afterCheckingForEscapeAndQuotes);
 			mv.visitLabel(l32);
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
@@ -233,12 +283,12 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
 			mv.visitIntInsn(BIPUSH, 10);
-			mv.visitJumpInsn(IF_ICMPNE, l37);
+			mv.visitJumpInsn(IF_ICMPNE, afterCheckingForEscapeAndQuotes);
 			
 			
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, rangeIndex);
-			mv.visitJumpInsn(IF_ICMPNE, l37);
+			mv.visitJumpInsn(IF_ICMPNE, afterCheckingForEscapeAndQuotes);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, startIndex);
 			mv.visitInsn(ISUB);
@@ -257,9 +307,11 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitLabel(l48);
 			mv.visitInsn(ICONST_0);
 			mv.visitVarInsn(ISTORE, startIndex);
-			mv.visitLabel(l37);
-			mv.visitIincInsn(currentOffsetIndex, 1);
-			mv.visitJumpInsn(GOTO, l31);
+			if(!isLowAsciiCharacter) {
+				mv.visitLabel(afterCheckingForEscapeAndQuotes);
+				mv.visitIincInsn(currentOffsetIndex, 1);
+				mv.visitJumpInsn(GOTO, l31);
+			}
 			mv.visitLabel(l45);
 			
 		}
