@@ -45,11 +45,6 @@ public class StringArrayCsvReaderTest {
 		compare(referenceParser, factory);
 	}
 
-	@Test
-	public void testChars() {
-		System.out.println((int)'"');
-	}
-	
 	private void compare(CsvParser referenceParser, StringArrayCsvReader factory) throws IOException {
 		int count = 0;
 		

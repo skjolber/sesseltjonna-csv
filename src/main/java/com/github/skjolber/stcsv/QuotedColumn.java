@@ -182,7 +182,7 @@ public class QuotedColumn extends AbstractColumn {
 			// add tight inner loop for scanning
 			// for a character higher than the maximum of escape and quote
 			// if that is actually a character outside the most commonly used
-			// characthers (digits, a-z)
+			// characters (digits, a-z)
 			
 			boolean isLowAsciiCharacter = escapeCharacter < '0' && quoteCharacter < '0';
 

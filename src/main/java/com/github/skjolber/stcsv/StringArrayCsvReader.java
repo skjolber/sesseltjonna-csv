@@ -11,6 +11,9 @@ public final class StringArrayCsvReader extends AbstractCsvReader<String[]> {
 	private final String[] value;
 	private final int lastIndex;
 
+	// i builder, scan første linje for å se hvor landet ligger - antall kolonner og linjeskift
+	// så parse i vei
+	
 	public StringArrayCsvReader(Reader reader, int columns) {
 		super(reader, 65536);
 		

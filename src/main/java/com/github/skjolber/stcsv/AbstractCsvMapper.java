@@ -188,11 +188,11 @@ public abstract class AbstractCsvMapper<T> {
 			return null;
 		}
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
-/*
+
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-*/	
+	
 		return loader.load(classWriter.toByteArray(), subClassName);
 	}
 
