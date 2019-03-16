@@ -4,38 +4,50 @@ import java.io.Reader;
 
 import com.github.skjolber.stcsv.CsvReader;
 import com.github.skjolber.stcsv.EmptyCsvReader;
-import com.github.skjolber.stcsv.parser.StringArrayCsvReader;
+import com.github.skjolber.stcsv.sa.DefaultStringArrayCsvReader;
+import com.github.skjolber.stcsv.sa.NoLinebreakStringArrayCsvReader;
+import com.github.skjolber.stcsv.sa.rfc4180.NoLinebreakRFC4180StringArrayCsvReader;
+import com.github.skjolber.stcsv.sa.rfc4180.RFC4180StringArrayCsvReader;
 
 public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayCsvReaderBuilder> {
+
+	protected boolean linebreaks = true;
 
 	public CsvReader<String[]> build(Reader reader) throws Exception {
 		char[] current = new char[bufferLength + 1];
 
-		int start = 0;
-		int end = 0;
+		int offset = 0;
 		do {
-			int read = reader.read(current, start, bufferLength - start);
+			int read = reader.read(current, offset, bufferLength - offset);
 			if(read == -1) {
-				return new EmptyCsvReader<>();
+				break;
 			} else {
-				end += read;
+				offset += read;
 			}
+		} while(offset < bufferLength);
+		
+		if(offset == 0) {
+			return new EmptyCsvReader<>();			
+		}
+		
+		int columns = countColumnsLine(current, offset);
 
-			for(int i = start; i < end; i++) {
-				if(current[i] == '\n') {
-					int columns = parseFirstLine(current, end);
-					
-					// 		boolean carriageReturns = header.length() > 1 && header.charAt(header.length() - 1) == '\r';
-					return new StringArrayCsvReader(reader, current, 0, end, columns);
-				}
+		
+		if(divider == ',' && quoteCharacter == '"' && escapeCharacter == '"') {
+			if(!linebreaks) {
+				return new NoLinebreakRFC4180StringArrayCsvReader(reader, current, 0, offset, columns);
 			}
-			start += end;
-		} while(end < bufferLength);
-
-		throw new IllegalArgumentException("No linebreak found in " + current.length + " characters");
+			return new RFC4180StringArrayCsvReader(reader, current, 0, offset, columns);
+		}
+		
+		if(!linebreaks) {
+			return new NoLinebreakStringArrayCsvReader(reader, current, 0, offset, columns, quoteCharacter, escapeCharacter, divider);
+		}
+		
+		return new DefaultStringArrayCsvReader(reader, current, 0, offset, columns, quoteCharacter, escapeCharacter, divider);
 	}
 	
-	private int parseFirstLine(char[] current, int end) {
+	private int countColumnsLine(char[] current, int end) {
 		int count = 0;
 
 		for(int i = 0; i < end; i++) {
@@ -45,21 +57,32 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 					++i;
 					if(current[i] == escapeCharacter) {
 						if(quoteCharacter == escapeCharacter) {
-							if (current[i + 1] != quoteCharacter) {
+							i++;
+							if (current[i] != quoteCharacter) {
 								break;
 							}
 						} else {
-							// skip
+							// skip single character
 							i++;
 						}
 					}
 				}
-			} 
-			while (current[i] != divider && current[i] != '\n') {
+			}
+			while(true) {
+				if(current[i] == divider) {
+					break;
+				} else if(current[i] == '\n') {
+					return count;
+				}
 				i++;
 			}
 		}
 		return count;
+	}
+	
+	public StringArrayCsvReaderBuilder quotedWithoutLinebreaks() {
+		this.linebreaks = false;
+		return this;
 	}
 	
 }
