@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/skjolber/sesseltjonna-csv.svg)](https://travis-ci.org/skjolber/sesseltjonna-csv)
 
-# sesseltjonna-csv: High-performance CSV parser and databinder
+# sesseltjonna-csv: High-performance CSV processing
 **sesseltjonna-csv** is a high-performance CSV library with developer-friendly configuration options.
 
 Projects using this library will benefit from:
@@ -85,7 +85,7 @@ CsvMapper<City> mapping = CsvMapper.builder(City.class)
     .longField("Population")
         .consumer((city, n) -> city.setPopulation(n * 1000))
         .optional()
-	.build();
+    .build();
 ```
 
 ## Intermediate processor
@@ -96,7 +96,7 @@ CsvMapper<City> mapping = CsvMapper.builder(City.class, MyCountryLookup.class)
     .longField("Country")
         .consumer((city, lookup, country) -> city.setCountry(lookup.getCountry(country))
         .optional()
-	.build();
+    .build();
 ```
 
 Then supply an instance of of the `intermediate processor` when creating the `CsvRader`:
@@ -110,20 +110,24 @@ CsvReader<City> csvReader = mapper.create(reader, lookup);
 Using this feature can be essential when parsing multiple CSV files in parallel, or even fragments of the same file in parallel, with entities referencing each other, storing the values in intermediate processors and resolving references as a post-processing step. 
 
 # Usage - traditional parser
-Then create a `CsvReader<String[]>` using
+Create a `CsvReader<String[]>` using
 
 ```java
-Reader reader = ...; // your inputCsvReader<String[]> reader = StringArrayCsvReader.builder().build(input);
-    	
+Reader input = ...; // your input
+CsvReader<String[]> csvReader = StringArrayCsvReader.builder().build(input);
+        
 String[] next;
 do {
-	next = reader.next();
-	if(next == null) {
-		break;
-	}
-	process(next);
+    next = csvReader.next();
+    if(next == null) {
+        break;
+    }
+    
+   // your code here    
 } while(true);
 ```
+Note that the String-array itself is reused between lines.
+
 # Performance
 The dynamically generated instances are extremely fast (i.e. as good as a parser tailored very specifically to the file being parsed), but note that the assumption is that the number of different CSV files for a given application or format is limited, so that parsing effectively is performed by a JIT-compiled class and not by a newly generated class for each file.
 
@@ -169,11 +173,10 @@ Contributions are welcome, especially those with unit tests ;)
  - 1.0.1: Improve exception handling
  - 1.0.0: Initial release.
 
-[Apache 2.0]: 			http://www.apache.org/licenses/LICENSE-2.0.html
-[issue-tracker]:		https://github.com/skjolber/sesseltjonna-csv/issues
-[Maven]:				http://maven.apache.org/
-[1.0.8]:		    	https://github.com/skjolber/sesseltjonna-csv/releases
-[benchmarks]:			https://github.com/skjolber/csv-benchmark
-[hytta.jpg]:			http://skjolber.github.io/img/hytta.jpg
-[ASM]:					https://asm.ow2.io/
-[RFC-4180]:             https://tools.ietf.org/html/rfc4180
+[Apache 2.0]:           http://www.apache.org/licenses/LICENSE-2.0.html
+[issue-tracker]:        https://github.com/skjolber/sesseltjonna-csv/issues
+[Maven]:                http://maven.apache.org/
+[benchmarks]:           https://github.com/skjolber/csv-benchmark
+[hytta.jpg]:            http://skjolber.github.io/img/hytta.jpg
+[ASM]:                    https://asm.ow2.io/
+[RFC-4180]:                https://tools.ietf.org/html/rfc4180
