@@ -27,7 +27,7 @@ Example dependency config:
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>databinder</artifactId>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
 </dependency>
 ```
 or
@@ -162,16 +162,9 @@ Contributions are welcome, especially those with unit tests ;)
 
 # History
 
+ - 1.0.10: Relax exceptions a bit
  - 1.0.9: Add support for a traditional CSV parser
  - 1.0.8: Code cleanup, minor adjustments.
- - 1.0.7: Fix integer parsing
- - 1.0.6: Fix issue with using bi- and triconsumers at the same time.
- - 1.0.5: Bug fixes and minor refactorings
- - 1.0.4: Intermediate processor support.
- - 1.0.3: Support for skipping comment lines.
- - 1.0.2: Support for custom quote and escape characters.
- - 1.0.1: Improve exception handling
- - 1.0.0: Initial release.
 
 [Apache 2.0]:           http://www.apache.org/licenses/LICENSE-2.0.html
 [issue-tracker]:        https://github.com/skjolber/sesseltjonna-csv/issues
