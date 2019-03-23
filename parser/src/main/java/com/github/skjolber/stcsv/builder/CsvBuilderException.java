@@ -1,13 +1,13 @@
 package com.github.skjolber.stcsv.builder;
 
-public class CsvBuilderException extends Exception {
+import com.github.skjolber.stcsv.CsvException;
+
+public class CsvBuilderException extends CsvException {
+
+	private static final long serialVersionUID = 1L;
 
 	public CsvBuilderException() {
 		super();
-	}
-
-	public CsvBuilderException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
 	public CsvBuilderException(String message, Throwable cause) {
