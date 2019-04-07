@@ -27,7 +27,7 @@ Example dependency config:
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>databinder</artifactId>
-    <version>1.0.10</version>
+    <version>1.0.11</version>
 </dependency>
 ```
 or
@@ -35,7 +35,7 @@ or
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>parser</artifactId>
-    <version>1.0.10</version>
+    <version>1.0.11</version>
 </dependency>
 ```
 
@@ -162,6 +162,7 @@ Contributions are welcome, especially those with unit tests ;)
 
 # History
 
+ - 1.0.11: Fix parsing of Double when using intermediate processor
  - 1.0.10: Relax exceptions a bit
  - 1.0.9: Add support for a traditional CSV parser
  - 1.0.8: Code cleanup, minor adjustments.
