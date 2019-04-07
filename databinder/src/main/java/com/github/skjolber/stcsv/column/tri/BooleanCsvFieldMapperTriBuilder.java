@@ -4,7 +4,6 @@ import com.github.skjolber.stcsv.builder.CsvBuilderException;
 import com.github.skjolber.stcsv.builder.CsvMappingBuilder2;
 import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
 import com.github.skjolber.stcsv.column.bi.BooleanCsvFieldMapperBuilder;
-import com.github.skjolber.stcsv.column.bi.LongCsvFieldMapperBuilder;
 import com.github.skjolber.stcsv.projection.TriConsumerProjection;
 import com.github.skjolber.stcsv.projection.ValueProjection;
 

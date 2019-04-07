@@ -3,11 +3,11 @@ package com.github.skjolber.stcsv.column.tri;
 import com.github.skjolber.stcsv.builder.CsvBuilderException;
 import com.github.skjolber.stcsv.builder.CsvMappingBuilder2;
 import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
-import com.github.skjolber.stcsv.column.bi.LongCsvFieldMapperBuilder;
+import com.github.skjolber.stcsv.column.bi.DoubleCsvFieldMapperBuilder;
 import com.github.skjolber.stcsv.projection.TriConsumerProjection;
 import com.github.skjolber.stcsv.projection.ValueProjection;
 
-public class DoubleCsvFieldMapperTriBuilder<T, D, B extends CsvMappingBuilder2<T, ?>> extends LongCsvFieldMapperBuilder<T, B> {
+public class DoubleCsvFieldMapperTriBuilder<T, D, B extends CsvMappingBuilder2<T, ?>> extends DoubleCsvFieldMapperBuilder<T, B> {
 
 	protected ObjDoubleTriConsumer<T, D> triConsumer;
 	protected Class<D> intermediate;
