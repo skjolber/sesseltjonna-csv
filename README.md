@@ -135,6 +135,8 @@ To maximize performance (like response time) it is always necessary to pre-warm 
 
 JMH [benchmark results](https://github.com/skjolber/csv-benchmark#results). 
 
+If the parser runs alone on a multicore system, the [ParalellReader](https://github.com/arnaudroger/SimpleFlatMapper/blob/master/sfm-util/src/main/java/org/simpleflatmapper/util/ParallelReader.java) from the [SimpleFlatMapper](https://simpleflatmapper.org/) might further improve performance by approximately 50%.
+
 # Compatibility
 The following rules / restrictions apply, mostly for keeping in sync with [RFC-4180]:
 
