@@ -1,6 +1,11 @@
 package com.github.skjolber.stcsv.builder;
 
+import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.github.skjolber.stcsv.CsvReader;
 import com.github.skjolber.stcsv.EmptyCsvReader;
@@ -12,8 +17,46 @@ import com.github.skjolber.stcsv.sa.rfc4180.RFC4180StringArrayCsvReader;
 public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayCsvReaderBuilder> {
 
 	protected boolean linebreaks = true;
+	protected Map<String, Integer> columnIndexes;
 
 	public CsvReader<String[]> build(Reader reader) throws Exception {
+		CsvReader<String[]> r = reader(reader);
+		if(columnIndexes != null) {
+			String[] next = r.next();
+			if(next != null) {
+				List<Integer> source = new ArrayList<>();
+				List<Integer> destination = new ArrayList<>();
+				
+				int maxDestination = -1;
+				for(int i = 0; i < next.length; i++) {
+					String n = next[i];
+					
+					Integer integer = columnIndexes.get(n);
+					if(integer != null) {
+						source.add(i);
+						destination.add(integer);
+						
+						if(maxDestination < integer) {
+							maxDestination = integer;
+						}
+					}
+				}
+
+				int[] s = new int[source.size()];
+				int[] d = new int[source.size()];
+				for(int i = 0; i < s.length; i++) {
+					s[i] = source.get(i);
+					d[i] = destination.get(i);
+				}
+				
+				return new FixedIndexCsvReader(r, s, d, maxDestination + 1);
+				
+			}
+		}
+		return r;
+	}
+
+	private CsvReader<String[]> reader(Reader reader) throws IOException {
 		char[] current = new char[bufferLength + 1];
 
 		int offset = 0;
@@ -84,5 +127,19 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 		this.linebreaks = false;
 		return this;
 	}
-	
+
+	public StringArrayCsvReaderBuilder withFixedColumnIndexes(Map<String, Integer> map) {
+		this.columnIndexes = map;
+		return this;
+	}
+
+	public StringArrayCsvReaderBuilder withFixedColumnIndex(String sourceColumnName, int destinationIndex) {
+		if(this.columnIndexes == null) {
+			this.columnIndexes = new HashMap<>();
+		}
+		this.columnIndexes.put(sourceColumnName, destinationIndex);
+		
+		return this;
+	}
+
 }
