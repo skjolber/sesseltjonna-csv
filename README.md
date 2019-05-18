@@ -8,9 +8,9 @@ Projects using this library will benefit from:
  * dynamically generated CSV databinding (including parser) per file (at runtime, using [ASM])
  * per-field configuration options
  * builder with support for syntactic sugar and customization options
- * world-class performance according to the [benchmarks]. 
+ * best in class performance according to the [benchmarks]. 
 
-For databinding, a very specific parser is generated per unique CSV file header, which yields extremely fast processing while allowing for per-field customizations. 
+For databinding, a very specific parser is generated per unique CSV file header, which yields __extremely fast processing while allowing for per-field customizations__. 
 
 The library also hosts 'traditional' CSV parsers (statically typed) for those wanting to work directly on String arrays. 
 
@@ -126,7 +126,7 @@ do {
    // your code here    
 } while(true);
 ```
-Note that the String-array itself is reused between lines.
+Note that the String-array itself is reused between lines. Note that the column indexes can be rearranged  by using the builder `withFixedColumnIndex(..)` methods, which should be useful when doing your own (efficient) databinding. 
 
 # Performance
 The dynamically generated instances are extremely fast (i.e. as good as a parser tailored very specifically to the file being parsed), but note that the assumption is that the number of different CSV files for a given application or format is limited, so that parsing effectively is performed by a JIT-compiled class and not by a newly generated class for each file.
