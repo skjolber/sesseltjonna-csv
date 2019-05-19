@@ -41,7 +41,7 @@ public class StringArrayCsvReaderBuilderTest {
 	
 	@Test
 	public void testFixedColumnIndexes() throws Exception {
-		CsvReader<String[]> build = StringArrayCsvReader.builder().withFixedColumnIndex("b", 0).build(new StringReader(singleLine + indexes));
+		CsvReader<String[]> build = StringArrayCsvReader.builder().withColumnMapping("b", 0).build(new StringReader(singleLine + indexes));
 
 		String[] next = build.next();
 		assertThat(next[0]).isEqualTo("2");

@@ -128,14 +128,14 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 		return this;
 	}
 
-	public StringArrayCsvReaderBuilder withFixedColumnIndexes(Map<String, Integer> map) {
+	public StringArrayCsvReaderBuilder withColumnMappings(Map<String, Integer> map) {
 		this.columnIndexes = map;
 		return this;
 	}
 
-	public StringArrayCsvReaderBuilder withFixedColumnIndex(String sourceColumnName, int destinationIndex) {
+	public StringArrayCsvReaderBuilder withColumnMapping(String sourceColumnName, int destinationIndex) {
 		if(this.columnIndexes == null) {
-			this.columnIndexes = new HashMap<>();
+			this.columnIndexes = new HashMap<>(32);
 		}
 		this.columnIndexes.put(sourceColumnName, destinationIndex);
 		
