@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Reader;
 
 import com.github.skjolber.stcsv.CsvException;
-import com.github.skjolber.stcsv.builder.StringArrayCsvReaderBuilder;
 import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
 
 public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
