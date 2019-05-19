@@ -44,6 +44,7 @@ public class StringArrayCsvReaderBuilderTest {
 		CsvReader<String[]> build = StringArrayCsvReader.builder().withColumnMapping("b", 0).build(new StringReader(singleLine + indexes));
 
 		String[] next = build.next();
+		assertThat(next.length).isEqualTo(1);
 		assertThat(next[0]).isEqualTo("2");
 	}
 		
