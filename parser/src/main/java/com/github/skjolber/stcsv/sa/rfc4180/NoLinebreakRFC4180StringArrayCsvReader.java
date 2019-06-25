@@ -95,7 +95,11 @@ public final class NoLinebreakRFC4180StringArrayCsvReader extends StringArrayCsv
 					} while (current[currentOffset] != '\n');
 
 					if(current[currentOffset - 1] == '\r') { // check for linefeed
-						value[lastIndex] = new String(current, start, currentOffset - start - 1);
+						if(currentOffset - 1 == start) {
+							value[lastIndex] = null;
+						} else {
+							value[lastIndex] = new String(current, start, currentOffset - start - 1);
+						}
 					} else {
 						value[lastIndex] = new String(current, start, currentOffset - start);
 					}

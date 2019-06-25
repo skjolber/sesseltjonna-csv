@@ -20,6 +20,13 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 	protected Map<String, Integer> columnIndexes;
 
 	public CsvReader<String[]> build(Reader reader) throws Exception {
+		if(skipComments) {
+			throw new IllegalArgumentException("Skipping comments not supported");
+		}
+		if(skipEmptyLines) {
+			throw new IllegalArgumentException("Skipping empty lines supported");
+		}
+		
 		CsvReader<String[]> r = reader(reader);
 		if(columnIndexes != null) {
 			String[] next = r.next();
@@ -81,6 +88,10 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 				return new NoLinebreakRFC4180StringArrayCsvReader(reader, current, 0, offset, columns);
 			}
 			return new RFC4180StringArrayCsvReader(reader, current, 0, offset, columns);
+		}
+		
+		if(quoteCharacter == escapeCharacter) {
+			throw new IllegalArgumentException("Identical escape and quote character not supported other than '\"'");
 		}
 		
 		if(!linebreaks) {

@@ -70,7 +70,7 @@ public abstract class AbstractCsvBuilder<B>  {
 	
 	public B divider(char c) {
 		if(!isSafeCharDelimiter(c) || c == '\n') {
-			throw new IllegalArgumentException("Cannot use character '" + c + "' as divider");
+			throw new CsvBuilderException("Cannot use character '" + c + "' as divider");
 		}
 		this.divider = c;
 		

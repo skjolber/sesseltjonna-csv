@@ -29,6 +29,9 @@ public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader 
 		
 		this.quoteCharacter = quoteCharacter;
 		this.escapeCharacter = escapeCharacter;
+		if(quoteCharacter == escapeCharacter) {
+			throw new IllegalArgumentException("Identical escape and quote character not supported");
+		}
 		this.divider = divider;
 		this.maxCharacter = (char) Math.max(quoteCharacter, Math.max(escapeCharacter, '\n'));
 	}
@@ -38,7 +41,9 @@ public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader 
 
 		this.value = new String[columns];
 		this.lastIndex = columns - 1;
-		
+		if(quoteCharacter == escapeCharacter) {
+			throw new IllegalArgumentException("Identical escape and quote character not supported");
+		}
 		this.quoteCharacter = quoteCharacter;
 		this.escapeCharacter = escapeCharacter;
 		this.divider = divider;
@@ -92,7 +97,7 @@ public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader 
 								++currentOffset;
 							} while (current[currentOffset] != divider);
 							break quoted;
-						} else 	if (current[currentOffset] == escapeCharacter) {
+						} else if (current[currentOffset] == escapeCharacter) {
 							System.arraycopy(current, start, current, start + 1, currentOffset - start);
 							++currentOffset;
 							++start;
@@ -112,7 +117,11 @@ public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader 
 					} while (current[currentOffset] != '\n');
 
 					if(current[currentOffset - 1] == '\r') { // check for linefeed
-						value[lastIndex] = new String(current, start, currentOffset - start - 1);
+						if(currentOffset - 1 == start) {
+							value[lastIndex] = null;
+						} else {
+							value[lastIndex] = new String(current, start, currentOffset - start - 1);
+						}
 					} else {
 						value[lastIndex] = new String(current, start, currentOffset - start);
 					}

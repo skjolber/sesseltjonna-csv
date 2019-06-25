@@ -4,7 +4,8 @@ import com.github.skjolber.stcsv.CsvReader;
 
 /**
  * 
- * Wrappper {@linkplain CsvReader} which normalizes / fixes the line string array indexes as seen from the consumer's perspective.
+ * Wrappper {@linkplain CsvReader} which normalizes / fixes the line string array 
+ * indexes as seen from the consumer's perspective.
  * 
  */
 
