@@ -27,7 +27,7 @@ Example dependency config:
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>databinder</artifactId>
-    <version>1.0.12</version>
+    <version>1.0.13</version>
 </dependency>
 ```
 or
@@ -35,7 +35,7 @@ or
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>parser</artifactId>
-    <version>1.0.12</version>
+    <version>1.0.13</version>
 </dependency>
 ```
 
@@ -164,6 +164,7 @@ Contributions are welcome, especially those with unit tests ;)
 
 # History
 
+ - 1.0.13: Improve support for carriage return, minor adjustments.
  - 1.0.12: Add column-mapping wrapper for traditional CSV parser
  - 1.0.11: Fix parsing of Double when using intermediate processor
  - 1.0.10: Relax exceptions a bit
@@ -175,5 +176,5 @@ Contributions are welcome, especially those with unit tests ;)
 [Maven]:                http://maven.apache.org/
 [benchmarks]:           https://github.com/skjolber/csv-benchmark
 [hytta.jpg]:            http://skjolber.github.io/img/hytta.jpg
-[ASM]:                    https://asm.ow2.io/
-[RFC-4180]:                https://tools.ietf.org/html/rfc4180
+[ASM]:                  https://asm.ow2.io/
+[RFC-4180]:             https://tools.ietf.org/html/rfc4180
