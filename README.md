@@ -164,7 +164,7 @@ Contributions are welcome, especially those with unit tests ;)
 
 # History
 
- - 1.0.13: Improve support for carriage return, minor adjustments.
+ - 1.0.13: Improve support for carriage return, minor adjustments. Improve test coverage.
  - 1.0.12: Add column-mapping wrapper for traditional CSV parser
  - 1.0.11: Fix parsing of Double when using intermediate processor
  - 1.0.10: Relax exceptions a bit
