@@ -129,7 +129,6 @@ public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader 
 					value[lastIndex] = null;
 				}
 			} else {
-				int rangeIndex = this.getCurrentRange();
 				start = currentOffset + 1;
 
 				quoted : while (true) {
@@ -150,14 +149,7 @@ public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader 
 						System.arraycopy(current, start, current, start + 1, currentOffset - start);
 						++currentOffset;
 						++start;
-					} else if (current[currentOffset] == '\n' && currentOffset == rangeIndex) {
-						currentOffset -= start;
-						if ((rangeIndex = this.fill(currentOffset)) <= currentOffset) {
-							throw new CsvException("Illegal value in column " + lastIndex);
-						}
-
-						start = 0;
-					}					
+					}
 				}
 			}
 			++currentOffset;			

@@ -23,21 +23,6 @@ import com.univocity.parsers.csv.CsvParser;
 public class RFC4180StringArrayCsvReaderTest extends AbstractCsvReaderTest {
 
 	@Test
-	public void parsesEscapedInput() throws Exception {
-		String input = "a,b,c\n\"a\"\"1\",b1,c1";
-		RFC4180StringArrayCsvReader reader = new RFC4180StringArrayCsvReader(new StringReader(input), 3);
-		
-		String[] first = reader.next();
-		assertThat(first[0]).isEqualTo("a");
-		assertThat(first[1]).isEqualTo("b");
-		assertThat(first[2]).isEqualTo("c");
-		String[] second = reader.next();
-		assertThat(second[0]).isEqualTo("a\"1");
-		assertThat(second[1]).isEqualTo("b1");
-		assertThat(second[2]).isEqualTo("c1");
-	}
-	
-	@Test
 	public void compareToConventionalParserWithoutQuotes() throws Exception {
 		CsvParser referenceParser = referenceParser(file, StandardCharsets.UTF_8, false);
 		RFC4180StringArrayCsvReader factory = parser(file, StandardCharsets.UTF_8, false);
@@ -90,4 +75,57 @@ public class RFC4180StringArrayCsvReaderTest extends AbstractCsvReaderTest {
 		
 		return new RFC4180StringArrayCsvReader(reader, 7);
 	}	
+	
+	@Test
+	public void parseQuotedNewlineWithFillBufferFirstOrMiddleColumn() throws Exception {
+		String row = "abcdef,\"b1\nb2b3b4\",end\n";
+
+		int index = row.indexOf('\n');
+
+		char[] first = row.substring(0, index+1).toCharArray();
+		
+		char[] b = new char[1024];
+		System.arraycopy(first, 0, b, 0, first.length);
+		
+		RFC4180StringArrayCsvReader reader = new RFC4180StringArrayCsvReader(new StringReader(row.substring(index + 1)), b, 0, first.length, 3);
+		
+		String[] result = reader.next();
+		assertThat(result[0]).isEqualTo("abcdef");
+		assertThat(result[1]).isEqualTo("b1\nb2b3b4");
+		assertThat(result[2]).isEqualTo("end");
+	}
+	
+	@Test
+	public void parseQuotedNewlineWithFillBufferEndColumn() throws Exception {
+		String row = "abcdef,ghijk,\"b1\nb2b3b4\"\n";
+
+		int index = row.indexOf('\n');
+
+		char[] first = row.substring(0, index+1).toCharArray();
+		
+		char[] b = new char[1024];
+		System.arraycopy(first, 0, b, 0, first.length);
+		
+		RFC4180StringArrayCsvReader reader = new RFC4180StringArrayCsvReader(new StringReader(row.substring(index + 1)), b, 0, first.length, 3);
+		
+		String[] result = reader.next();
+		assertThat(result[0]).isEqualTo("abcdef");
+		assertThat(result[1]).isEqualTo("ghijk");
+		assertThat(result[2]).isEqualTo("b1\nb2b3b4");
+	}
+
+	@Test
+	public void parsesEscapedInput() throws Exception {
+		String input = "a,b,c\n\"a\"\"1\",b1,c1";
+		RFC4180StringArrayCsvReader reader = new RFC4180StringArrayCsvReader(new StringReader(input), 3);
+		
+		String[] first = reader.next();
+		assertThat(first[0]).isEqualTo("a");
+		assertThat(first[1]).isEqualTo("b");
+		assertThat(first[2]).isEqualTo("c");
+		String[] second = reader.next();
+		assertThat(second[0]).isEqualTo("a\"1");
+		assertThat(second[1]).isEqualTo("b1");
+		assertThat(second[2]).isEqualTo("c1");
+	}
 }

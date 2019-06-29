@@ -7,14 +7,12 @@ import java.io.StringReader;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.CsvReader;
 import com.github.skjolber.stcsv.EmptyCsvReader;
 import com.github.skjolber.stcsv.sa.DefaultStringArrayCsvReader;
 import com.github.skjolber.stcsv.sa.NoLinebreakStringArrayCsvReader;
 import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
 import com.github.skjolber.stcsv.sa.rfc4180.NoLinebreakRFC4180StringArrayCsvReader;
-import com.github.skjolber.stcsv.sa.rfc4180.RFC4180StringArrayCsvReader;
 
 public class StringArrayCsvReaderBuilderTest {
 
@@ -98,8 +96,8 @@ public class StringArrayCsvReaderBuilderTest {
 	@Test
 	public void throwsExceptionUnsupportedSeperator() throws Exception {
 		String bridge = "\ud83c\udf09"; // https://stackoverflow.com/questions/5903008/what-is-a-surrogate-pair-in-java
-		Throwable exception = assertThrows(CsvBuilderException.class, ()->{
-			CsvReader<String[]> build = StringArrayCsvReader.builder().divider(bridge.charAt(1)).escapeCharacter('\\').build(new StringReader(singleLine + indexes));
-	            } );
+		assertThrows(CsvBuilderException.class, ()->{
+			StringArrayCsvReader.builder().divider(bridge.charAt(1)).escapeCharacter('\\').build(new StringReader(singleLine + indexes));
+	    });
 	}	
 }

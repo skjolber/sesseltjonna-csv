@@ -101,9 +101,9 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 							System.arraycopy(current, start, current, start + 1, currentOffset - start);
 							++currentOffset;
 							++start;
-						} else if (current[currentOffset] == '\n' && currentOffset == rangeIndex) {
+						} else if (currentOffset == rangeIndex) {
 							currentOffset -= start;
-							if ((rangeIndex = this.fill(currentOffset)) <= currentOffset) {
+							if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {
 								throw new CsvException("Illegal value in column " + i);
 							}
 	
@@ -157,9 +157,9 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 						System.arraycopy(current, start, current, start + 1, currentOffset - start);
 						++currentOffset;
 						++start;
-					} else if (current[currentOffset] == '\n' && currentOffset == rangeIndex) {
+					} else if (currentOffset == rangeIndex) {
 						currentOffset -= start;
-						if ((rangeIndex = this.fill(currentOffset)) <= currentOffset) {
+						if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {
 							throw new CsvException("Illegal value in column " + lastIndex);
 						}
 

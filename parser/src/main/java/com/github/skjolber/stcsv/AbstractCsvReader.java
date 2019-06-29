@@ -28,8 +28,8 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 	protected final int maxRange;
 	
 	protected int currentOffset = 0;
-	protected int currentRange = 0;
-	protected int spareRange = 0;
+	protected int currentRange = 0; // last newline within the buffer
+	protected int spareRange = 0; // data length
 	protected boolean eof = false;
 
 	public AbstractCsvReader(Reader reader, char[] current, int offset, int length) {
@@ -58,8 +58,7 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 	}
 	
 	protected int fill(int keep) throws IOException { 
-		this.spareRange -= keep;
-		
+		this.currentRange -= keep;
 		return fill();
 	}
 

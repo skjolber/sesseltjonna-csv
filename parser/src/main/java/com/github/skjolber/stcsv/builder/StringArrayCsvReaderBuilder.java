@@ -91,7 +91,7 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 		}
 		
 		if(quoteCharacter == escapeCharacter) {
-			throw new IllegalArgumentException("Identical escape and quote character not supported other than '\"'");
+			throw new IllegalArgumentException("Identical escape and quote character not supported");
 		}
 		
 		if(!linebreaks) {

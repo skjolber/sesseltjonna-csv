@@ -148,11 +148,13 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitIincInsn(startIndex, 1);
 			mv.visitJumpInsn(GOTO, l19);
 			mv.visitLabel(l20);
+			/*
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
 			mv.visitIntInsn(BIPUSH, 10);
 			mv.visitJumpInsn(IF_ICMPNE, l19);
+			*/
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, rangeIndex);
 			mv.visitJumpInsn(IF_ICMPNE, l19);
@@ -162,10 +164,17 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ISTORE, currentOffsetIndex);
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitInsn(ICONST_1);
+			mv.visitInsn(IADD);
+
 			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
 			mv.visitInsn(DUP);
 			mv.visitVarInsn(ISTORE, rangeIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			
+			mv.visitInsn(ICONST_1);
+			mv.visitInsn(IADD);
+
 			Label l34 = new Label();
 			mv.visitJumpInsn(IF_ICMPGT, l34);
 	
@@ -175,6 +184,8 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitInsn(ICONST_0);
 			mv.visitVarInsn(ISTORE, startIndex);
 			
+			// continue quote 
+			mv.visitJumpInsn(GOTO, l19);
 		} else {
 			// handle quoted
 			mv.visitLabel(quoted);
@@ -279,12 +290,14 @@ public class QuotedColumn extends AbstractColumn {
 			Label l45 = new Label();
 			mv.visitJumpInsn(GOTO, l45);
 			mv.visitLabel(l38);
+			
+			/*
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
 			mv.visitIntInsn(BIPUSH, 10);
 			mv.visitJumpInsn(IF_ICMPNE, afterCheckingForEscapeAndQuotes);
-			
+			*/
 			
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, rangeIndex);
@@ -295,10 +308,18 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ISTORE, currentOffsetIndex);
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			
+			mv.visitInsn(ICONST_1);
+			mv.visitInsn(IADD);
+
 			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
 			mv.visitInsn(DUP);
 			mv.visitVarInsn(ISTORE, rangeIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			
+			mv.visitInsn(ICONST_1);
+			mv.visitInsn(IADD);
+
 			Label l48 = new Label();
 			mv.visitJumpInsn(IF_ICMPGT, l48);
 			
@@ -307,6 +328,7 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitLabel(l48);
 			mv.visitInsn(ICONST_0);
 			mv.visitVarInsn(ISTORE, startIndex);
+			
 			if(!isLowAsciiCharacter) {
 				mv.visitLabel(afterCheckingForEscapeAndQuotes);
 				mv.visitIincInsn(currentOffsetIndex, 1);

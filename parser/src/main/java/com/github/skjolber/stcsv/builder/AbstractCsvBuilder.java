@@ -37,12 +37,14 @@ public abstract class AbstractCsvBuilder<B>  {
 	protected boolean skippableFieldsWithoutLinebreaks = false;
 	protected int bufferLength = AbstractCsvReader.DEFAULT_RANGE_LENGTH;
 
+	@SuppressWarnings("unchecked")
 	public B skipEmptyLines() {
 		this.skipEmptyLines = true;
 		
 		return (B) this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public B skipComments() {
 		this.skipComments = true;
 		
@@ -56,18 +58,21 @@ public abstract class AbstractCsvBuilder<B>  {
 	 * @return this
 	 */
 
+	@SuppressWarnings("unchecked")
 	public B skippableFieldsWithoutLinebreaks() {
 		this.skippableFieldsWithoutLinebreaks = true;
 		
 		return (B) this;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public B bufferLength(int length) {
 		this.bufferLength = length;
 		
 		return (B) this;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public B divider(char c) {
 		if(!isSafeCharDelimiter(c) || c == '\n') {
 			throw new CsvBuilderException("Cannot use character '" + c + "' as divider");
@@ -77,12 +82,14 @@ public abstract class AbstractCsvBuilder<B>  {
 		return (B) this;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public B quoteCharacter(char c) {
 		this.quoteCharacter = c;
 		
 		return (B) this;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public B escapeCharacter(char c) {
 		this.escapeCharacter = c;
 		

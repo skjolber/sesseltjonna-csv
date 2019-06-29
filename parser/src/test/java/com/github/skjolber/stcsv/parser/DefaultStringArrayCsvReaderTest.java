@@ -74,5 +74,43 @@ public class DefaultStringArrayCsvReaderTest extends AbstractCsvReaderTest {
 		}
 		
 		return new DefaultStringArrayCsvReader(reader, 7, '"', '\\', ';');
+	}
+	
+	@Test
+	public void parseQuotedNewlineWithFillBufferFirstOrMiddleColumn() throws Exception {
+		String row = "a,\"b1\nb2b3b4\",end\n";
+
+		int index = row.indexOf('\n');
+
+		char[] first = row.substring(0, index+1).toCharArray();
+		
+		char[] b = new char[1024];
+		System.arraycopy(first, 0, b, 0, first.length);
+		
+		DefaultStringArrayCsvReader reader = new DefaultStringArrayCsvReader(new StringReader(row.substring(index + 1)), b, 0, first.length, 3, '"', '\\', ',');
+		
+		String[] result = reader.next();
+		assertThat(result[0]).isEqualTo("a");
+		assertThat(result[1]).isEqualTo("b1\nb2b3b4");
+		assertThat(result[2]).isEqualTo("end");
+	}
+	
+	@Test
+	public void parseQuotedNewlineWithFillBufferEndColumn() throws Exception {
+		String row = "abcdef,ghijk,\"b1\nb2b3b4\"\n";
+
+		int index = row.indexOf('\n');
+
+		char[] first = row.substring(0, index+1).toCharArray();
+		
+		char[] b = new char[1024];
+		System.arraycopy(first, 0, b, 0, first.length);
+		
+		DefaultStringArrayCsvReader reader = new DefaultStringArrayCsvReader(new StringReader(row.substring(index + 1)), b, 0, first.length, 3, '"', '\\', ',');
+		
+		String[] result = reader.next();
+		assertThat(result[0]).isEqualTo("abcdef");
+		assertThat(result[1]).isEqualTo("ghijk");
+		assertThat(result[2]).isEqualTo("b1\nb2b3b4");
 	}	
 }

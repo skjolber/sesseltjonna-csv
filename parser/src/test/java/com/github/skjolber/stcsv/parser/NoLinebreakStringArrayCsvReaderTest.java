@@ -18,7 +18,6 @@ import com.github.skjolber.stcsv.AbstractCsvReaderTest;
 import com.github.skjolber.stcsv.CarriageReturnNewLineReader;
 import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.sa.NoLinebreakStringArrayCsvReader;
-import com.github.skjolber.stcsv.sa.rfc4180.NoLinebreakRFC4180StringArrayCsvReader;
 import com.github.skjolber.stcsv.sa.rfc4180.RFC4180StringArrayCsvReader;
 import com.univocity.parsers.csv.CsvParser;
 
@@ -85,4 +84,19 @@ public class NoLinebreakStringArrayCsvReaderTest extends AbstractCsvReaderTest {
 		
 		return new NoLinebreakStringArrayCsvReader(reader, 7, '"', '\\', ';');
 	}
+	
+	@Test
+	public void parsesEscapedInput() throws Exception {
+		String input = "a,b,c\n\"a\\\"1\",b1,c1";
+		NoLinebreakStringArrayCsvReader reader = new NoLinebreakStringArrayCsvReader(new StringReader(input),  3, '"', '\\', ',');
+		
+		String[] first = reader.next();
+		assertThat(first[0]).isEqualTo("a");
+		assertThat(first[1]).isEqualTo("b");
+		assertThat(first[2]).isEqualTo("c");
+		String[] second = reader.next();
+		assertThat(second[0]).isEqualTo("a\"1");
+		assertThat(second[1]).isEqualTo("b1");
+		assertThat(second[2]).isEqualTo("c1");
+	}	
 }

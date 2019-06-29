@@ -58,7 +58,7 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 	@Test
 	public void testSkipTrailingWhitespaceWithQuotes() throws Exception {
 		Reader reader = createReader(true);
-		char a = ',';
+		
 		CsvReader<CsvLineObject> scanner = mappingWithQuotes.create(reader);
 		
 		CsvLineObject next = scanner.next();

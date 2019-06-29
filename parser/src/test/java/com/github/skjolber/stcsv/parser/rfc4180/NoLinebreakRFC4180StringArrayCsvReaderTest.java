@@ -1,5 +1,6 @@
 package com.github.skjolber.stcsv.parser.rfc4180;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
@@ -18,25 +19,9 @@ import com.github.skjolber.stcsv.CarriageReturnNewLineReader;
 import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.sa.rfc4180.NoLinebreakRFC4180StringArrayCsvReader;
 import com.univocity.parsers.csv.CsvParser;
-import static com.google.common.truth.Truth.assertThat;
 
 public class NoLinebreakRFC4180StringArrayCsvReaderTest extends AbstractCsvReaderTest {
 
-	@Test
-	public void parsesEscapedInput() throws Exception {
-		String input = "a,b,c\n\"a\"\"1\",b1,c1";
-		NoLinebreakRFC4180StringArrayCsvReader reader = new NoLinebreakRFC4180StringArrayCsvReader(new StringReader(input), 3);
-		
-		String[] first = reader.next();
-		assertThat(first[0]).isEqualTo("a");
-		assertThat(first[1]).isEqualTo("b");
-		assertThat(first[2]).isEqualTo("c");
-		String[] second = reader.next();
-		assertThat(second[0]).isEqualTo("a\"1");
-		assertThat(second[1]).isEqualTo("b1");
-		assertThat(second[2]).isEqualTo("c1");
-	}
-	
 	@Test
 	public void compareToConventionalParserWithoutQuotes() throws Exception {
 		CsvParser referenceParser = referenceParser(file, StandardCharsets.UTF_8, false);
@@ -90,4 +75,20 @@ public class NoLinebreakRFC4180StringArrayCsvReaderTest extends AbstractCsvReade
 		
 		return new NoLinebreakRFC4180StringArrayCsvReader(reader, 7);
 	}		
+	
+	@Test
+	public void parsesEscapedInput() throws Exception {
+		String input = "a,b,c\n\"a\"\"1\",b1,c1";
+		NoLinebreakRFC4180StringArrayCsvReader reader = new NoLinebreakRFC4180StringArrayCsvReader(new StringReader(input), 3);
+		
+		String[] first = reader.next();
+		assertThat(first[0]).isEqualTo("a");
+		assertThat(first[1]).isEqualTo("b");
+		assertThat(first[2]).isEqualTo("c");
+		String[] second = reader.next();
+		assertThat(second[0]).isEqualTo("a\"1");
+		assertThat(second[1]).isEqualTo("b1");
+		assertThat(second[2]).isEqualTo("c1");
+	}
+	
 }
