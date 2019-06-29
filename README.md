@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/skjolber/sesseltjonna-csv.svg)](https://travis-ci.org/skjolber/sesseltjonna-csv)
+[![codecov](https://codecov.io/gh/skjolber/sesseltjonna-csv/branch/master/graph/badge.svg)](https://codecov.io/gh/skjolber/sesseltjonna-csv)
 
 # sesseltjonna-csv: High-performance CSV processing
 **sesseltjonna-csv** is a high-performance CSV library with developer-friendly configuration options.
