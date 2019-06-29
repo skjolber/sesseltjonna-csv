@@ -103,5 +103,9 @@ public abstract class AbstractCsvBuilder<B>  {
 	public char getQuoteCharacter() {
 		return quoteCharacter;
 	}
+	
+	public char getDivider() {
+		return divider;
+	}
 
 }

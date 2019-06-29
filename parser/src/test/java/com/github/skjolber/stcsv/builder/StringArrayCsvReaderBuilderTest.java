@@ -23,6 +23,20 @@ public class StringArrayCsvReaderBuilderTest {
 	private String[] emptyColumns = {",,\n", "a,b,\n", "a,,\n"};
 
 	@Test
+	public void testConfiguration() throws Exception {
+		StringArrayCsvReaderBuilder builder = StringArrayCsvReader.builder();
+		
+		builder.escapeCharacter('\\');
+		assertThat(builder.getEscapeCharacter()).isEqualTo('\\');
+		
+		builder.divider(';');
+		assertThat(builder.getDivider()).isEqualTo(';');
+
+		builder.quoteCharacter('\'');
+		assertThat(builder.getQuoteCharacter()).isEqualTo('\'');
+	}
+	
+	@Test
 	public void testEmpty() throws Exception {
 		CsvReader<String[]> build = new StringArrayCsvReaderBuilder().build(new StringReader(empty));
 		assertThat(build).isInstanceOf(EmptyCsvReader.class);
@@ -99,5 +113,18 @@ public class StringArrayCsvReaderBuilderTest {
 		assertThrows(CsvBuilderException.class, ()->{
 			StringArrayCsvReader.builder().divider(bridge.charAt(1)).escapeCharacter('\\').build(new StringReader(singleLine + indexes));
 	    });
-	}	
+	}
+	
+	@Test
+	public void throwsExceptionForIllegalConfiguration() throws Exception {
+		assertThrows(CsvBuilderException.class, ()->{
+			StringArrayCsvReader.builder().escapeCharacter('\\').quoteCharacter('\\').build(new StringReader(singleLine + indexes));
+	    });
+		assertThrows(CsvBuilderException.class, ()->{
+			StringArrayCsvReader.builder().skipComments().build(new StringReader(singleLine + indexes));
+	    });
+		assertThrows(CsvBuilderException.class, ()->{
+			StringArrayCsvReader.builder().skipEmptyLines().build(new StringReader(singleLine + indexes));
+	    });
+	}		
 }

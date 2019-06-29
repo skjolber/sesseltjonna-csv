@@ -87,7 +87,7 @@ public class NoLinebreakStringArrayCsvReaderTest extends AbstractCsvReaderTest {
 	
 	@Test
 	public void parsesEscapedInput() throws Exception {
-		String input = "a,b,c\n\"a\\\"1\",b1,c1";
+		String input = "a,b,c\n\"a\\\"1\",b1,\"c1\\\"\""; 
 		NoLinebreakStringArrayCsvReader reader = new NoLinebreakStringArrayCsvReader(new StringReader(input),  3, '"', '\\', ',');
 		
 		String[] first = reader.next();
@@ -97,6 +97,6 @@ public class NoLinebreakStringArrayCsvReaderTest extends AbstractCsvReaderTest {
 		String[] second = reader.next();
 		assertThat(second[0]).isEqualTo("a\"1");
 		assertThat(second[1]).isEqualTo("b1");
-		assertThat(second[2]).isEqualTo("c1");
+		assertThat(second[2]).isEqualTo("c1\"");
 	}	
 }

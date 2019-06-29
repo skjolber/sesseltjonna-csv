@@ -4,13 +4,8 @@ import java.io.IOException;
 import java.io.Reader;
 
 import com.github.skjolber.stcsv.CsvException;
-import com.github.skjolber.stcsv.builder.StringArrayCsvReaderBuilder;
 
 public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
-	
-	public static StringArrayCsvReaderBuilder builder() {
-		return new StringArrayCsvReaderBuilder();
-	}
 	
 	protected final String[] value;
 	protected final int lastIndex;

@@ -18,6 +18,7 @@ import com.github.skjolber.stcsv.AbstractCsvReaderTest;
 import com.github.skjolber.stcsv.CarriageReturnNewLineReader;
 import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.sa.DefaultStringArrayCsvReader;
+import com.github.skjolber.stcsv.sa.rfc4180.NoLinebreakRFC4180StringArrayCsvReader;
 import com.univocity.parsers.csv.CsvParser;
 
 public class DefaultStringArrayCsvReaderTest extends AbstractCsvReaderTest {
@@ -112,5 +113,20 @@ public class DefaultStringArrayCsvReaderTest extends AbstractCsvReaderTest {
 		assertThat(result[0]).isEqualTo("abcdef");
 		assertThat(result[1]).isEqualTo("ghijk");
 		assertThat(result[2]).isEqualTo("b1\nb2b3b4");
-	}	
+	}
+	
+	@Test
+	public void parsesEscapedInput() throws Exception {
+		String input = "a,b,c\n\"a\\\\\\\"1\",b1,\"c1\\\"\"";
+		DefaultStringArrayCsvReader reader = new DefaultStringArrayCsvReader(new StringReader(input), 3, '"', '\\', ',');
+		
+		String[] first = reader.next();
+		assertThat(first[0]).isEqualTo("a");
+		assertThat(first[1]).isEqualTo("b");
+		assertThat(first[2]).isEqualTo("c");
+		String[] second = reader.next();
+		assertThat(second[0]).isEqualTo("a\\\"1");
+		assertThat(second[1]).isEqualTo("b1");
+		assertThat(second[2]).isEqualTo("c1\"");
+	}
 }

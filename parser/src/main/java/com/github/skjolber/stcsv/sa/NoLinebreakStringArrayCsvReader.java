@@ -8,10 +8,6 @@ import com.github.skjolber.stcsv.builder.StringArrayCsvReaderBuilder;
 
 public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader {
 	
-	public static StringArrayCsvReaderBuilder builder() {
-		return new StringArrayCsvReaderBuilder();
-	}
-	
 	protected final String[] value;
 	protected final int lastIndex;
 	

@@ -21,10 +21,10 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 
 	public CsvReader<String[]> build(Reader reader) throws Exception {
 		if(skipComments) {
-			throw new IllegalArgumentException("Skipping comments not supported");
+			throw new CsvBuilderException("Skipping comments not supported");
 		}
 		if(skipEmptyLines) {
-			throw new IllegalArgumentException("Skipping empty lines supported");
+			throw new CsvBuilderException("Skipping empty lines supported");
 		}
 		
 		CsvReader<String[]> r = reader(reader);
@@ -91,7 +91,7 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 		}
 		
 		if(quoteCharacter == escapeCharacter) {
-			throw new IllegalArgumentException("Identical escape and quote character not supported");
+			throw new CsvBuilderException("Identical escape and quote character not supported");
 		}
 		
 		if(!linebreaks) {
