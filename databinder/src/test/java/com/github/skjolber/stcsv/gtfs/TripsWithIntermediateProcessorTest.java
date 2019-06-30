@@ -48,7 +48,6 @@ public class TripsWithIntermediateProcessorTest {
 						cache.add(routeId);
 						trip.setRouteId(routeId);
 					})
-					.setter(Trip::setRouteId)
 					.quoted()
 					.optional()
 				.stringField("service_id")

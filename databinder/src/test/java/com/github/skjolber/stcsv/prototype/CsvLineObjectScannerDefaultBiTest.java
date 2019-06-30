@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.github.skjolber.stcsv.CsvMapper;
 import com.github.skjolber.stcsv.CsvReader;
 
-public class CsvLineObjectScannerDefaultTest {
+public class CsvLineObjectScannerDefaultBiTest {
 
 	private CsvMapper<CsvLineObject> consumerMapping;
 	private CsvMapper<CsvLineObject> reflectionSetterMapping;
