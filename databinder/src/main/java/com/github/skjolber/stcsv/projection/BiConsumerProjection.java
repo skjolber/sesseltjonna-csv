@@ -4,6 +4,7 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 
 import org.objectweb.asm.MethodVisitor;
 
@@ -26,13 +27,15 @@ public class BiConsumerProjection implements ValueProjection {
 	protected final String biConsumerInternalName;
 	protected final CsvColumnValueConsumer<?> biConsumer;
 	protected final int index;
+	protected final boolean directMethod;
 	
 	public BiConsumerProjection(CsvColumnValueConsumer<?> biConsumer, int index) {
 		super();
 		this.biConsumer = biConsumer;
 		this.index = index;
 		
-		if(biConsumer.getClass().getPackage().equals(StringCsvColumnValueConsumer.class.getPackage())) {
+		this.directMethod = biConsumer.getClass().getPackage().equals(StringCsvColumnValueConsumer.class.getPackage());
+		if(directMethod ) {
 			biConsumerInternalName = CsvMapper.getInternalName(biConsumer.getClass());
 		} else {
 			biConsumerInternalName = biConsumerName;
@@ -46,7 +49,11 @@ public class BiConsumerProjection implements ValueProjection {
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, startIndex);
 		mv.visitVarInsn(ILOAD, endIndex);
-		mv.visitMethodInsn(INVOKEVIRTUAL, biConsumerInternalName, "consume", "(Ljava/lang/Object;[CII)V", false);
+		if(directMethod) {
+			mv.visitMethodInsn(INVOKEVIRTUAL, biConsumerInternalName, "consume", "(Ljava/lang/Object;[CII)V", false);
+		} else {
+			mv.visitMethodInsn(INVOKEINTERFACE, biConsumerInternalName, "consume", "(Ljava/lang/Object;[CII)V", true);
+		}
 	}
 
 	public String getBiConsumerInternalName() {

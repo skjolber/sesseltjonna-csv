@@ -11,6 +11,7 @@ import com.github.skjolber.stcsv.AbstractCsvMapper;
 import com.github.skjolber.stcsv.CsvMapper;
 import com.github.skjolber.stcsv.column.tri.CsvColumnValueTriConsumer;
 import com.github.skjolber.stcsv.column.tri.StringCsvColumnValueTriConsumer;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 
 public class TriConsumerProjection implements ValueProjection {
 
@@ -25,6 +26,7 @@ public class TriConsumerProjection implements ValueProjection {
 	
 	protected final String triConsumerInternalName;
 	protected final CsvColumnValueTriConsumer<?, ?> triConsumer;
+	protected final boolean directMethod;
 	protected final int index;
 	
 	public TriConsumerProjection(CsvColumnValueTriConsumer<?, ?> triConsumer, int index) {
@@ -32,7 +34,8 @@ public class TriConsumerProjection implements ValueProjection {
 		this.triConsumer = triConsumer;
 		this.index = index;
 		
-		if(triConsumer.getClass().getPackage().equals(StringCsvColumnValueTriConsumer.class.getPackage())) {
+		this.directMethod = triConsumer.getClass().getPackage().equals(StringCsvColumnValueTriConsumer.class.getPackage());
+		if(directMethod) {
 			// specific subclass
 			triConsumerInternalName = CsvMapper.getInternalName(triConsumer.getClass());
 		} else {
@@ -49,7 +52,11 @@ public class TriConsumerProjection implements ValueProjection {
 		mv.visitVarInsn(ALOAD, currentArrayIndex);
 		mv.visitVarInsn(ILOAD, startIndex);
 		mv.visitVarInsn(ILOAD, endIndex);
-		mv.visitMethodInsn(INVOKEVIRTUAL, triConsumerInternalName, "consume", "(Ljava/lang/Object;Ljava/lang/Object;[CII)V", false);
+		if(directMethod) {
+			mv.visitMethodInsn(INVOKEVIRTUAL, triConsumerInternalName, "consume", "(Ljava/lang/Object;Ljava/lang/Object;[CII)V", false);
+		} else {
+			mv.visitMethodInsn(INVOKEVIRTUAL, triConsumerInternalName, "consume", "(Ljava/lang/Object;Ljava/lang/Object;[CII)V", true);
+		}
 	}
 
 	public String getTriConsumerInternalName() {
