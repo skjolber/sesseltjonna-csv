@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Reader;
 
 import com.github.skjolber.stcsv.CsvException;
+import com.github.skjolber.stcsv.builder.CsvBuilderException;
 
 public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 	
@@ -22,7 +23,7 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 		this.value = new String[columns];
 		this.lastIndex = columns - 1;
 		if(quoteCharacter == escapeCharacter) {
-			throw new IllegalArgumentException("Identical escape and quote character not supported");
+			throw new CsvBuilderException("Identical escape and quote character not supported");
 		}
 		this.quoteCharacter = quoteCharacter;
 		this.escapeCharacter = escapeCharacter;
@@ -36,7 +37,7 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 		this.value = new String[columns];
 		this.lastIndex = columns - 1;
 		if(quoteCharacter == escapeCharacter) {
-			throw new IllegalArgumentException("Identical escape and quote character not supported");
+			throw new CsvBuilderException("Identical escape and quote character not supported");
 		}
 		this.quoteCharacter = quoteCharacter;
 		this.escapeCharacter = escapeCharacter;

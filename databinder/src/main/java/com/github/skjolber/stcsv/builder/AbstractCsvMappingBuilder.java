@@ -41,12 +41,12 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 			
 			String name = builder.getName();
 			if(fieldNames.contains(name)) {
-				throw new IllegalArgumentException("Duplicate field '" + name + "'");
+				throw new CsvBuilderException("Duplicate field '" + name + "'");
 			}
 			fieldNames.add(name);
 			
 			if(builder.isLinebreaks() && !builder.isQuoted()) {
-				throw new RuntimeException();
+				throw new CsvBuilderException();
 			}
 
 			columns.add(builder.build(i, proxy));

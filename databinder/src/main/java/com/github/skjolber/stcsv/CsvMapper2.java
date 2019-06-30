@@ -66,7 +66,7 @@ public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 			start += end;
 		} while(end < bufferLength);
 
-		throw new IllegalArgumentException("No linebreak found in " + current.length + " characters");
+		throw new CsvException("No linebreak found in " + current.length + " characters");
 	}
 
 	public CsvReader<T> create(Reader reader, String header, char[] current, int offset, int length, H helper) throws Exception {

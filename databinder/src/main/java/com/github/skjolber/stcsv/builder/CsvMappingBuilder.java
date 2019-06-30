@@ -26,7 +26,7 @@ public class CsvMappingBuilder<T> extends AbstractCsvMappingBuilder<T, CsvMappin
 		}
 		
 		if(bufferLength <= 0) {
-			throw new IllegalArgumentException("Expected positive buffer length");
+			throw new CsvBuilderException("Expected positive buffer length");
 		}
 		
 		return new CsvMapper<T>(target, divider, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);

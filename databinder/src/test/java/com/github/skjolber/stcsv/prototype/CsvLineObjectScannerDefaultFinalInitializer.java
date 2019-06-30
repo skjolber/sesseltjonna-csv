@@ -7,6 +7,7 @@ import java.util.function.BiConsumer;
 import com.github.skjolber.stcsv.AbstractCsvReader;
 import com.github.skjolber.stcsv.CsvReaderStaticInitializer;
 import com.github.skjolber.stcsv.CsvReaderStaticInitializer.CsvStaticFields;
+import com.github.skjolber.stcsv.builder.CsvBuilderException;
 import com.github.skjolber.stcsv.column.bi.CsvColumnValueConsumer;
 import com.github.skjolber.stcsv.column.bi.StringCsvColumnValueConsumer;
 
@@ -35,7 +36,7 @@ public class CsvLineObjectScannerDefaultFinalInitializer extends AbstractCsvRead
 	
 	@Override
 	public CsvLineObject next() throws IOException {
-		throw new RuntimeException();
+		throw new CsvBuilderException();
 	}
 
 	public static CsvColumnValueConsumer getStringValue0() {

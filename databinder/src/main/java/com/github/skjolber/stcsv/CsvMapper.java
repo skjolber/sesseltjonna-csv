@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.objectweb.asm.MethodVisitor;
 
+import com.github.skjolber.stcsv.builder.CsvBuilderException;
 import com.github.skjolber.stcsv.builder.CsvMappingBuilder;
 
 /**
@@ -55,7 +56,7 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 			start += end;
 		} while(end < bufferLength);
 
-		throw new IllegalArgumentException("No linebreak found in " + current.length + " characters");
+		throw new CsvException("No linebreak found in " + current.length + " characters");
 	}
 
 	public CsvReader<T> create(Reader reader, String header, char[] current, int offset, int length) throws Exception {
@@ -105,7 +106,7 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 
 	@Override
 	protected void writeTriConsumerVariable(String subClassInternalName, MethodVisitor mv) {
-		throw new RuntimeException();
+		throw new CsvBuilderException();
 	}
 
 }

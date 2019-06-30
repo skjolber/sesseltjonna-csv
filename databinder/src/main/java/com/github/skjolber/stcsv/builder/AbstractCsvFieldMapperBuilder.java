@@ -148,11 +148,11 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 	}
 	
 	protected Class<?> getColumnClass() {
-		throw new RuntimeException();
+		throw new CsvBuilderException();
 	}
 	
 	protected void invokeSetter(T value) {
-		throw new RuntimeException("No setter for column '" + name + "'");
+		throw new CsvBuilderException("No setter for column '" + name + "'");
 	}
 
 	protected boolean hasSetter() {

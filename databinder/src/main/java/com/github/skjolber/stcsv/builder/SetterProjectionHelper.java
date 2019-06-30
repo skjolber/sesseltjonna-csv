@@ -27,7 +27,7 @@ public class SetterProjectionHelper<T> implements InvocationHandler {
 			try {
 				this.method = target.getMethod(getNormalizedSetterName(name), cls);
 			} catch (NoSuchMethodException e2) {
-				throw new IllegalArgumentException("Unable to detect setter for class " + target.getName() + " field '" + name + "' (" + getSetterName(name) + "/ "+ getNormalizedSetterName(name) + ").");
+				throw new CsvBuilderException("Unable to detect setter for class " + target.getName() + " field '" + name + "' (" + getSetterName(name) + "/ "+ getNormalizedSetterName(name) + ").");
 			}
 		}
 		
