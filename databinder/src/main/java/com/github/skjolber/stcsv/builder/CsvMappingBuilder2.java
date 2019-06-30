@@ -33,7 +33,7 @@ public class CsvMappingBuilder2<T, D> extends AbstractCsvMappingBuilder<T, CsvMa
 			throw new CsvBuilderException("Expected positive buffer length");
 		}
 		
-		return new CsvMapper2<T, D>(target, intermediate, divider, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
+		return new CsvMapper2<T, D>(target, intermediate, divider, quoteCharacter, escapeCharacter, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
 	}
 
 	public StringCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>> stringField(String name) {

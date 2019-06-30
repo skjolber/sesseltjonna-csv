@@ -35,9 +35,9 @@ public class CsvMapper2<T, H> extends AbstractCsvMapper<T> {
 		return new CsvMappingBuilder2<T, D>(cls, delegate);
 	}
 
-	public CsvMapper2(Class<T> cls, Class<H> intermediate, char divider, List<AbstractColumn> columns, boolean skipEmptyLines,
+	public CsvMapper2(Class<T> cls, Class<H> intermediate, char divider, char quoteCharacter, char escapeCharacter, List<AbstractColumn> columns, boolean skipEmptyLines,
 			boolean skipComments, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
-		super(cls, divider, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
+		super(cls, divider, quoteCharacter, escapeCharacter, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
 		
 		this.intermediate = intermediate;
 		this.intermediateInternalName = getInternalName(intermediate);

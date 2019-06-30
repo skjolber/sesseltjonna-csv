@@ -76,8 +76,9 @@ public abstract class AbstractCsvMapper<T> {
 
 	protected static final String superClassInternalName = getInternalName(AbstractCsvReader.class);
 	protected static final String csvStaticInitializer = getInternalName(CsvReaderStaticInitializer.class);
-	protected static final String ignoredColumnName = getInternalName(IgnoredColumn.class);
-
+	protected static final String ignoredSeperateQuoteAndEscapeCharacterColumnName = getInternalName(IgnoredColumn.DifferentQuoteAndEscapeCharacter.class);
+	protected static final String ignoredIdenticalQuoteAndEscapeCharacterColumnName = getInternalName(IgnoredColumn.IdenticalQuoteAndEscapeCharacter.class);
+	
 	protected static AtomicInteger counter = new AtomicInteger();
 
 	public static <T> CsvMappingBuilder<T> builder(Class<T> cls) {
@@ -93,6 +94,8 @@ public abstract class AbstractCsvMapper<T> {
 	}
 
 	protected int divider;
+	protected int quoteCharacter;
+	protected int escapeCharacter;
 	protected Class<T> mappedClass;
 
 	protected String mappedClassInternalName;
@@ -125,9 +128,11 @@ public abstract class AbstractCsvMapper<T> {
 	protected final boolean biConsumer;
 	protected final boolean triConsumer;
 
-	public AbstractCsvMapper(Class<T> cls, char divider, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skipComments, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
+	public AbstractCsvMapper(Class<T> cls, char divider, char quoteCharacter, char escapeCharacter, List<AbstractColumn> columns, boolean skipEmptyLines, boolean skipComments, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
 		this.mappedClass = cls;
 		this.divider = divider;
+		this.quoteCharacter = quoteCharacter;
+		this.escapeCharacter = escapeCharacter;
 		this.columns = columns;
 
 		this.skipEmptyLines = skipEmptyLines;
@@ -460,38 +465,85 @@ public abstract class AbstractCsvMapper<T> {
 	}
 
 	protected void skipToLinebreak(MethodVisitor mv) {
-		if(skippableFieldsWithoutLinebreaks) {
-			//skipToLineBreakWithoutLinebreak							
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitVarInsn(ALOAD, currentArrayIndex);
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitMethodInsn(INVOKESTATIC, ignoredColumnName, "skipToLineBreakWithoutLinebreak", "(L" + superClassInternalName + ";[CI)I", false);
-			mv.visitVarInsn(ISTORE, currentOffsetIndex);
+		if(quoteCharacter == escapeCharacter) {
+			if(skippableFieldsWithoutLinebreaks) {
+				mv.visitVarInsn(ALOAD, currentArrayIndex);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitLdcInsn(Integer.valueOf(escapeCharacter));
+				mv.visitMethodInsn(INVOKESTATIC, ignoredIdenticalQuoteAndEscapeCharacterColumnName, "skipToLineBreakWithoutLinebreak", "([CII)I", false);
+				mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			} else {
+				mv.visitVarInsn(ALOAD, 0);
+				mv.visitVarInsn(ALOAD, currentArrayIndex);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitLdcInsn(Integer.valueOf(escapeCharacter));
+				mv.visitMethodInsn(INVOKESTATIC, ignoredIdenticalQuoteAndEscapeCharacterColumnName, "skipToLineBreak", "(L" + superClassInternalName + ";[CII)I", false);
+				mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			}
 		} else {
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitVarInsn(ALOAD, currentArrayIndex);
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitMethodInsn(INVOKESTATIC, ignoredColumnName, "skipToLineBreak", "(L" + superClassInternalName + ";[CI)I", false);
-			mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			
+			if(skippableFieldsWithoutLinebreaks) {
+				mv.visitVarInsn(ALOAD, currentArrayIndex);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitLdcInsn(Integer.valueOf(divider));
+				mv.visitLdcInsn(Integer.valueOf(quoteCharacter));
+				mv.visitLdcInsn(Integer.valueOf(escapeCharacter));
+				mv.visitMethodInsn(INVOKESTATIC, ignoredSeperateQuoteAndEscapeCharacterColumnName, "skipToLineBreakWithoutLinebreak", "([CIII)I", false);
+				mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			} else {
+				mv.visitVarInsn(ALOAD, 0);
+				mv.visitVarInsn(ALOAD, currentArrayIndex);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitLdcInsn(Integer.valueOf(quoteCharacter));
+				mv.visitLdcInsn(Integer.valueOf(escapeCharacter));
+				mv.visitMethodInsn(INVOKESTATIC, ignoredSeperateQuoteAndEscapeCharacterColumnName, "skipToLineBreak", "(L" + superClassInternalName + ";[CIII)I", false);
+				mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			}			
 		}
 	}
 
 	protected void skipColumns(MethodVisitor mv, int count) {
-		if(skippableFieldsWithoutLinebreaks) {
-			mv.visitVarInsn(ALOAD, currentArrayIndex);
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitLdcInsn(Integer.valueOf(divider));
-			mv.visitLdcInsn(Integer.valueOf(count));
-			mv.visitMethodInsn(INVOKESTATIC, ignoredColumnName, "skipColumnsWithoutLinebreak", "([CICI)I", false);
-			mv.visitVarInsn(ISTORE, currentOffsetIndex);
+		if(quoteCharacter == escapeCharacter) {
+			if(skippableFieldsWithoutLinebreaks) {
+				mv.visitVarInsn(ALOAD, currentArrayIndex);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitLdcInsn(Integer.valueOf(divider));
+				mv.visitLdcInsn(Integer.valueOf(escapeCharacter));
+				mv.visitLdcInsn(Integer.valueOf(count));
+				mv.visitMethodInsn(INVOKESTATIC, ignoredIdenticalQuoteAndEscapeCharacterColumnName, "skipColumnsWithoutLinebreak", "([CIIII)I", false);
+				mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			} else {
+				mv.visitVarInsn(ALOAD, 0);
+				mv.visitVarInsn(ALOAD, currentArrayIndex);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitLdcInsn(Integer.valueOf(divider));
+				mv.visitLdcInsn(Integer.valueOf(escapeCharacter));
+				mv.visitLdcInsn(Integer.valueOf(count));
+				mv.visitMethodInsn(INVOKESTATIC, ignoredIdenticalQuoteAndEscapeCharacterColumnName, "skipColumns", "(L" + superClassInternalName + ";[CIIII)I", false);
+				mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			}
 		} else {
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitVarInsn(ALOAD, currentArrayIndex);
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitLdcInsn(Integer.valueOf(divider));
-			mv.visitLdcInsn(Integer.valueOf(count));
-			mv.visitMethodInsn(INVOKESTATIC, ignoredColumnName, "skipColumns", "(L" + superClassInternalName + ";[CICI)I", false);
-			mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			if(skippableFieldsWithoutLinebreaks) {
+				mv.visitVarInsn(ALOAD, currentArrayIndex);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitLdcInsn(Integer.valueOf(divider));
+				mv.visitLdcInsn(Integer.valueOf(quoteCharacter));
+				mv.visitLdcInsn(Integer.valueOf(escapeCharacter));
+				mv.visitLdcInsn(Integer.valueOf(count));
+				mv.visitMethodInsn(INVOKESTATIC, ignoredSeperateQuoteAndEscapeCharacterColumnName, "skipColumnsWithoutLinebreak", "([CIIIII)I", false);
+				mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			} else {
+				mv.visitVarInsn(ALOAD, 0);
+				mv.visitVarInsn(ALOAD, currentArrayIndex);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitLdcInsn(Integer.valueOf(divider));
+				mv.visitLdcInsn(Integer.valueOf(quoteCharacter));
+				mv.visitLdcInsn(Integer.valueOf(escapeCharacter));
+				mv.visitLdcInsn(Integer.valueOf(count));
+				mv.visitMethodInsn(INVOKESTATIC, ignoredSeperateQuoteAndEscapeCharacterColumnName, "skipColumns", "(L" + superClassInternalName + ";[CIIIII)I", false);
+				mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			}
+			
 		}
 	}
 

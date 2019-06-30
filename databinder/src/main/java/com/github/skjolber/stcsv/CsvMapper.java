@@ -27,10 +27,9 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 	public static <T> CsvMappingBuilder<T> builder(Class<T> cls) {
 		return new CsvMappingBuilder<T>(cls);
 	}
-
-	public CsvMapper(Class<T> cls, char divider, List<AbstractColumn> columns, boolean skipEmptyLines,
+	public CsvMapper(Class<T> cls, char divider, char quoteCharacter, char escapeCharacter, List<AbstractColumn> columns, boolean skipEmptyLines,
 			boolean skipComments, boolean skippableFieldsWithoutLinebreaks, ClassLoader classLoader, int bufferLength) {
-		super(cls, divider, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
+		super(cls, divider, quoteCharacter, escapeCharacter, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);
 	}
 
 	public CsvReader<T> create(Reader reader) throws Exception {
