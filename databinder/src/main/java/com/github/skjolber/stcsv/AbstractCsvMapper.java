@@ -179,7 +179,6 @@ public abstract class AbstractCsvMapper<T> {
 		return createReaderClass(carriageReturns, parseColumnNames(header));
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Class<? extends AbstractCsvReader<T>> createReaderClass(boolean carriageReturns, List<String> csvFileFieldNames) throws Exception {
 		ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 

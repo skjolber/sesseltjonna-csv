@@ -55,7 +55,7 @@ public class TriConsumerProjection implements ValueProjection {
 		if(directMethod) {
 			mv.visitMethodInsn(INVOKEVIRTUAL, triConsumerInternalName, "consume", "(Ljava/lang/Object;Ljava/lang/Object;[CII)V", false);
 		} else {
-			mv.visitMethodInsn(INVOKEVIRTUAL, triConsumerInternalName, "consume", "(Ljava/lang/Object;Ljava/lang/Object;[CII)V", true);
+			mv.visitMethodInsn(INVOKEINTERFACE, triConsumerInternalName, "consume", "(Ljava/lang/Object;Ljava/lang/Object;[CII)V", true);
 		}
 	}
 
