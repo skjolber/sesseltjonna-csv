@@ -90,5 +90,6 @@ public class NoLinebreakRFC4180StringArrayCsvReaderTest extends AbstractCsvReade
 		assertThat(second[1]).isEqualTo("b1");
 		assertThat(second[2]).isEqualTo("c1\"");
 	}
-	
+
+
 }

@@ -18,12 +18,6 @@ public abstract class AbstractCsvBuilder<B>  {
 		byteBuddy = present;
 	}
 	
-	protected static boolean isSafeByteUTF8Delimiter(char c) {
-		//https://en.wikipedia.org/wiki/UTF-8#Description
-		// all char 2, 3 and 4 are negative numbers in UTF-8
-		return c >= 0;
-	}
-	
 	protected static boolean isSafeCharDelimiter(char c) {
 		return !Character.isLowSurrogate(c);
 	}
@@ -108,4 +102,7 @@ public abstract class AbstractCsvBuilder<B>  {
 		return divider;
 	}
 
+	public int getBufferLength() {
+		return bufferLength;
+	}
 }

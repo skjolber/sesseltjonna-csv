@@ -34,6 +34,9 @@ public class StringArrayCsvReaderBuilderTest {
 
 		builder.quoteCharacter('\'');
 		assertThat(builder.getQuoteCharacter()).isEqualTo('\'');
+		
+		builder.bufferLength(64 * 1024);
+		assertThat(builder.getBufferLength()).isEqualTo(64 * 1024);
 	}
 	
 	@Test

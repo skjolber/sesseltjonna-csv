@@ -18,6 +18,7 @@ import com.github.skjolber.stcsv.AbstractCsvReaderTest;
 import com.github.skjolber.stcsv.CarriageReturnNewLineReader;
 import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.sa.DefaultStringArrayCsvReader;
+import com.github.skjolber.stcsv.sa.NoLinebreakStringArrayCsvReader;
 import com.github.skjolber.stcsv.sa.rfc4180.NoLinebreakRFC4180StringArrayCsvReader;
 import com.univocity.parsers.csv.CsvParser;
 
@@ -129,4 +130,15 @@ public class DefaultStringArrayCsvReaderTest extends AbstractCsvReaderTest {
 		assertThat(second[1]).isEqualTo("b1");
 		assertThat(second[2]).isEqualTo("c1\"");
 	}
+	
+	@Test
+	public void throwsExceptionOnIdenticalQuoteAndEscapeCharacter() throws Exception {
+		assertThrows(CsvException.class, ()->{
+			new DefaultStringArrayCsvReader(new StringReader(""),  3, '"', '"', ',');
+		} );
+		assertThrows(CsvException.class, ()->{
+			new DefaultStringArrayCsvReader(new StringReader(""), new char[] {'a'}, 0, 0, 3, '"', '"', ',');
+		} );
+	}	
+	
 }

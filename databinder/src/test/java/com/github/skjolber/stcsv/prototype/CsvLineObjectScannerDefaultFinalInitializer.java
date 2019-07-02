@@ -36,7 +36,7 @@ public class CsvLineObjectScannerDefaultFinalInitializer extends AbstractCsvRead
 	
 	@Override
 	public CsvLineObject next() throws IOException {
-		throw new CsvBuilderException();
+		throw new CsvBuilderException("Mock");
 	}
 
 	public static CsvColumnValueConsumer getStringValue0() {
