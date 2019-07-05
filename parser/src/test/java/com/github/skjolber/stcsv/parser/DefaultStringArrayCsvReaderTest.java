@@ -20,6 +20,7 @@ import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.sa.DefaultStringArrayCsvReader;
 import com.github.skjolber.stcsv.sa.NoLinebreakStringArrayCsvReader;
 import com.github.skjolber.stcsv.sa.rfc4180.NoLinebreakRFC4180StringArrayCsvReader;
+import com.github.skjolber.stcsv.sa.rfc4180.RFC4180StringArrayCsvReader;
 import com.univocity.parsers.csv.CsvParser;
 
 public class DefaultStringArrayCsvReaderTest extends AbstractCsvReaderTest {
@@ -139,6 +140,54 @@ public class DefaultStringArrayCsvReaderTest extends AbstractCsvReaderTest {
 		assertThrows(CsvException.class, ()->{
 			new DefaultStringArrayCsvReader(new StringReader(""), new char[] {'a'}, 0, 0, 3, '"', '"', ',');
 		} );
+	}
+
+	@Test
+	public void handlesWhitespaceAfterQuotes() throws Exception {
+		String row = "a,\"123\" ,end\n";
+
+		DefaultStringArrayCsvReader reader = new DefaultStringArrayCsvReader(new StringReader(row), 3, '"', '\\', ',');
+		
+		String[] result = reader.next();
+		assertThat(result[0]).isEqualTo("a");
+		assertThat(result[1]).isEqualTo("123");
+		assertThat(result[2]).isEqualTo("end");
+	}
+
+	@Test
+	public void throwsExceptionWhenReaderRunsEmptyMiddleColumn() throws Exception {
+		String row = "a,\"b1\nb2b3b4\",end\n";
+		int index = row.indexOf('\n');
+
+		char[] first = row.substring(0, index+1).toCharArray();
+		
+		char[] b = new char[1024];
+		System.arraycopy(first, 0, b, 0, first.length);
+		
+		DefaultStringArrayCsvReader reader = new DefaultStringArrayCsvReader(new StringReader(""), b, 0, first.length, 3, '"', '\\', ',');
+
+		assertThrows(CsvException.class, ()->{
+        	reader.next();
+        } );
+
 	}	
 	
+	@Test
+	public void throwsExceptionWhenReaderRunsEmptyEndColumn() throws Exception {
+		String row = "abcdef,ghijk,\"b1\nb2b3b4\"\n";
+
+		int index = row.indexOf('\n');
+
+		char[] first = row.substring(0, index+1).toCharArray();
+		
+		char[] b = new char[1024];
+		System.arraycopy(first, 0, b, 0, first.length);
+		
+		DefaultStringArrayCsvReader reader = new DefaultStringArrayCsvReader(new StringReader(""), b, 0, first.length, 3, '"', '\\', ',');
+
+		assertThrows(CsvException.class, ()->{
+        	reader.next();
+        } );
+
+	}	
 }

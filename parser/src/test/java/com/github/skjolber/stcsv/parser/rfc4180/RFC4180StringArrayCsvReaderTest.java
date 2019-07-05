@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import com.github.skjolber.stcsv.AbstractCsvReaderTest;
 import com.github.skjolber.stcsv.CarriageReturnNewLineReader;
 import com.github.skjolber.stcsv.CsvException;
+import com.github.skjolber.stcsv.sa.DefaultStringArrayCsvReader;
 import com.github.skjolber.stcsv.sa.rfc4180.RFC4180StringArrayCsvReader;
 import com.univocity.parsers.csv.CsvParser;
 
@@ -127,5 +128,55 @@ public class RFC4180StringArrayCsvReaderTest extends AbstractCsvReaderTest {
 		assertThat(second[0]).isEqualTo("a\"1");
 		assertThat(second[1]).isEqualTo("b1");
 		assertThat(second[2]).isEqualTo("c1\"");
+	}
+	
+	@Test
+	public void handlesWhitespaceAfterQuotes() throws Exception {
+		String row = "a,\"123\" ,end\n";
+
+		RFC4180StringArrayCsvReader reader = new RFC4180StringArrayCsvReader(new StringReader(row), 3);
+		
+		String[] result = reader.next();
+		assertThat(result[0]).isEqualTo("a");
+		assertThat(result[1]).isEqualTo("123");
+		assertThat(result[2]).isEqualTo("end");
+	}
+
+	@Test
+	public void throwsExceptionWhenReaderRunsEmptyMiddleColumn() throws Exception {
+		String row = "abcdef,\"b1\nb2b3b4\",end\n";
+
+		int index = row.indexOf('\n');
+
+		char[] first = row.substring(0, index+1).toCharArray();
+		
+		char[] b = new char[1024];
+		System.arraycopy(first, 0, b, 0, first.length);
+		
+		RFC4180StringArrayCsvReader reader = new RFC4180StringArrayCsvReader(new StringReader(""), b, 0, first.length, 3);
+
+		assertThrows(CsvException.class, ()->{
+        	reader.next();
+        } );
+
+	}
+
+	@Test
+	public void throwsExceptionWhenReaderRunsEmptyEndColumn() throws Exception {
+		String row = "abcdef,ghijk,\"b1\nb2b3b4\"\n";
+
+		int index = row.indexOf('\n');
+
+		char[] first = row.substring(0, index+1).toCharArray();
+		
+		char[] b = new char[1024];
+		System.arraycopy(first, 0, b, 0, first.length);
+		
+		RFC4180StringArrayCsvReader reader = new RFC4180StringArrayCsvReader(new StringReader(""), b, 0, first.length, 3);
+
+		assertThrows(CsvException.class, ()->{
+        	reader.next();
+        } );
+
 	}
 }
