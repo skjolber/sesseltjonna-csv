@@ -28,10 +28,6 @@ public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder
 		return this;
 	}
 	
-	protected ObjBooleanConsumer<T> getSetter() {
-		return consumer;
-	}
-	
 	public BooleanCsvFieldMapperBuilder<T, D> fixedSize(int fixedSize) {
 		super.fixedSize(fixedSize);
 		

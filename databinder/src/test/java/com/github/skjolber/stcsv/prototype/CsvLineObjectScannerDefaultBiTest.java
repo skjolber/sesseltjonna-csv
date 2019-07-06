@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.skjolber.stcsv.CsvMapper;
 import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.EmptyCsvReader;
 
 public class CsvLineObjectScannerDefaultBiTest {
 
@@ -248,4 +249,9 @@ public class CsvLineObjectScannerDefaultBiTest {
 
 	}
 
+	@Test
+	public void testEmptyReader() throws Exception {
+		CsvReader<CsvLineObject> scanner = consumerMapping.create(new StringReader(""));
+		assertThat(scanner.getClass()).isEqualTo(EmptyCsvReader.class);
+	}
 }
