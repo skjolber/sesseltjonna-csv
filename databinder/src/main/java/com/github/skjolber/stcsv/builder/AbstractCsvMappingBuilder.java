@@ -9,6 +9,22 @@ import com.github.skjolber.stcsv.AbstractColumn;
 
 public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> extends AbstractCsvBuilder<B>  {
 
+	protected static final boolean byteBuddy;
+	
+	static {
+		boolean present;
+		try {
+			Class.forName("net.bytebuddy.ByteBuddy");
+			
+			present = true;
+		} catch(Exception e) {
+			present = false;
+		}
+		byteBuddy = present;
+	}
+	
+	protected boolean skippableFieldsWithoutLinebreaks = false;
+
 	protected Class<T> target;
 	
 	protected ClassLoader classLoader;
@@ -67,4 +83,20 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 	public Class<T> getTarget() {
 		return target;
 	}	
+	
+
+	/**
+	 * 
+	 * All fields (including any ignored columns) are without linebreaks.
+	 * 
+	 * @return this
+	 */
+
+	@SuppressWarnings("unchecked")
+	public B skippableFieldsWithoutLinebreaks() {
+		this.skippableFieldsWithoutLinebreaks = true;
+		
+		return (B) this;
+	}
+		
 }

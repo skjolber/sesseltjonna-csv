@@ -58,6 +58,20 @@ public class StringArrayCsvReaderBuilderTest {
 	}
 
 	@Test
+	public void testFirstLineWithQuotes1() throws Exception {
+
+		String quotedEscapedSingleLine = "\"a\",\"b\\\"\",\"c\"\n";
+		
+		CsvReader<String[]> build = new StringArrayCsvReaderBuilder().escapeCharacter('\\').build(new StringReader(quotedEscapedSingleLine));
+		String[] next = build.next();
+		assertThat(next[0]).isEqualTo("a");
+		assertThat(next[1]).isEqualTo("b\"");
+		assertThat(next[2]).isEqualTo("c");
+		
+		assertThat(build.next()).isNull();
+	}
+	
+	@Test
 	public void testEmptyFirstColumns() throws Exception {
 		for(String empty : emptyColumns) {
 			CsvReader<String[]> build = new StringArrayCsvReaderBuilder().build(new StringReader(empty + singleLine));
@@ -129,5 +143,7 @@ public class StringArrayCsvReaderBuilderTest {
 		assertThrows(CsvBuilderException.class, ()->{
 			StringArrayCsvReader.builder().skipEmptyLines().build(new StringReader(singleLine + indexes));
 	    });
-	}		
+	}
+	
+	
 }

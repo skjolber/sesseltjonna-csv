@@ -104,9 +104,10 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 	private int countColumnsLine(char[] current, int end) {
 		int count = 0;
 
+		iterate:
 		for(int i = 0; i < end; i++) {
 			count++;
-			if(current[i] == quoteCharacter) {
+			if(current[i] == quoteCharacter) { // first character must be quote if quoted
 				while(true) {
 					++i;
 					if(current[i] == escapeCharacter) {
@@ -119,6 +120,9 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 							// skip single character
 							i++;
 						}
+					} else if(current[i] == quoteCharacter) {
+						i++;
+						break;
 					}
 				}
 			}
@@ -126,7 +130,7 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 				if(current[i] == divider) {
 					break;
 				} else if(current[i] == '\n') {
-					return count;
+					break iterate;
 				}
 				i++;
 			}
@@ -136,11 +140,6 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 	
 	public StringArrayCsvReaderBuilder quotedWithoutLinebreaks() {
 		this.linebreaks = false;
-		return this;
-	}
-
-	public StringArrayCsvReaderBuilder withColumnMappings(Map<String, Integer> map) {
-		this.columnIndexes = map;
 		return this;
 	}
 
