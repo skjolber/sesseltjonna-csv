@@ -42,7 +42,6 @@ public class AbstractCsvReaderTest {
 			count++;
 		} while(true);
 
-		System.out.println("Parsed " + count + " lines");
 		assertFalse(fail);
 	}
 
