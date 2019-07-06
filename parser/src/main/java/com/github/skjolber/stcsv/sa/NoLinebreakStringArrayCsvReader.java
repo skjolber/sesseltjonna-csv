@@ -5,7 +5,6 @@ import java.io.Reader;
 
 import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.builder.CsvBuilderException;
-import com.github.skjolber.stcsv.builder.StringArrayCsvReaderBuilder;
 
 public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader {
 	

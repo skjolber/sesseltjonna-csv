@@ -19,7 +19,7 @@ public class CsvLineObjectScannerDefaultTriTest {
 	private CsvMapper2<CsvLineObject, Cache> triConsumerMapping;
 	private Cache cache = new Cache();
 
-	// all bi stuff should still work when using a intermediate 
+	// all bi stuff should still work when using an intermediate 
 	private CsvMapper2<CsvLineObject, Cache> consumerMapping;
 	private CsvMapper2<CsvLineObject, Cache> reflectionSetterMapping;
 	private CsvMapper2<CsvLineObject, Cache> proxySetterMapping;
