@@ -11,9 +11,7 @@ public class BooleanCsvColumnValueConsumer<T> implements CsvColumnValueConsumer<
 	@Override
 	public void consume(T object, char[] array, int start, int end) {
 		
-		setter.accept(object, 
-				parseBoolean(array, start, end)
-				);
+		setter.accept(object, parseBoolean(array, start, end));
 	}
 
 	public static boolean parseBoolean(char[] array, int start, int end) {

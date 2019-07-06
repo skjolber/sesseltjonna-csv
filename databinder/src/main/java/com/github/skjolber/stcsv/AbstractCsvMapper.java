@@ -322,9 +322,9 @@ public abstract class AbstractCsvMapper<T> {
 		}
 
 		// init value object, i.e. the object to which data-binding will occur
-		mv.visitTypeInsn(NEW, getInternalName(mappedClass.getName()));
+		mv.visitTypeInsn(NEW, mappedClassInternalName);
 		mv.visitInsn(DUP); // add one
-		mv.visitMethodInsn(INVOKESPECIAL, getInternalName(mappedClass.getName()), "<init>", "()V", false); // consumes one
+		mv.visitMethodInsn(INVOKESPECIAL, mappedClassInternalName, "<init>", "()V", false); // consumes one
 		mv.visitVarInsn(ASTORE, objectIndex);
 
 		if(firstIndex > 0) {

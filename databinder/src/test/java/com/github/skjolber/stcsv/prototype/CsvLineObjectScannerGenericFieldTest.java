@@ -19,6 +19,8 @@ public class CsvLineObjectScannerGenericFieldTest {
 
 	private CsvMapper<CsvLineObject> mapping1;
 	private CsvMapper2<CsvLineObject, CsvLineObjectScannerGenericFieldTest> mapping2;
+	private CsvMapper2<CsvLineObject, CsvLineObjectScannerGenericFieldTest> mapping3;
+	
 	private Map<String, String> internatingMap = new HashMap<>();
 	
 	public Map<String, String> getInternatingMap() {
@@ -43,20 +45,32 @@ public class CsvLineObjectScannerGenericFieldTest {
 		
 		mapping2 = CsvMapper2.builder(CsvLineObject.class, CsvLineObjectScannerGenericFieldTest.class)
 				.field("stringValue")
-				.consumer( (a, i, b, c, d) -> {
-					
-					Map<String, String> map = i.getInternatingMap();
-					String v = new String(b, c, d - c);
-					String string = map.get(v);
-					if(string == null) {
-						map.put(v, v);
-						string = v;
-					}
-					a.setStringValue(string);
-				})
-				.required()
-				
-				
+					.consumer( (a, i, b, c, d) -> {
+						
+						Map<String, String> map = i.getInternatingMap();
+						String v = new String(b, c, d - c);
+						String string = map.get(v);
+						if(string == null) {
+							map.put(v, v);
+							string = v;
+						}
+						a.setStringValue(string);
+					})
+					.required()
+				.build();
+		
+		mapping3 = CsvMapper2.builder(CsvLineObject.class, CsvLineObjectScannerGenericFieldTest.class)
+				.field("stringValue")
+					.consumer((a, b, c, d) -> {
+						String v = new String(b, c, d - c);
+						String string = internatingMap.get(v);
+						if(string == null) {
+							internatingMap.put(v, v);
+							string = v;
+						}
+						a.setStringValue(string);
+					})
+					.required()
 				.build();
 	}
 	
@@ -83,5 +97,17 @@ public class CsvLineObjectScannerGenericFieldTest {
 		CsvLineObject next = scanner.next();
 		assertThat(next.getStringValue()).isEqualTo("12345");
 	}
+	
+	@Test
+	public void testStringInterningTriBi() throws Exception {
+		String header = "stringValue\n";
+		String row = "12345\n";
+
+		Reader stringReader = new StringReader(header + row);
+
+		CsvReader<CsvLineObject> scanner = mapping3.create(stringReader, this);
+		CsvLineObject next = scanner.next();
+		assertThat(next.getStringValue()).isEqualTo("12345");
+	}	
 
 }

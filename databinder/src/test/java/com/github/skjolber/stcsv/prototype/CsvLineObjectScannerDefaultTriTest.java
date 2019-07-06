@@ -15,9 +15,14 @@ import com.github.skjolber.stcsv.CsvReader;
 
 public class CsvLineObjectScannerDefaultTriTest {
 
-	private CsvMapper2<CsvLineObject, Cache> consumerMapping;
-	
+	// tri
+	private CsvMapper2<CsvLineObject, Cache> triConsumerMapping;
 	private Cache cache = new Cache();
+
+	// all bi stuff should still work when using a intermediate 
+	private CsvMapper2<CsvLineObject, Cache> consumerMapping;
+	private CsvMapper2<CsvLineObject, Cache> reflectionSetterMapping;
+	private CsvMapper2<CsvLineObject, Cache> proxySetterMapping;
 	
 	public static class Cache {
 		private Set<Object> values = new HashSet<>();
@@ -33,7 +38,7 @@ public class CsvLineObjectScannerDefaultTriTest {
 	
 	@BeforeEach
 	public void init() throws Exception {
-		consumerMapping = CsvMapper2.builder(CsvLineObject.class, Cache.class)
+		triConsumerMapping = CsvMapper2.builder(CsvLineObject.class, Cache.class)
 				.stringField("a")
 					.consumer((value, cache, input) -> {
 						cache.add(input);
@@ -65,10 +70,60 @@ public class CsvLineObjectScannerDefaultTriTest {
 					})
 					.optional()
 				.build();
-			}
+		
+		consumerMapping = CsvMapper2.builder(CsvLineObject.class, Cache.class)
+				.stringField("a")
+					.consumer(CsvLineObject::setStringValue)
+					.optional()
+				.longField("b")
+					.consumer(CsvLineObject::setLongValue)
+					.required()
+				.integerField("c")
+					.consumer(CsvLineObject::setIntegerValue)
+					.optional()
+				.booleanField("f")
+					.consumer(CsvLineObject::setBooleanValue)
+					.optional()
+				.doubleField("h")
+					.consumer(CsvLineObject::setDoubleValue)
+					.optional()
+				.build();
+		
+		reflectionSetterMapping = CsvMapper2.builder(CsvLineObject.class, Cache.class)
+				.stringField("stringValue")
+					.optional()
+				.longField("longValue")
+					.optional()
+				.integerField("integerValue")
+					.optional()
+				.booleanField("booleanValue")
+					.optional()
+				.doubleField("doubleValue")
+					.optional()
+				.build();		
+		
+		proxySetterMapping = CsvMapper2.builder(CsvLineObject.class, Cache.class)
+				.stringField("stringValue2")
+					.setter(CsvLineObject::setStringValue)
+					.optional()
+				.longField("longValue2")
+					.setter(CsvLineObject::setLongValue)
+					.optional()
+				.integerField("integerValue2")
+					.setter(CsvLineObject::setIntegerValue)
+					.optional()
+				.booleanField("booleanValue2")
+					.setter(CsvLineObject::setBooleanValue)
+					.optional()
+				.doubleField("doubleValue2")
+					.setter(CsvLineObject::setDoubleValue)
+					.optional()
+				.build();		
+		
+	}
 	
 	@Test
-	public void testConsumer() throws Exception {
+	public void testTriConsumer() throws Exception {
 		StringBuffer builder = new StringBuffer("a,b,c,d,e,f,g,h,i\n");
 
 		String stringValue = "string";
@@ -100,7 +155,7 @@ public class CsvLineObjectScannerDefaultTriTest {
 		builder.append(floatValue.toString());
 		builder.append("\n");
 
-		CsvReader<CsvLineObject> scanner = consumerMapping.create(new StringReader(builder.toString()), cache);
+		CsvReader<CsvLineObject> scanner = triConsumerMapping.create(new StringReader(builder.toString()), cache);
 		
 		CsvLineObject next = scanner.next();
 		assertThat(next).isNotNull();

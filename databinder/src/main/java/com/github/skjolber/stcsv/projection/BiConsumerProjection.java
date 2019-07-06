@@ -3,8 +3,8 @@ package com.github.skjolber.stcsv.projection;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 import org.objectweb.asm.MethodVisitor;
 

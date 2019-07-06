@@ -144,7 +144,7 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 	protected ValueProjection getProjection(int index, SetterProjectionHelper<T> proxy) throws CsvBuilderException {
 		Method method = proxy.toMethod(this);
 		
-		return new SetterValueProjection(method.getName(), method.getParameterTypes()[0], CsvMapper.getInternalName(parent.getTarget()));
+		return SetterValueProjection.newInstance(method.getParameterTypes()[0], method.getName(), CsvMapper.getInternalName(parent.getTarget())); 
 	}
 	
 	protected Class<?> getColumnClass() {
