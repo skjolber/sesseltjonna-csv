@@ -69,6 +69,12 @@ public class CsvLineObjectScannerDefaultTriTest {
 						value.setDoubleValue(input);
 					})
 					.optional()
+				.field("i")
+					.consumer((a, b, c, d, e) -> {
+						a.setFloatValue(Float.parseFloat(new String(c, d, e - d)));
+					})
+					.optional()
+					
 				.build();
 		
 		consumerMapping = CsvMapper2.builder(CsvLineObject.class, Cache.class)
@@ -86,6 +92,11 @@ public class CsvLineObjectScannerDefaultTriTest {
 					.optional()
 				.doubleField("h")
 					.consumer(CsvLineObject::setDoubleValue)
+					.optional()
+				.field("i")
+					.consumer((a, b, c, d) -> {
+						a.setFloatValue(Float.parseFloat(new String(b, c, d - c)));
+					})
 					.optional()
 				.build();
 		
@@ -165,10 +176,142 @@ public class CsvLineObjectScannerDefaultTriTest {
 		assertThat(next.getIntegerValue()).isEqualTo(integerValue);
 		assertThat(next.getBooleanValue()).isEqualTo(booleanValue);
 		assertThat(next.getDoubleValue()).isEqualTo(doubleValue);
+		assertThat(next.getFloatValue()).isEqualTo(7.5f);
+
+		assertThat(scanner.next()).isNull();
+
+	}
+
+	@Test
+	public void testReflectionSetter() throws Exception {
+		StringBuffer builder = new StringBuffer("stringValue,longValue,integerValue,d,e,booleanValue,g,doubleValue,i\n");
+
+		String stringValue = "string";
+		Long longValue = 1L;
+		Integer integerValue = 2;
+		Short shortValue = 3;
+		Byte byteValue = 4;
+		Boolean booleanValue = true;
+		Character characterValue = 'a';
+		Double doubleValue = 2.5;
+		Float floatValue = 7.5f;
+		
+		builder.append(stringValue);
+		builder.append(",");
+		builder.append(longValue.toString());
+		builder.append(",");
+		builder.append(integerValue.toString());
+		builder.append(",");
+		builder.append(shortValue.toString());
+		builder.append(",");
+		builder.append(byteValue.toString());
+		builder.append(",");
+		builder.append(booleanValue.toString());
+		builder.append(",");
+		builder.append(characterValue.toString());
+		builder.append(",");
+		builder.append(doubleValue.toString());
+		builder.append(",");
+		builder.append(floatValue.toString());
+		builder.append("\n");
+
+		CsvReader<CsvLineObject> scanner = reflectionSetterMapping.create(new StringReader(builder.toString()), cache);
+		
+		CsvLineObject next = scanner.next();
+		assertThat(next).isNotNull();
+		
+		assertThat(next.getStringValue()).isEqualTo(stringValue);
+		assertThat(next.getLongValue()).isEqualTo(longValue);
+		assertThat(next.getIntegerValue()).isEqualTo(integerValue);
+		assertThat(next.getBooleanValue()).isEqualTo(booleanValue);
+		assertThat(next.getDoubleValue()).isEqualTo(doubleValue);
 		
 		assertThat(scanner.next()).isNull();
 
 	}
 
+	@Test
+	public void testProxySetterScanner() throws Exception {
+		StringBuffer builder = new StringBuffer("stringValue2,longValue2,integerValue2,d,e,booleanValue2,g,doubleValue2,i\n");
+
+		String stringValue = "string";
+		Long longValue = 1L;
+		Integer integerValue = 2;
+		Short shortValue = 3;
+		Byte byteValue = 4;
+		Boolean booleanValue = true;
+		Character characterValue = 'a';
+		Double doubleValue = 2.5;
+		Float floatValue = 7.5f;
+		
+		builder.append(stringValue);
+		builder.append(",");
+		builder.append(longValue.toString());
+		builder.append(",");
+		builder.append(integerValue.toString());
+		builder.append(",");
+		builder.append(shortValue.toString());
+		builder.append(",");
+		builder.append(byteValue.toString());
+		builder.append(",");
+		builder.append(booleanValue.toString());
+		builder.append(",");
+		builder.append(characterValue.toString());
+		builder.append(",");
+		builder.append(doubleValue.toString());
+		builder.append(",");
+		builder.append(floatValue.toString());
+		builder.append("\n");
+
+		CsvReader<CsvLineObject> scanner = proxySetterMapping.create(new StringReader(builder.toString()), cache);
+		
+		CsvLineObject next = scanner.next();
+		assertThat(next).isNotNull();
+		
+		assertThat(next.getStringValue()).isEqualTo(stringValue);
+		assertThat(next.getLongValue()).isEqualTo(longValue);
+		assertThat(next.getIntegerValue()).isEqualTo(integerValue);
+		assertThat(next.getBooleanValue()).isEqualTo(booleanValue);
+		assertThat(next.getDoubleValue()).isEqualTo(doubleValue);
+		
+		assertThat(scanner.next()).isNull();
+
+	}
+
+	@Test
+	public void testDefault() throws Exception {
+		StringBuffer builder = new StringBuffer(); // "stringValue,longValue,integerValue,booleanValue,doubleValue\n");
+
+		String stringValue = "string";
+		Long longValue = 1L;
+		Integer integerValue = 2;
+		Boolean booleanValue = true;
+		Double doubleValue = 2.5;
+		
+		builder.append(stringValue);
+		builder.append(",");
+		builder.append(longValue.toString());
+		builder.append(",");
+		builder.append(integerValue.toString());
+		builder.append(",");
+		builder.append(booleanValue.toString());
+		builder.append(",");
+		builder.append(doubleValue.toString());
+		builder.append("\n");
+
+		CsvReader<CsvLineObject> scanner = reflectionSetterMapping.buildDefaultStaticCsvMapper(false).newInstance(new StringReader(builder.toString()), cache);
+		
+		CsvLineObject next = scanner.next();
+		assertThat(next).isNotNull();
+		
+		assertThat(next.getStringValue()).isEqualTo(stringValue);
+		assertThat(next.getLongValue()).isEqualTo(longValue);
+		assertThat(next.getIntegerValue()).isEqualTo(integerValue);
+		assertThat(next.getBooleanValue()).isEqualTo(booleanValue);
+		assertThat(next.getDoubleValue()).isEqualTo(doubleValue);
+		
+		assertThat(scanner.next()).isNull();
+
+	}
 
 }

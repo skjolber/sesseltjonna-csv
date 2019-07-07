@@ -47,6 +47,13 @@ public class CsvLineObjectScannerSkipLeadingTrailingWhitespaceTest {
 					.trimTrailingWhitespaces()
 					.trimLeadingWhitespaces()
 					.required()
+				.field("f")
+					.consumer((a, b, c, d) -> {
+						a.setFloatValue(Float.parseFloat(new String(b, c, d - c)));
+					})
+					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
+					.optional()
 				.build();
 		
 		mappingWithQuotes = CsvMapper.builder(CsvLineObject.class)
@@ -81,6 +88,14 @@ public class CsvLineObjectScannerSkipLeadingTrailingWhitespaceTest {
 					.trimTrailingWhitespaces()
 					.trimLeadingWhitespaces()
 					.required()
+				.field("f")
+					.consumer((a, b, c, d) -> {
+						a.setFloatValue(Float.parseFloat(new String(b, c, d - c)));
+					})
+					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
+					.quoted()
+					.optional()
 				.build();
 		
 	}
@@ -99,6 +114,7 @@ public class CsvLineObjectScannerSkipLeadingTrailingWhitespaceTest {
 		assertThat(next.getLongValue()).isEqualTo(1L);
 		assertThat(next.getBooleanValue()).isEqualTo(false);
 		assertThat(next.getDoubleValue()).isEqualTo(1.0d);
+		assertThat(next.getFloatValue()).isEqualTo(2.1f);
 
 		assertThat(scanner.next()).isNull();
 	}
@@ -117,7 +133,8 @@ public class CsvLineObjectScannerSkipLeadingTrailingWhitespaceTest {
 		assertThat(next.getLongValue()).isEqualTo(1L);
 		assertThat(next.getBooleanValue()).isEqualTo(false);
 		assertThat(next.getDoubleValue()).isEqualTo(1.0d);
-		
+		assertThat(next.getFloatValue()).isEqualTo(2.1f);
+
 		assertThat(scanner.next()).isNull();
 	}	
 
@@ -134,6 +151,8 @@ public class CsvLineObjectScannerSkipLeadingTrailingWhitespaceTest {
 		builder.append("d");
 		builder.append(",");
 		builder.append("e");
+		builder.append(",");
+		builder.append("f");
 		builder.append(",");
 		builder.append("randomValue");
 		builder.append("\n");

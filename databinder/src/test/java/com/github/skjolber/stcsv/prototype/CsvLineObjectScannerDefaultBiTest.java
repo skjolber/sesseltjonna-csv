@@ -17,8 +17,6 @@ public class CsvLineObjectScannerDefaultBiTest {
 	private CsvMapper<CsvLineObject> reflectionSetterMapping;
 	private CsvMapper<CsvLineObject> proxySetterMapping;
 
-	private CsvMapper<CsvLineObject> consumerFixedMapping;
-
 	@BeforeEach
 	public void init() throws Exception {
 		consumerMapping = CsvMapper.builder(CsvLineObject.class)
@@ -36,6 +34,11 @@ public class CsvLineObjectScannerDefaultBiTest {
 					.optional()
 				.doubleField("h")
 					.consumer(CsvLineObject::setDoubleValue)
+					.optional()
+				.field("i")
+					.consumer((a, b, c, d) -> {
+						a.setFloatValue(Float.parseFloat(new String(b, c, d - c)));
+					})
 					.optional()
 				.build();
 		
@@ -133,6 +136,7 @@ public class CsvLineObjectScannerDefaultBiTest {
 		assertThat(next.getIntegerValue()).isEqualTo(integerValue);
 		assertThat(next.getBooleanValue()).isEqualTo(booleanValue);
 		assertThat(next.getDoubleValue()).isEqualTo(doubleValue);
+		assertThat(next.getFloatValue()).isEqualTo(7.5f);
 		
 		assertThat(scanner.next()).isNull();
 

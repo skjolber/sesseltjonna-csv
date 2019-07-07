@@ -42,6 +42,13 @@ public class CsvLineObjectScannerSkipLeadingWhitespaceTest {
 					.consumer(CsvLineObject::setDoubleValue)
 					.trimLeadingWhitespaces()
 					.optional()
+				.field("f")
+					.consumer((a, b, c, d) -> {
+						a.setFloatValue(Float.parseFloat(new String(b, c, d - c)));
+					})
+					.trimLeadingWhitespaces()
+					.optional()
+					
 				.build();
 		
 		mappingWithQuotes = CsvMapper.builder(CsvLineObject.class)
@@ -71,6 +78,14 @@ public class CsvLineObjectScannerSkipLeadingWhitespaceTest {
 					.quoted()
 					.trimLeadingWhitespaces()
 					.optional()
+				.field("f")
+					.consumer((a, b, c, d) -> {
+						a.setFloatValue(Float.parseFloat(new String(b, c, d - c)));
+					})
+					.quoted()
+					.trimLeadingWhitespaces()
+					.optional()
+					
 				.build();
 		
 	}
@@ -91,7 +106,8 @@ public class CsvLineObjectScannerSkipLeadingWhitespaceTest {
 		assertThat(next.getLongValue()).isEqualTo(1L);
 		assertThat(next.getBooleanValue()).isEqualTo(false);
 		assertThat(next.getDoubleValue()).isEqualTo(1.0d);
-		
+		assertThat(next.getFloatValue()).isEqualTo(2.1f);
+
 		assertThat(scanner.next()).isNull();
 	}
 	
@@ -109,7 +125,8 @@ public class CsvLineObjectScannerSkipLeadingWhitespaceTest {
 		assertThat(next.getLongValue()).isEqualTo(1L);
 		assertThat(next.getBooleanValue()).isEqualTo(false);
 		assertThat(next.getDoubleValue()).isEqualTo(1.0d);
-		
+		assertThat(next.getFloatValue()).isEqualTo(2.1f);
+
 		assertThat(scanner.next()).isNull();
 	}	
 	

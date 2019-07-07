@@ -42,6 +42,12 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 					.consumer(CsvLineObject::setDoubleValue)
 					.trimTrailingWhitespaces()
 					.required()
+				.field("f")
+					.consumer((a, b, c, d) -> {
+						a.setFloatValue(Float.parseFloat(new String(b, c, d - c)));
+					})
+					.trimTrailingWhitespaces()
+					.optional()
 				.build();
 		
 		mappingWithQuotes = CsvMapper.builder(CsvLineObject.class)
@@ -71,8 +77,16 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 					.quoted()
 					.trimTrailingWhitespaces()
 					.required()
+				.field("f")
+					.consumer((a, b, c, d) -> {
+						a.setFloatValue(Float.parseFloat(new String(b, c, d - c)));
+					})
+					.quoted()
+					.trimTrailingWhitespaces()
+					.optional()
 				.build();
 		
+ 
 	}
 
 
@@ -90,6 +104,7 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 		assertThat(next.getLongValue()).isEqualTo(1L);
 		assertThat(next.getBooleanValue()).isEqualTo(false);
 		assertThat(next.getDoubleValue()).isEqualTo(1.0d);
+		assertThat(next.getFloatValue()).isEqualTo(2.1f);
 
 		assertThat(scanner.next()).isNull();
 	}
@@ -108,6 +123,7 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 		assertThat(next.getLongValue()).isEqualTo(1L);
 		assertThat(next.getBooleanValue()).isEqualTo(false);
 		assertThat(next.getDoubleValue()).isEqualTo(1.0d);
+		assertThat(next.getFloatValue()).isEqualTo(2.1f);
 		
 		assertThat(scanner.next()).isNull();
 	}	
@@ -155,6 +171,8 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 		builder.append(",");
 		builder.append("e");
 		builder.append(",");
+		builder.append("f");
+		builder.append(",");
 		builder.append("randomValue");
 		builder.append("\n");
 		
@@ -163,6 +181,7 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 		append(builder, "1", quoted, whitespaceBefore, whitespaceAfter);
 		append(builder, "1", quoted, whitespaceBefore, whitespaceAfter);
 		append(builder, "1.0", quoted, whitespaceBefore, whitespaceAfter);
+		append(builder, "2.1", quoted, whitespaceBefore, whitespaceAfter);
 		
 		append(builder, "random data", quoted, whitespaceBefore, whitespaceAfter);
 
