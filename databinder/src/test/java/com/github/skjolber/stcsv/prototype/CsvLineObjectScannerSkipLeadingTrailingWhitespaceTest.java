@@ -13,7 +13,7 @@ import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.CsvMapper;
 import com.github.skjolber.stcsv.CsvReader;
 
-public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
+public class CsvLineObjectScannerSkipLeadingTrailingWhitespaceTest {
 
 	private CsvMapper<CsvLineObject> mapping;
 	private CsvMapper<CsvLineObject> mappingWithQuotes;
@@ -25,22 +25,27 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 				.stringField("a")
 					.consumer(CsvLineObject::setStringValue)
 					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
 					.required()
 				.booleanField("b")
 					.consumer(CsvLineObject::setBooleanValue)
 					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
 					.required()
 				.longField("c")
 					.consumer(CsvLineObject::setLongValue)
 					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
 					.required()
 				.integerField("d")
 					.consumer(CsvLineObject::setIntegerValue)
 					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
 					.required()
 				.doubleField("e")
 					.consumer(CsvLineObject::setDoubleValue)
 					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
 					.required()
 				.build();
 		
@@ -49,36 +54,40 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 				.stringField("a")
 					.consumer(CsvLineObject::setStringValue)
 					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
 					.quoted()
 					.required()
 				.booleanField("b")
 					.consumer(CsvLineObject::setBooleanValue)
 					.quoted()
 					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
 					.required()
 				.longField("c")
 					.consumer(CsvLineObject::setLongValue)
 					.quoted()
 					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
 					.required()
 				.integerField("d")
 					.consumer(CsvLineObject::setIntegerValue)
 					.quoted()
 					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
 					.required()
 				.doubleField("e")
 					.consumer(CsvLineObject::setDoubleValue)
 					.quoted()
 					.trimTrailingWhitespaces()
+					.trimLeadingWhitespaces()
 					.required()
 				.build();
 		
 	}
 
-
 	@Test
-	public void testSkipTrailingWhitespace() throws Exception {
-		Reader reader = createReader(false, false, true);
+	public void testSkipWhitespace() throws Exception {
+		Reader reader = CsvLineObjectScannerSkipTrailingWhitespaceTest.createReader(false, true, true);
 		
 		CsvReader<CsvLineObject> scanner = mapping.create(reader);
 		
@@ -95,8 +104,8 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 	}
 
 	@Test
-	public void testSkipTrailingWhitespaceWithQuotes() throws Exception {
-		Reader reader = createReader(true, false, true);
+	public void testSkipWhitespaceWithQuotes() throws Exception {
+		Reader reader = CsvLineObjectScannerSkipTrailingWhitespaceTest.createReader(true, true, true);
 		
 		CsvReader<CsvLineObject> scanner = mappingWithQuotes.create(reader);
 		
@@ -111,7 +120,7 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 		
 		assertThat(scanner.next()).isNull();
 	}	
-	
+
 	@Test
 	public void testTrimsWhitespaceThrowsExceptionOnRequired() throws Exception {
 		StringBuffer builder = new StringBuffer();
@@ -141,51 +150,4 @@ public class CsvLineObjectScannerSkipTrailingWhitespaceTest {
 			scanner.next();
 	    });
 	}		
-	
-	public static Reader createReader(boolean quoted, boolean whitespaceBefore, boolean whitespaceAfter) {
-		StringBuffer builder = new StringBuffer();
-		// header
-		builder.append("a");
-		builder.append(",");
-		builder.append("b");
-		builder.append(",");
-		builder.append("c");
-		builder.append(",");
-		builder.append("d");
-		builder.append(",");
-		builder.append("e");
-		builder.append(",");
-		builder.append("randomValue");
-		builder.append("\n");
-		
-		append(builder, "stringValue", quoted, whitespaceBefore, whitespaceAfter);
-		append(builder, "false", quoted, whitespaceBefore, whitespaceAfter);
-		append(builder, "1", quoted, whitespaceBefore, whitespaceAfter);
-		append(builder, "1", quoted, whitespaceBefore, whitespaceAfter);
-		append(builder, "1.0", quoted, whitespaceBefore, whitespaceAfter);
-		
-		append(builder, "random data", quoted, whitespaceBefore, whitespaceAfter);
-
-		builder.setLength(builder.length() - 1);
-
-		return new StringReader(builder.toString());
-	}
-	
-	private static void append(StringBuffer builder, String value, boolean quoted, boolean whitespaceBefore, boolean whitespaceAfter) {
-		if(quoted) {
-			builder.append('"');
-		}
-		if(whitespaceBefore) {
-			builder.append("  ");
-		}
-		builder.append(value);
-		if(whitespaceAfter) {
-			builder.append("  ");
-		}
-		if(quoted) {
-			builder.append('"');
-		}
-		builder.append(',');
-	}
-	
 }

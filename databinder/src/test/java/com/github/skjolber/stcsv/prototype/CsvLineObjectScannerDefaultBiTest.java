@@ -16,7 +16,9 @@ public class CsvLineObjectScannerDefaultBiTest {
 	private CsvMapper<CsvLineObject> consumerMapping;
 	private CsvMapper<CsvLineObject> reflectionSetterMapping;
 	private CsvMapper<CsvLineObject> proxySetterMapping;
-	
+
+	private CsvMapper<CsvLineObject> consumerFixedMapping;
+
 	@BeforeEach
 	public void init() throws Exception {
 		consumerMapping = CsvMapper.builder(CsvLineObject.class)

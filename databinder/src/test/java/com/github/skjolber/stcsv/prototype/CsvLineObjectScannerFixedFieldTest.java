@@ -26,6 +26,22 @@ public class CsvLineObjectScannerFixedFieldTest {
 					.consumer(CsvLineObject::setStringValue)
 					.fixedSize(2)
 					.required()
+				.booleanField("b")
+					.consumer(CsvLineObject::setBooleanValue)
+					.fixedSize(5)
+					.required()
+				.longField("c")
+					.consumer(CsvLineObject::setLongValue)
+					.fixedSize(1)
+					.required()
+				.integerField("d")
+					.consumer(CsvLineObject::setIntegerValue)
+					.fixedSize(1)
+					.required()
+				.doubleField("e")
+					.consumer(CsvLineObject::setDoubleValue)
+					.fixedSize(3)
+					.required()
 				.build();
 		
 		mappingWithQuotes = CsvMapper.builder(CsvLineObject.class)
@@ -54,11 +70,27 @@ public class CsvLineObjectScannerFixedFieldTest {
 		// header
 		builder.append("a");
 		builder.append(",");
+		builder.append("b");
+		builder.append(",");
+		builder.append("c");
+		builder.append(",");
+		builder.append("d");
+		builder.append(",");
+		builder.append("e");
+		builder.append(",");
 		builder.append("randomValue");
 		builder.append("\n");
 		
 		// first line
 		builder.append("bb");
+		builder.append(",");
+		builder.append("false");
+		builder.append(",");
+		builder.append("1");
+		builder.append(",");
+		builder.append("1");
+		builder.append(",");
+		builder.append("1.0");
 		builder.append(",");
 		builder.append("random data");
 		builder.append("\n");
@@ -69,6 +101,10 @@ public class CsvLineObjectScannerFixedFieldTest {
 		assertThat(next).isNotNull();
 		
 		assertThat(next.getStringValue()).isEqualTo("bb");
+		assertThat(next.getIntegerValue()).isEqualTo(1);
+		assertThat(next.getLongValue()).isEqualTo(1L);
+		assertThat(next.getBooleanValue()).isEqualTo(false);
+		assertThat(next.getDoubleValue()).isEqualTo(1.0d);
 		
 		assertThat(scanner.next()).isNull();
 	}
