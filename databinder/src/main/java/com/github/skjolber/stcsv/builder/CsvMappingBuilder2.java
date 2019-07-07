@@ -39,10 +39,6 @@ public class CsvMappingBuilder2<T, D> extends AbstractCsvMappingBuilder<T, CsvMa
 	public StringCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>> stringField(String name) {
 		return new StringCsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>>(this, name, intermediate);
 	}
-	
-	public Class<D> getIntermediate() {
-		return intermediate;
-	}
 
 	public CsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>> field(String name) {
 		return new CsvFieldMapperTriBuilder<T, D, CsvMappingBuilder2<T, D>>(this, name, intermediate);

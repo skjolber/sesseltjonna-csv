@@ -34,11 +34,11 @@ public class SetterProjectionHelper<T> implements InvocationHandler {
 		return this.method;
 	}
 	
-	protected String getSetterName(String name) {
+	protected static String getSetterName(String name) {
 		return "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
 	}
 
-	protected String getNormalizedSetterName(String name) {
+	protected static String getNormalizedSetterName(String name) {
 		
 		StringBuilder builder = new StringBuilder("set");
 		

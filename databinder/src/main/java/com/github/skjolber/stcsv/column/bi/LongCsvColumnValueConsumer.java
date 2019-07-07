@@ -34,10 +34,12 @@ public class LongCsvColumnValueConsumer<T> implements CsvColumnValueConsumer<T> 
     		 long val = parseInteger(ch, off, len1) * L_BILLION + parseInteger(ch, off+len1, 9);    		
     		 
     		 return neg ? -val : val;
-    	} else {
+    	} else if(len > 0) {
     		long val =  parseInteger(ch, off, end - off);
     		
     		return neg ? -val : val;
+    	} else {
+    		throw new NumberFormatException();
     	}
     }
 

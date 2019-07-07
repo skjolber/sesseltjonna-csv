@@ -1,6 +1,7 @@
 package com.github.skjolber.stcsv.column.bi;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,4 +30,16 @@ public class LongCsvColumnValueConsumerTest {
 		}
     }
 
+	@Test
+	public void testTestInvalidThrowsException() {
+		assertThrows(NumberFormatException.class, ()->{
+			LongCsvColumnValueConsumer.parseLong("-".toCharArray(), 0, 1);
+	    } );
+		/*
+		assertThrows(NumberFormatException.class, ()->{
+			LongCsvColumnValueConsumer.parseLong("a".toCharArray(), 0, 1);
+	    } );
+	    */
+		
+	}
 }

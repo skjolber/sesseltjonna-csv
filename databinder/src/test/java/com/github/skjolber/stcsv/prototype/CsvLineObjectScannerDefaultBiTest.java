@@ -69,6 +69,25 @@ public class CsvLineObjectScannerDefaultBiTest {
 					.setter(CsvLineObject::setDoubleValue)
 					.optional()
 				.build();	
+		
+		proxySetterMapping = CsvMapper.builder(CsvLineObject.class)
+				.stringField("stringValue2")
+					.setter(CsvLineObject::setStringValue)
+					.optional()
+				.longField("longValue2")
+					.setter(CsvLineObject::setLongValue)
+					.optional()
+				.integerField("integerValue2")
+					.setter(CsvLineObject::setIntegerValue)
+					.optional()
+				.booleanField("booleanValue2")
+					.setter(CsvLineObject::setBooleanValue)
+					.optional()
+				.doubleField("doubleValue2")
+					.setter(CsvLineObject::setDoubleValue)
+					.optional()
+				.build();			
+		
 	}
 	
 	@Test

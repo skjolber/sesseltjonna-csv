@@ -25,8 +25,8 @@ public class CsvMappingBuilder<T> extends AbstractCsvMappingBuilder<T, CsvMappin
 			classLoader = getDefaultClassLoader();
 		}
 		
-		if(bufferLength <= 0) {
-			throw new CsvBuilderException("Expected positive buffer length");
+		if(bufferLength < columns.size() * 2 + 1) {
+			throw new CsvBuilderException("Expected buffer length at least " + (columns.size() * 2 + 1));
 		}
 		
 		return new CsvMapper<T>(target, divider, quoteCharacter, escapeCharacter, columns, skipEmptyLines, skipComments, skippableFieldsWithoutLinebreaks, classLoader, bufferLength);

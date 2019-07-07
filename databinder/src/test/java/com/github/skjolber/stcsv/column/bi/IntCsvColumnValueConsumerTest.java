@@ -1,6 +1,7 @@
 package com.github.skjolber.stcsv.column.bi;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -40,5 +41,30 @@ public class IntCsvColumnValueConsumerTest {
 
 	private int parseInt(char[] ch, int i, int j) {
 		return IntCsvColumnValueConsumer.parseInt(ch, i, i + j);
+	}
+	
+	@Test
+	public void testTestInvalidThrowsException() {
+		assertThrows(NumberFormatException.class, ()->{
+			IntCsvColumnValueConsumer.parseInt("-".toCharArray(), 0, 1);
+	    } );
+		assertThrows(NumberFormatException.class, ()->{
+			IntCsvColumnValueConsumer.parseInt("a".toCharArray(), 0, 1);
+	    } );
+		assertThrows(NumberFormatException.class, ()->{
+			IntCsvColumnValueConsumer.parseInt("1a".toCharArray(), 0, 2);
+	    } );
+		assertThrows(NumberFormatException.class, ()->{
+			IntCsvColumnValueConsumer.parseInt("11a".toCharArray(), 0, 3);
+	    } );
+		assertThrows(NumberFormatException.class, ()->{
+			IntCsvColumnValueConsumer.parseInt("111a".toCharArray(), 0, 4);
+	    } );
+		assertThrows(NumberFormatException.class, ()->{
+			IntCsvColumnValueConsumer.parseInt("1111a".toCharArray(), 0, 5);
+	    } );
+		assertThrows(NumberFormatException.class, ()->{
+			IntCsvColumnValueConsumer.parseInt("01234567890123456789".toCharArray(), 0, 20);
+	    } );
 	}
 }

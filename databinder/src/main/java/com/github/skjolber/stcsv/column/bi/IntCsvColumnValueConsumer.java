@@ -49,20 +49,20 @@ public class IntCsvColumnValueConsumer<T> implements CsvColumnValueConsumer<T> {
         char c = ch[offset++];
         
         if (c > '9' || c < '0') {
-            return Integer.parseInt(new String(ch, end - len, len));
+        	throw new NumberFormatException(new String(ch, end - len, len));
         }
         int num = c - '0';
         
         if (offset < end) {
             c = ch[offset++];
             if (c > '9' || c < '0') {
-                return Integer.parseInt(new String(ch, end - len, len));
+            	throw new NumberFormatException(new String(ch, end - len, len));
             }
             num = (num * 10) + (c - '0');
             if (offset < end) {
                 c = ch[offset++];
                 if (c > '9' || c < '0') {
-                    return Integer.parseInt(new String(ch, end - len, len));
+                	throw new NumberFormatException(new String(ch, end - len, len));
                 }
                 num = (num * 10) + (c - '0');
                 // Let's just loop if we have more than 3 digits:
@@ -70,7 +70,7 @@ public class IntCsvColumnValueConsumer<T> implements CsvColumnValueConsumer<T> {
                     do {
                         c = ch[offset++];
                         if (c > '9' || c < '0') {
-                            return Integer.parseInt(new String(ch, end - len, len));
+                        	throw new NumberFormatException(new String(ch, end - len, len));
                         }
                         num = (num * 10) + (c - '0');
                     } while (offset < end);

@@ -9,7 +9,7 @@ import com.github.skjolber.stcsv.AbstractColumn;
 
 public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> extends AbstractCsvBuilder<B>  {
 
-	protected static final boolean byteBuddy;
+	protected static final boolean byteBuddyPresent;
 	
 	static {
 		boolean present;
@@ -20,7 +20,7 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 		} catch(Exception e) {
 			present = false;
 		}
-		byteBuddy = present;
+		byteBuddyPresent = present;
 	}
 	
 	protected boolean skippableFieldsWithoutLinebreaks = false;
@@ -31,6 +31,15 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 
 	protected List<AbstractCsvFieldMapperBuilder<T, ? extends AbstractCsvMappingBuilder<T, ?>>> fields = new ArrayList<>();
 
+	protected boolean byteBuddy = byteBuddyPresent;
+	
+	// for testing
+	B withoutByteBuddy() {
+		byteBuddy = false;
+		
+		return (B) this;
+	}
+	
 	public AbstractCsvMappingBuilder(Class<T> cls) {
 		this.target = cls;
 	}
@@ -98,5 +107,5 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 		
 		return (B) this;
 	}
-		
+
 }
