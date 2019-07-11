@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import com.github.skjolber.stcsv.AbstractCsvReaderTest;
 import com.github.skjolber.stcsv.CarriageReturnNewLineReader;
 import com.github.skjolber.stcsv.CsvException;
-import com.github.skjolber.stcsv.sa.DefaultStringArrayCsvReader;
 import com.github.skjolber.stcsv.sa.rfc4180.RFC4180StringArrayCsvReader;
 import com.univocity.parsers.csv.CsvParser;
 

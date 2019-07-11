@@ -2,6 +2,7 @@ package com.github.skjolber.stcsv.prototype;
 
 public class CsvLineObject {
 
+	private Object anyValue;
 	private String stringValue;
 	private Long longValue;
 	private Integer integerValue;
@@ -74,6 +75,7 @@ public class CsvLineObject {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((anyValue == null) ? 0 : anyValue.hashCode());
 		result = prime * result + ((booleanValue == null) ? 0 : booleanValue.hashCode());
 		result = prime * result + ((byteValue == null) ? 0 : byteValue.hashCode());
 		result = prime * result + ((characterValue == null) ? 0 : characterValue.hashCode());
@@ -94,6 +96,11 @@ public class CsvLineObject {
 		if (getClass() != obj.getClass())
 			return false;
 		CsvLineObject other = (CsvLineObject) obj;
+		if (anyValue == null) {
+			if (other.anyValue != null)
+				return false;
+		} else if (!anyValue.equals(other.anyValue))
+			return false;
 		if (booleanValue == null) {
 			if (other.booleanValue != null)
 				return false;
@@ -140,5 +147,12 @@ public class CsvLineObject {
 		} else if (!stringValue.equals(other.stringValue))
 			return false;
 		return true;
-	}	
+	}
+	public void setAnyValue(Object anyValue) {
+		this.anyValue = anyValue;
+	}
+	
+	public Object getAnyValue() {
+		return anyValue;
+	}
 }

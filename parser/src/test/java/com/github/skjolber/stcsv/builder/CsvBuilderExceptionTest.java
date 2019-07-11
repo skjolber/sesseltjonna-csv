@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.CsvException;
-
 public class CsvBuilderExceptionTest {
 
 	@Test

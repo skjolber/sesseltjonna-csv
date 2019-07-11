@@ -42,6 +42,10 @@ public class CsvLineObjectScannerFixedFieldTest {
 					.consumer(CsvLineObject::setDoubleValue)
 					.fixedSize(3)
 					.required()
+				.field("f")
+					.consumer( (object, array, start, end) -> object.setAnyValue(new String(array, start, end - start)))
+					.fixedSize(3)
+					.required()
 				.build();
 		
 		mappingWithQuotes = CsvMapper.builder(CsvLineObject.class)
@@ -78,6 +82,8 @@ public class CsvLineObjectScannerFixedFieldTest {
 		builder.append(",");
 		builder.append("e");
 		builder.append(",");
+		builder.append("f");
+		builder.append(",");
 		builder.append("randomValue");
 		builder.append("\n");
 		
@@ -92,6 +98,8 @@ public class CsvLineObjectScannerFixedFieldTest {
 		builder.append(",");
 		builder.append("1.0");
 		builder.append(",");
+		builder.append("any");
+		builder.append(",");
 		builder.append("random data");
 		builder.append("\n");
 
@@ -105,6 +113,7 @@ public class CsvLineObjectScannerFixedFieldTest {
 		assertThat(next.getLongValue()).isEqualTo(1L);
 		assertThat(next.getBooleanValue()).isEqualTo(false);
 		assertThat(next.getDoubleValue()).isEqualTo(1.0d);
+		assertThat(next.getAnyValue()).isEqualTo("any");
 		
 		assertThat(scanner.next()).isNull();
 	}

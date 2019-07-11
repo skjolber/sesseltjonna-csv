@@ -60,10 +60,6 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 		return parent;
 	}
 
-	protected Integer getFixedSize() {
-		return fixedSize;
-	}
-
 	protected boolean isQuoted() {
 		return quoted;
 	}
@@ -147,17 +143,11 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 		return SetterValueProjection.newInstance(method.getParameterTypes()[0], method.getName(), CsvMapper.getInternalName(parent.getTarget())); 
 	}
 	
-	protected Class<?> getColumnClass() {
-		throw new CsvBuilderException();
-	}
+	protected abstract Class<?> getColumnClass();
 	
-	protected void invokeSetter(T value) {
-		throw new CsvBuilderException("No setter for column '" + name + "'");
-	}
+	protected abstract void invokeSetter(T value);
 
-	protected boolean hasSetter() {
-		return false;
-	}
+	protected abstract boolean hasSetter();
 
 }
 

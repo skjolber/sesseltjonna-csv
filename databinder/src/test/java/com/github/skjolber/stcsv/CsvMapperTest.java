@@ -1,6 +1,7 @@
 package com.github.skjolber.stcsv;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.StringReader;
 
@@ -45,5 +46,18 @@ public class CsvMapperTest {
 	public void testBuild2() throws Exception {
 		consumerMapping.buildStaticCsvMapper(false, "a,b,c,d,e,f,g,h\r\n");
 		consumerMapping.buildStaticCsvMapper("a,b,c,d,e,f,g,h\r\n");
+	}
+	
+	@Test
+	public void testFirstLineMustHaveLinebreak() throws Exception {
+		StringBuilder builder = new StringBuilder();
+		for(int i = 0; i < 100*1024; i++) {
+			builder.append('a');
+		}
+			
+		assertThrows(CsvException.class, ()->{
+			consumerMapping.create(new StringReader(builder.toString()));
+        } );
+		
 	}	
 }

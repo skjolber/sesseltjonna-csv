@@ -1,6 +1,6 @@
 package com.github.skjolber.stcsv;
 
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CALOAD;
 import static org.objectweb.asm.Opcodes.DUP;

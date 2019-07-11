@@ -975,10 +975,9 @@ public abstract class AbstractCsvMapper<T> {
 		}
 		return names;
 	}
-
-	protected String getMappedClassInternalName() {
-		return mappedClassInternalName;
-	}
 	
+	ClassLoader getClassLoader() {
+		return classLoader;
+	}
 	
 }

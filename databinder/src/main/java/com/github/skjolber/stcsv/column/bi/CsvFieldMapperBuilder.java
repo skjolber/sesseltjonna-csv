@@ -70,6 +70,21 @@ public class CsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, ?>>
 		return super.getProjection(index, proxy);
 	}
 
+	@Override
+	protected Class<?> getColumnClass() {
+		throw new RuntimeException();
+	}
+
+	@Override
+	protected void invokeSetter(T value) {
+		throw new RuntimeException();
+	}
+
+	@Override
+	protected boolean hasSetter() {
+		return false;
+	}
+
 }
 
 
