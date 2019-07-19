@@ -27,7 +27,6 @@
 		<dependency>
 		    <groupId>net.bytebuddy</groupId>
 		    <artifactId>byte-buddy</artifactId>
-		    <optional>true</optional>
 		</dependency>
 		
 		<!-- test dependencies -->

@@ -1,11 +1,19 @@
 package com.github.skjolber.stcsv.builder;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class ByteBuddySetterProjectionHelper<T> extends SetterProjectionHelper<T> {
+public class ByteBuddySetterProjectionHelper<T> extends SetterProjectionHelper<T> implements InvocationHandler {
 		
 	public ByteBuddySetterProjectionHelper(Class<T> target) {
 		super(target);
+	}
+
+	@Override
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		this.method = method;
+		
+		return null;
 	}
 
 	protected T generateProxy() throws Exception {
@@ -16,6 +24,7 @@ public class ByteBuddySetterProjectionHelper<T> extends SetterProjectionHelper<T
 				  .make()
 				  .load(target.getClassLoader()).getLoaded().getDeclaredConstructor().newInstance();		
 	}
+
 
 	protected Method invokeSetter(AbstractCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
 		if(proxy == null) {
@@ -28,8 +37,8 @@ public class ByteBuddySetterProjectionHelper<T> extends SetterProjectionHelper<T
 		abstractCsvFieldMapperBuilder.invokeSetter(proxy);
 		
 		return this.method;
-	}
-
+	}	
+	
 	public Method toMethod(AbstractCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
 		if(abstractCsvFieldMapperBuilder.hasSetter()) {
 			// detect setter using proxy class
@@ -37,5 +46,5 @@ public class ByteBuddySetterProjectionHelper<T> extends SetterProjectionHelper<T
 		} 
 		// detect setter using reflection, based on the name
 		return super.toMethod(abstractCsvFieldMapperBuilder);
-	}
+	}	
 }

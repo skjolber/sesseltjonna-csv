@@ -20,14 +20,14 @@ public class SetterProjectionHelperTest {
 		SetterProjectionHelper helper = new SetterProjectionHelper(CsvLineObject.class);
 		
 		assertThrows(CsvBuilderException.class, ()->{
-			helper.invokeSetter("abcd", Object.class);
+			helper.detectSetter("abcd", Object.class);
 	    } );
 	}
 	
 	@Test
 	public void normalizesSetterName() {
 		SetterProjectionHelper helper = new SetterProjectionHelper(CsvLineObject.class);
-		helper.invokeSetter("string_value", String.class);
+		helper.detectSetter("string_value", String.class);
 	}
 	
 }

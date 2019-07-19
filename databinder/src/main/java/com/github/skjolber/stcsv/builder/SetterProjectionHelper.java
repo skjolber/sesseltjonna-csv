@@ -2,8 +2,9 @@ package com.github.skjolber.stcsv.builder;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
-public class SetterProjectionHelper<T> implements InvocationHandler {
+public class SetterProjectionHelper<T> {
 	
 	protected Class<T> target;
 	protected Method method;
@@ -13,14 +14,7 @@ public class SetterProjectionHelper<T> implements InvocationHandler {
 		this.target = target;
 	}
 	
-	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		this.method = method;
-		
-		return null;
-	}
-
-	public Method invokeSetter(String name, Class<?> cls) {
+	public void detectSetter(String name, Class<?> cls) {
 		try {
 			this.method = target.getMethod(getSetterName(name), cls);
 		} catch (NoSuchMethodException e1) {
@@ -30,8 +24,6 @@ public class SetterProjectionHelper<T> implements InvocationHandler {
 				throw new CsvBuilderException("Unable to detect setter for class " + target.getName() + " field '" + name + "' (" + getSetterName(name) + "/ "+ getNormalizedSetterName(name) + ").");
 			}
 		}
-		
-		return this.method;
 	}
 	
 	protected static String getSetterName(String name) {
@@ -59,7 +51,18 @@ public class SetterProjectionHelper<T> implements InvocationHandler {
 	}
 
 	public Method toMethod(AbstractCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
-		// detect setter using reflection, based on the name
-		return invokeSetter(abstractCsvFieldMapperBuilder.getName(), abstractCsvFieldMapperBuilder.getColumnClass());
+		try {
+			if(abstractCsvFieldMapperBuilder.hasSetter()) {
+				throw new CsvBuilderException("Unable to translate lambda setter to method for " + target.getName() + " field '" + abstractCsvFieldMapperBuilder.getName() + "; is ByteBuddy on classpath?");
+			} else {
+				// detect setter using reflection, based on the name
+				detectSetter(abstractCsvFieldMapperBuilder.getName(), abstractCsvFieldMapperBuilder.getColumnClass());
+			}
+			
+			return method;
+		} finally {
+			method = null;
+		}
 	}
+
 }
