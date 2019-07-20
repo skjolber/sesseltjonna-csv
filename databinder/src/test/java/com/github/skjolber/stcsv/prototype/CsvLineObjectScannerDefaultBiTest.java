@@ -39,6 +39,7 @@ public class CsvLineObjectScannerDefaultBiTest {
 					.consumer((a, b, c, d) -> {
 						a.setFloatValue(Float.parseFloat(new String(b, c, d - c)));
 					})
+					.quotedWithoutLinebreaks()
 					.optional()
 				.build();
 		

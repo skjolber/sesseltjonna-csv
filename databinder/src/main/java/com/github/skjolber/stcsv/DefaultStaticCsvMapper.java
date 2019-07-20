@@ -19,13 +19,21 @@ public class DefaultStaticCsvMapper<T> implements StaticCsvMapper<T> {
 	private final Constructor<? extends AbstractCsvReader<T>> readerArrayConstructor;
 
 	public DefaultStaticCsvMapper(Class<? extends AbstractCsvReader<T>> cls) throws Exception {
-		this.readerConstructor = cls.getConstructor(Reader.class);
-		this.readerArrayConstructor  = cls.getConstructor(Reader.class, char[].class, int.class, int.class);
+		if(cls != null) {
+			this.readerConstructor = cls.getConstructor(Reader.class);
+			this.readerArrayConstructor  = cls.getConstructor(Reader.class, char[].class, int.class, int.class);
+		} else {
+			this.readerConstructor = null;
+			this.readerArrayConstructor = null;
+		}
 	}
 
 	public AbstractCsvReader<T> newInstance(Reader reader) {
 		try {
-			return readerConstructor.newInstance(reader);
+			if(readerArrayConstructor != null) {
+				return readerConstructor.newInstance(reader);
+			}
+			return new EmptyCsvReader<>();
 		} catch (Exception e) {
 			throw new RuntimeException(e); // should never happen
 		}
@@ -33,7 +41,10 @@ public class DefaultStaticCsvMapper<T> implements StaticCsvMapper<T> {
 	
 	public AbstractCsvReader<T> newInstance(Reader reader, char[] current, int offset, int length) {
 		try {
-			return readerArrayConstructor.newInstance(reader, current, offset, length);
+			if(readerArrayConstructor != null) {
+				return readerArrayConstructor.newInstance(reader, current, offset, length);
+			}
+			return new EmptyCsvReader<>();
 		} catch (Exception e) {
 			throw new RuntimeException(e); // should never happen
 		}

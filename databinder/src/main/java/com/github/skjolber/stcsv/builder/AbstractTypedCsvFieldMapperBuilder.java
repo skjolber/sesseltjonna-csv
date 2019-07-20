@@ -1,30 +1,21 @@
 package com.github.skjolber.stcsv.builder;
 
+import java.lang.reflect.Method;
+
 import com.github.skjolber.stcsv.AbstractColumn;
+import com.github.skjolber.stcsv.CsvMapper;
 import com.github.skjolber.stcsv.NoLineBreakQuotedColumn;
 import com.github.skjolber.stcsv.PlainColumn;
 import com.github.skjolber.stcsv.PlainFixedColumn;
 import com.github.skjolber.stcsv.QuotedColumn;
 import com.github.skjolber.stcsv.QuotedFixedColumn;
+import com.github.skjolber.stcsv.projection.SetterValueProjection;
 import com.github.skjolber.stcsv.projection.ValueProjection;
 
-public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> {
+public abstract class AbstractTypedCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> extends AbstractCsvFieldMapperBuilder<T, B>{
 
-	protected final String name;
-	protected boolean optional;
-	protected Integer fixedSize;
-	protected boolean quoted;
-	protected boolean linebreaks;
-
-	protected boolean trimTrailingWhitespaces = false;
-	protected boolean trimLeadingWhitespaces = false;
-
-	protected B parent;
-
-	public AbstractCsvFieldMapperBuilder(B parent, String name) {
-		super();
-		this.parent = parent;
-		this.name = name;
+	public AbstractTypedCsvFieldMapperBuilder(B parent, String name) {
+		super(parent, name);
 	}
 
 	protected String getName() {
@@ -38,7 +29,7 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 		return parent;
 	}
 	
-	public AbstractCsvFieldMapperBuilder<T, B> fixedSize(int fixedSize) {
+	public AbstractTypedCsvFieldMapperBuilder<T, B> fixedSize(int fixedSize) {
 		this.fixedSize = fixedSize;
 		
 		return this;
@@ -51,6 +42,14 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 
 		return parent;
 	}
+
+	protected boolean isQuoted() {
+		return quoted;
+	}
+
+	public Boolean isLinebreaks() {
+		return linebreaks;
+	}
 	
 	/**
 	 * Indicate that this field is quoted. If there is no linebreaks, 
@@ -59,7 +58,7 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 	 * @return this instance.
 	 */
 	
-	public AbstractCsvFieldMapperBuilder<T, B> quoted() {
+	public AbstractTypedCsvFieldMapperBuilder<T, B> quoted() {
 		quoted = true;
 		linebreaks = true;
 		
@@ -71,20 +70,20 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 	 * 
 	 * @return this instance.
 	 */
-	public AbstractCsvFieldMapperBuilder<T, B> quotedWithoutLinebreaks() {
+	public AbstractTypedCsvFieldMapperBuilder<T, B> quotedWithoutLinebreaks() {
 		quoted = true;
 		linebreaks = false;
 		
 		return this;
 	}
 
-	public AbstractCsvFieldMapperBuilder<T, B> trimTrailingWhitespaces() {
+	public AbstractTypedCsvFieldMapperBuilder<T, B> trimTrailingWhitespaces() {
 		this.trimTrailingWhitespaces = true;
 		
 		return this;
 	}
 
-	public AbstractCsvFieldMapperBuilder<T, B> trimLeadingWhitespaces() {
+	public AbstractTypedCsvFieldMapperBuilder<T, B> trimLeadingWhitespaces() {
 		this.trimLeadingWhitespaces = true;
 		
 		return this;
@@ -113,7 +112,17 @@ public abstract class AbstractCsvFieldMapperBuilder<T, B extends AbstractCsvMapp
 		return column;
 	}
 
-	protected abstract ValueProjection getProjection(int index, SetterProjectionHelper<T> proxy) throws CsvBuilderException;
+	protected ValueProjection getProjection(int index, SetterProjectionHelper<T> proxy) throws CsvBuilderException {
+		Method method = proxy.toMethod(this);
+		
+		return SetterValueProjection.newInstance(method.getParameterTypes()[0], method.getName(), CsvMapper.getInternalName(parent.getTarget())); 
+	}
+	
+	protected abstract Class<?> getColumnClass();
+	
+	protected abstract void invokeSetter(T value);
+
+	protected abstract boolean hasSetter();
 
 }
 

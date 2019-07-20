@@ -19,13 +19,20 @@ public class DefaultStaticCsvMapper2<T, D> implements StaticCsvMapper2<T, D>{
 	private final Constructor<? extends AbstractCsvReader<T>> readerArrayConstructor;
 
 	public DefaultStaticCsvMapper2(Class<? extends AbstractCsvReader<T>> cls, Class<D> delegate) throws Exception {
-		this.readerConstructor = cls.getConstructor(Reader.class, delegate);
-		this.readerArrayConstructor  = cls.getConstructor(Reader.class, char[].class, int.class, int.class, delegate);
-	}
+		if(cls != null) {
+			this.readerConstructor = cls.getConstructor(Reader.class, delegate);
+			this.readerArrayConstructor  = cls.getConstructor(Reader.class, char[].class, int.class, int.class, delegate);
+		} else {
+			this.readerConstructor = null;
+			this.readerArrayConstructor = null;
+		}	}
 
 	public AbstractCsvReader<T> newInstance(Reader reader, D delegate) {
 		try {
-			return readerConstructor.newInstance(reader, delegate);
+			if(readerConstructor != null) {
+				return readerConstructor.newInstance(reader, delegate);
+			}
+			return new EmptyCsvReader<>();
 		} catch (Exception e) {
 			throw new RuntimeException(e); // should never happen
 		}
@@ -33,7 +40,10 @@ public class DefaultStaticCsvMapper2<T, D> implements StaticCsvMapper2<T, D>{
 	
 	public AbstractCsvReader<T> newInstance(Reader reader, char[] current, int offset, int length, D delegate) {
 		try {
-			return readerArrayConstructor.newInstance(reader, current, offset, length, delegate);
+			if(readerArrayConstructor != null) {
+				return readerArrayConstructor.newInstance(reader, current, offset, length, delegate);
+			} 
+			return new EmptyCsvReader<>();
 		} catch (Exception e) {
 			throw new RuntimeException(e); // should never happen
 		}

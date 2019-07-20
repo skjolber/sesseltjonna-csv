@@ -69,10 +69,6 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 				throw new CsvBuilderException("Duplicate field '" + name + "'");
 			}
 			fieldNames.add(name);
-			
-			if(builder.isLinebreaks() && !builder.isQuoted()) {
-				throw new CsvBuilderException();
-			}
 
 			columns.add(builder.build(i, proxy));
 		}

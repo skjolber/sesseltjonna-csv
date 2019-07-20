@@ -1,5 +1,6 @@
 package com.github.skjolber.stcsv.column.bi;
 
+import com.github.skjolber.stcsv.builder.AbstractTypedCsvFieldMapperBuilder;
 import com.github.skjolber.stcsv.builder.AbstractCsvFieldMapperBuilder;
 import com.github.skjolber.stcsv.builder.AbstractCsvMappingBuilder;
 import com.github.skjolber.stcsv.builder.CsvBuilderException;
@@ -67,22 +68,7 @@ public class CsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, ?>>
 		if(consumer != null) {
 			return new BiConsumerProjection(consumer, index);
 		}
-		return super.getProjection(index, proxy);
-	}
-
-	@Override
-	protected Class<?> getColumnClass() {
-		throw new RuntimeException();
-	}
-
-	@Override
-	protected void invokeSetter(T value) {
-		throw new RuntimeException();
-	}
-
-	@Override
-	protected boolean hasSetter() {
-		return false;
+		throw new CsvBuilderException("Expected consumer for untyped field '" + name + "'");
 	}
 
 }

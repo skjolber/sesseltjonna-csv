@@ -2,14 +2,14 @@ package com.github.skjolber.stcsv.column.bi;
 
 import java.util.function.ObjLongConsumer;
 
-import com.github.skjolber.stcsv.builder.AbstractCsvFieldMapperBuilder;
+import com.github.skjolber.stcsv.builder.AbstractTypedCsvFieldMapperBuilder;
 import com.github.skjolber.stcsv.builder.AbstractCsvMappingBuilder;
 import com.github.skjolber.stcsv.builder.CsvBuilderException;
 import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
 import com.github.skjolber.stcsv.projection.BiConsumerProjection;
 import com.github.skjolber.stcsv.projection.ValueProjection;
 
-public class LongCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> extends AbstractCsvFieldMapperBuilder<T, B> {
+public class LongCsvFieldMapperBuilder<T, B extends AbstractCsvMappingBuilder<T, ?>> extends AbstractTypedCsvFieldMapperBuilder<T, B> {
 
 	protected ObjLongConsumer<T> consumer;
 	protected ObjLongConsumer<T> setter;

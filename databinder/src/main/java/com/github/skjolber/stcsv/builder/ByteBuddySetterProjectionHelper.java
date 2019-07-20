@@ -26,7 +26,7 @@ public class ByteBuddySetterProjectionHelper<T> extends SetterProjectionHelper<T
 	}
 
 
-	protected Method invokeSetter(AbstractCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
+	protected Method invokeSetter(AbstractTypedCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
 		if(proxy == null) {
 			try {
 				proxy = generateProxy();
@@ -39,7 +39,7 @@ public class ByteBuddySetterProjectionHelper<T> extends SetterProjectionHelper<T
 		return this.method;
 	}	
 	
-	public Method toMethod(AbstractCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
+	public Method toMethod(AbstractTypedCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
 		if(abstractCsvFieldMapperBuilder.hasSetter()) {
 			// detect setter using proxy class
 			return invokeSetter(abstractCsvFieldMapperBuilder); // populates the 'method' field

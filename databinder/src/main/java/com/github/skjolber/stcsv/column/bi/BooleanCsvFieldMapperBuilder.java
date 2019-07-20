@@ -1,13 +1,13 @@
 package com.github.skjolber.stcsv.column.bi;
 
-import com.github.skjolber.stcsv.builder.AbstractCsvFieldMapperBuilder;
+import com.github.skjolber.stcsv.builder.AbstractTypedCsvFieldMapperBuilder;
 import com.github.skjolber.stcsv.builder.AbstractCsvMappingBuilder;
 import com.github.skjolber.stcsv.builder.CsvBuilderException;
 import com.github.skjolber.stcsv.builder.SetterProjectionHelper;
 import com.github.skjolber.stcsv.projection.BiConsumerProjection;
 import com.github.skjolber.stcsv.projection.ValueProjection;
 
-public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, ?>> extends AbstractCsvFieldMapperBuilder<T, D> {
+public class BooleanCsvFieldMapperBuilder<T, D extends AbstractCsvMappingBuilder<T, ?>> extends AbstractTypedCsvFieldMapperBuilder<T, D> {
 
 	protected ObjBooleanConsumer<T> consumer;
 	protected ObjBooleanConsumer<T> setter;

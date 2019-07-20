@@ -50,14 +50,10 @@ public class SetterProjectionHelper<T> {
 		return builder.toString();
 	}
 
-	public Method toMethod(AbstractCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
+	public Method toMethod(AbstractTypedCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
 		try {
-			if(abstractCsvFieldMapperBuilder.hasSetter()) {
-				throw new CsvBuilderException("Unable to translate lambda setter to method for " + target.getName() + " field '" + abstractCsvFieldMapperBuilder.getName() + "; is ByteBuddy on classpath?");
-			} else {
-				// detect setter using reflection, based on the name
-				detectSetter(abstractCsvFieldMapperBuilder.getName(), abstractCsvFieldMapperBuilder.getColumnClass());
-			}
+			// detect setter using reflection, based on the name
+			detectSetter(abstractCsvFieldMapperBuilder.getName(), abstractCsvFieldMapperBuilder.getColumnClass());
 			
 			return method;
 		} finally {
