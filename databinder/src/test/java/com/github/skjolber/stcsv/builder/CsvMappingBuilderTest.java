@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import com.github.skjolber.stcsv.CsvMapper;
+import com.github.skjolber.stcsv.CsvMapper2;
 import com.github.skjolber.stcsv.column.bi.IntCsvColumnValueConsumer;
 import com.github.skjolber.stcsv.prototype.CsvLineObject;
 
@@ -54,5 +55,20 @@ public class CsvMappingBuilderTest {
 					.optional()
 				.build();	
 	}
-	
+
+	@Test
+	public void anonymousFieldRequiresConsumer() {
+		assertThrows(CsvBuilderException.class, ()->{
+			CsvMapper.builder(CsvLineObject.class)
+			.field("anon")
+				.optional()
+			.build();
+	    } );
+		assertThrows(CsvBuilderException.class, ()->{
+			CsvMapper2.builder(CsvLineObject.class, Object.class)
+			.field("anon")
+				.optional()
+			.build();
+	    } );
+	}
 }

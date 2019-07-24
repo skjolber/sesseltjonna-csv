@@ -42,14 +42,6 @@ public abstract class AbstractTypedCsvFieldMapperBuilder<T, B extends AbstractCs
 
 		return parent;
 	}
-
-	protected boolean isQuoted() {
-		return quoted;
-	}
-
-	public Boolean isLinebreaks() {
-		return linebreaks;
-	}
 	
 	/**
 	 * Indicate that this field is quoted. If there is no linebreaks, 

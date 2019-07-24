@@ -938,12 +938,6 @@ public abstract class AbstractCsvMapper<T> {
 		mv.visitEnd();
 	}
 
-	protected String parseStaticFieldName(Class<?> cls) {
-		String simpleName = cls.getSimpleName();
-
-		return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
-	}
-
 	protected void saveCurrentOffset(MethodVisitor mv, String superClassInternalName, int currentOffsetIndex) {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
