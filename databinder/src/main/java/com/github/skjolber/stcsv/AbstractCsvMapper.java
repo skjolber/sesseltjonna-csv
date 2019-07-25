@@ -81,10 +81,6 @@ public abstract class AbstractCsvMapper<T> {
 	
 	protected static AtomicInteger counter = new AtomicInteger();
 
-	public static <T> CsvMappingBuilder<T> builder(Class<T> cls) {
-		return new CsvMappingBuilder<T>(cls);
-	}
-
 	public static String getInternalName(Class<?> cls) {
 		return getInternalName(cls.getName());
 	}
@@ -162,10 +158,6 @@ public abstract class AbstractCsvMapper<T> {
 		
 		this.biConsumer = biConsumer;
 		this.triConsumer = triConsumer;
-	}
-
-	public Class<T> getMappedClass() {
-		return mappedClass;
 	}
 
 	protected int getDivider() {

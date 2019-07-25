@@ -22,6 +22,9 @@ public class CsvReaderStaticInitializer {
 
 	}
 	
+	private CsvReaderStaticInitializer() {
+	}
+	
 	/**
 	 * {@linkplain ConcurrentHashMap} retrievals reflect the results of the most recently 
 	 * completed update operations holding upon their onset, so the classloader will
