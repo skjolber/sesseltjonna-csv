@@ -41,41 +41,48 @@ public class ClassicQuotedColumn extends AbstractColumn {
 			if(quoteCharacter == escapeCharacter) {
 				do {
 					if(current[currentOffset] == quoteCharacter) {
-						if(current[currentOffset + 1] != quoteCharacter) {
+						currentOffset++;
+						if(currentOffset == currentRange) {
+							currentOffset -= start; // what we've already read
+	
+							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { 
+								// expected more bytes, since in the middle column
+								throw new CsvException();
+							}
+							
+							start = 0;
+						}
+						
+						if(current[currentOffset] != quoteCharacter) {
 							// 1x qoute
+							currentOffset--;
+							
 							break;
 						}
 	
 						// 2x qoute
 						// overwrite one of the quotes by copying the previous stuff forward
 						// this approach assumes few quotes; is quick for a few qoutes but more expensive for many
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-	
-						currentOffset++;
+						System.arraycopy(current, start, current, start + 1, currentOffset - start - 1);
 	
 						start++;
-					} else if(current[currentOffset] == '\n') {
-						if(currentOffset == currentRange) {
-							currentOffset = currentOffset - start; // what we've already read
-	
-							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
-								throw new IllegalArgumentException();
-							}
-							
-							start = 0;
-						} else {
-							++currentOffset;
+					} else if(currentOffset == currentRange) {
+						currentOffset = currentOffset - start; // what we've already read
+
+						if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { 
+							// must get more bytes since still within quotes
+							throw new IllegalArgumentException();
 						}
+						
+						start = 0;
 					}
 					currentOffset++;
 				} while(true);
 			} else {
-				System.out.println("ADFSDF");
-
 				do {
-					if(current[currentOffset] == 456) {
+					if(current[currentOffset] == quoteCharacter ) {
 						break;
-					} else if(current[currentOffset] == 123) {
+					} else if(current[currentOffset] == escapeCharacter) {
 						// escaped value
 						// overwrite the escape char by copying the previous stuff forward
 						// this approach assumes few escapes; is quick for a few escapes but more expensive for many
@@ -84,20 +91,19 @@ public class ClassicQuotedColumn extends AbstractColumn {
 						currentOffset++;
 	
 						start++;
-					} else if(current[currentOffset] == '\n') {
-						if(currentOffset == currentRange) {
-							currentOffset = currentOffset - start; // what we've already read
-	
-							if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
-								throw new IllegalArgumentException();
-							}
-							
-							start = 0;
-						} else {
-							++currentOffset;
+					} 
+						
+					if(currentOffset == currentRange) {
+						currentOffset -= start; // what we've already read
+
+						if((currentRange = scanner.fill(currentOffset)) <= currentOffset) { // must get more bytes
+							throw new IllegalArgumentException();
 						}
+						
+						start = 0;
+					} else {
+						currentOffset++;
 					}
-					currentOffset++;
 				} while(true);
 
 			}
@@ -571,6 +577,10 @@ public class ClassicQuotedColumn extends AbstractColumn {
 		mv.visitVarInsn(ALOAD, objectIndex);
 		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/QuotedColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "(L" + CsvMapper.superClassInternalName + ";[CIL" + BiConsumerProjection.biConsumerName + ";Ljava/lang/Object;)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);		
+	}
+
+	@Override
+	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
 	}
 	
 }

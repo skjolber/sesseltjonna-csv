@@ -60,6 +60,7 @@
 		<commons-io.version>2.6</commons-io.version>
 		<google-truth.version>0.43</google-truth.version>
 		<junit.version>5.3.1</junit.version>
+		<mocktio.version>3.0.0</mocktio.version>
 
 		<!-- plugins -->
 		<build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
@@ -144,6 +145,13 @@
 				<version>${google-truth.version}</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+			    <groupId>org.mockito</groupId>
+			    <artifactId>mockito-core</artifactId>
+			    <version>${mocktio.version}</version>
+			    <scope>test</scope>
+			</dependency>
+			
 		</dependencies>
 	</dependencyManagement>
 	<build>

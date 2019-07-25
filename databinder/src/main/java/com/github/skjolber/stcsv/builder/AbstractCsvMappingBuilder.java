@@ -66,7 +66,7 @@ public abstract class AbstractCsvMappingBuilder<T, B extends AbstractCsvMappingB
 			
 			String name = builder.getName();
 			if(fieldNames.contains(name)) {
-				throw new CsvBuilderException("Duplicate field '" + name + "'");
+				throw new CsvBuilderException("Duplicate field '" + name + "'"); // strictly nothing wrong with mapping the same column multiple times
 			}
 			fieldNames.add(name);
 

@@ -2,6 +2,8 @@ package com.github.skjolber.stcsv;
 
 import java.io.IOException;
 
+// TODO introduce max characters for simple inner loop
+
 public class IgnoredColumn {
 
 	private IgnoredColumn() {
@@ -13,30 +15,41 @@ public class IgnoredColumn {
 		}
 
 		
-		public static int skipColumns(AbstractCsvReader scanner, char[] current, int currentOffset, int divider, int quoteCharacter, int columns) throws IOException {
+		public static int skipColumns(AbstractCsvReader<?> scanner, char[] current, int currentOffset, int divider, int quoteCharacter, int columns) throws IOException {
 			
+			columns: 
 			while(columns > 0) {
 				if(current[currentOffset] == divider) {
 					--columns;
 				} else if(current[currentOffset] == quoteCharacter) {
 					int currentRange = scanner.getCurrentRange();
+					currentOffset++;
 					do {
-						if(current[++currentOffset] == quoteCharacter) {
-							if(current[currentOffset + 1] != quoteCharacter) {
-								// 1x qoute
-								break;
-							}
-							// 2x qoute
+						if(current[currentOffset] == quoteCharacter) {
 							++currentOffset;
-						} else if(current[currentOffset] == '\n') {
+							
 							if(currentOffset == currentRange) {
-								if((currentRange = scanner.fill(0)) == 0) { // must get more bytes
+								if((currentRange = scanner.fill(0)) == 0) { 
+									// 1s quote, but expected more bytes since missing at least one divider
 									throw new CsvException();
 								}
 								currentOffset = 0;
-							} else {
-								++currentOffset;
 							}
+							
+							if(current[currentOffset] != quoteCharacter) {
+								// 1x qoute
+								continue columns;
+							}
+							// 2x qoute
+							++currentOffset;
+						} else if(currentOffset == currentRange) {
+							if((currentRange = scanner.fill(0)) == 0) { 
+								// expected more bytes since still within quote
+								throw new CsvException();
+							}
+							currentOffset = 0;
+						} else {
+							++currentOffset;
 						}
 					} while(true);
 				}
@@ -71,29 +84,40 @@ public class IgnoredColumn {
 		}	
 		
 		
-		public static int skipToLineBreak(AbstractCsvReader scanner, char[] current, int currentOffset, int quoteCharacter) throws IOException {
+		public static int skipToLineBreak(AbstractCsvReader<?> scanner, char[] current, int currentOffset, int quoteCharacter) throws IOException {
+			columns:
 			while(true) {
 				if(current[currentOffset] == '\n') {
 					return ++currentOffset; // skip newline
 				} else if(current[currentOffset] == quoteCharacter) {
 					int currentRange = scanner.getCurrentRange();
+					currentOffset++;
 					do {
-						if(current[++currentOffset] == quoteCharacter) {
-							if(current[currentOffset + 1] != quoteCharacter) {
+						if(current[currentOffset] == quoteCharacter) {
+							++currentOffset;
+							
+							if(currentOffset == currentRange) {
+								if((currentRange = scanner.fill(0)) == 0) { 
+									// 1x quote, end of file
+									
+									return ++currentOffset; // skip newline
+								}
+								currentOffset = 0;
+							}
+							
+							if(current[currentOffset] != quoteCharacter) {
 								// 1x qoute
-								break;
+								continue columns;
 							}
 							// 2x qoute
 							++currentOffset;
-						} else if(current[currentOffset] == '\n') {
-							if(currentOffset == currentRange) {
-								if((currentRange = scanner.fill(0)) == 0) { // must get more bytes
-									throw new CsvException();
-								}
-								currentOffset = 0;
-							} else {
-								++currentOffset;
+						} else if(currentOffset == currentRange) {
+							if((currentRange = scanner.fill(0)) == 0) { // must get more bytes since still within quote
+								throw new CsvException();
 							}
+							currentOffset = 0;
+						} else {
+							++currentOffset;
 						}
 					} while(true);
 				}
@@ -128,25 +152,41 @@ public class IgnoredColumn {
 		private DifferentQuoteAndEscapeCharacter() {
 		}
 		
-		public static int skipColumns(AbstractCsvReader scanner, char[] current, int currentOffset, int divider, int quoteCharacter, int escapeCharacter, int columns) throws IOException {
+		public static int skipColumns(AbstractCsvReader<?> scanner, char[] current, int currentOffset, int divider, int quoteCharacter, int escapeCharacter, int columns) throws IOException {
 			
 			while(columns > 0) {
 				if(current[currentOffset] == divider) {
 					--columns;
 				} else if(current[currentOffset] == quoteCharacter) {
 					int currentRange = scanner.getCurrentRange();
+					currentOffset++;
+					
 					do {
-						if(current[++currentOffset] == quoteCharacter) {
+						if(current[currentOffset] == quoteCharacter) {
 							break;
-						} else if(current[currentOffset] == escapeCharacter) {
+						} else if(current[currentOffset] == escapeCharacter) { // so is at least one more character, since last is always newline
 							currentOffset++; // skip next character
-						} else if(currentOffset == currentRange) {
-							if((currentRange = scanner.fill(0)) == 0) { // must get more bytes
+
+							if(currentOffset == currentRange) {
+								if((currentRange = scanner.fill(0)) == 0) {
+									// exptected more bytes since missing at least one divider
+									throw new CsvException();
+								}
+								// skip now
+								currentOffset = 1; 
+							}
+						}
+						if(currentOffset == currentRange) {
+							if((currentRange = scanner.fill(0)) == 0) {
+								// exptected more bytes since missing at least one divider
 								throw new CsvException();
 							}
 							currentOffset = 0;
+						} else {
+							currentOffset++;
 						}
 					} while(true);
+					
 				}
 				currentOffset++;
 			}
@@ -176,22 +216,27 @@ public class IgnoredColumn {
 		}	
 		
 		
-		public static int skipToLineBreak(AbstractCsvReader scanner, char[] current, int currentOffset, int quoteCharacter, int escapeCharacter) throws IOException {
+		public static int skipToLineBreak(AbstractCsvReader<?> scanner, char[] current, int currentOffset, int quoteCharacter, int escapeCharacter) throws IOException {
 			while(true) {
 				if(current[currentOffset] == '\n') {
 					return ++currentOffset; // skip newline
 				} else if(current[currentOffset] == quoteCharacter) {
 					int currentRange = scanner.getCurrentRange();
+					currentOffset++;
 					do {
-						if(current[++currentOffset] == quoteCharacter) {
+						if(current[currentOffset] == quoteCharacter) {
 							break;
-						} else if(current[currentOffset] == escapeCharacter) {
+						} else if(current[currentOffset] == escapeCharacter) { // so is at least one more character, since last is always newline
 							currentOffset++; // skip next character
-						} else if(currentOffset == currentRange) {
-							if((currentRange = scanner.fill(0)) == 0) { // must get more bytes
+						}
+						if(currentOffset == currentRange) { // i.e. current character is newline
+							if((currentRange = scanner.fill(0)) == 0) { 
+								// expected more bytes, still within quote
 								throw new CsvException();
 							}
 							currentOffset = 0;
+						} else {
+							currentOffset++;
 						}
 					} while(true);
 				}

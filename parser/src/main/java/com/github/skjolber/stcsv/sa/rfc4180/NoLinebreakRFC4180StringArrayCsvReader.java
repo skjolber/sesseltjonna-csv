@@ -6,6 +6,13 @@ import java.io.Reader;
 import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
 
+/**
+ * 
+ * RFC 4180 Reader for CSV files which do not have (quoted) values containing newlines.
+ * 
+ *
+ */
+
 public final class NoLinebreakRFC4180StringArrayCsvReader extends StringArrayCsvReader {
 	
 	protected final String[] value;
@@ -35,7 +42,7 @@ public final class NoLinebreakRFC4180StringArrayCsvReader extends StringArrayCsv
 			currentOffset = 0;
 		}
 
-		char[] current = super.current;
+		final char[] current = super.current;
 
 		try {
 			String[] value = this.value;
@@ -58,28 +65,29 @@ public final class NoLinebreakRFC4180StringArrayCsvReader extends StringArrayCsv
 				} else {
 					start = currentOffset + 1;
 	
-					quoted : while (true) {
+					quoted : 
+					while (true) {
 						while (current[++currentOffset] != '"');
 
-						if (current[currentOffset] == '"') {
-							if (current[currentOffset + 1] != '"') {
-								if (currentOffset > start) {
-									value[i] = new String(current, start, currentOffset - start);
-								} else {
-									value[i] = null;
-								}
-	
-								do {
-									++currentOffset;
-								} while (current[currentOffset] != ',');
-								
-								break quoted;
+						if (current[currentOffset + 1] != '"') {
+							// single quote
+							if (currentOffset > start) {
+								value[i] = new String(current, start, currentOffset - start);
+							} else {
+								value[i] = null;
 							}
-	
-							System.arraycopy(current, start, current, start + 1, currentOffset - start);
-							++currentOffset;
-							++start;
+
+							do {
+								++currentOffset;
+							} while (current[currentOffset] != ',');
+							
+							break quoted;
 						}
+
+						// double quote, i.e. convert 2x double quote to 1x double quote
+						System.arraycopy(current, start, current, start + 1, currentOffset - start);
+						++currentOffset;
+						++start;
 					}
 				}
 				++currentOffset;
@@ -109,28 +117,28 @@ public final class NoLinebreakRFC4180StringArrayCsvReader extends StringArrayCsv
 			} else {
 				start = currentOffset + 1;
 
-				quoted : while (true) {
+				quoted : 
+				while (true) {
 					while (current[++currentOffset] != '"');
 					
-					if (current[currentOffset] == '"') {
-						if (current[currentOffset + 1] != '"') {
-							if (currentOffset > start) {
-								value[lastIndex] = new String(current, start, currentOffset - start);
-							} else {
-								value[lastIndex] = null;
-							}
-
-							do {
-								++currentOffset;
-							} while (current[currentOffset] != '\n');
-							
-							break quoted;
+					if (current[currentOffset + 1] != '"') {
+						if (currentOffset > start) {
+							value[lastIndex] = new String(current, start, currentOffset - start);
+						} else {
+							value[lastIndex] = null;
 						}
 
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-						++currentOffset;
-						++start;
+						do {
+							++currentOffset;
+						} while (current[currentOffset] != '\n');
+						
+						break quoted;
 					}
+
+					// double quote, i.e. convert 2x double quote to 1x double quote
+					System.arraycopy(current, start, current, start + 1, currentOffset - start);
+					++currentOffset;
+					++start;
 				}
 			}
 			++currentOffset;			

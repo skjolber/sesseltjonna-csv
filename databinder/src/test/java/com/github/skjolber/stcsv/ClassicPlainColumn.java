@@ -167,5 +167,9 @@ public class ClassicPlainColumn extends AbstractColumn {
 		mv.visitMethodInsn(INVOKESTATIC, "com/github/skjolber/csv/scan/PlainColumn$Last$" + newLineType, optional ? "orSkip" : "orException", "([CIL" + BiConsumerProjection.biConsumerName + ";Ljava/lang/Object;)I", false);
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);		
 	}
+
+	@Override
+	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
+	}
 	
 }

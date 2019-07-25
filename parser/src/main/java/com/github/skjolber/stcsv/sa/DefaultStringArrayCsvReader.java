@@ -79,7 +79,8 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 					int rangeIndex = this.getCurrentRange();
 					start = currentOffset + 1;
 	
-					quoted : while (true) {
+					quoted : 
+					while (true) {
 						while (current[++currentOffset] > maxCharacter);
 
 						if (current[currentOffset] == quoteCharacter) {
@@ -92,12 +93,15 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 							do {
 								++currentOffset;
 							} while (current[currentOffset] != divider);
+							
 							break quoted;
 						} else 	if (current[currentOffset] == escapeCharacter) {
 							System.arraycopy(current, start, current, start + 1, currentOffset - start);
-							++currentOffset;
+							++currentOffset; // so this also needs a range check now, if escaping newline
 							++start;
-						} else if (currentOffset == rangeIndex) {
+						} 
+						
+						if(currentOffset == rangeIndex) { // or in other words if current[currentOffset] == '\n'
 							currentOffset -= start;
 							if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {
 								throw new CsvException("Illegal value in column " + i);
@@ -147,13 +151,15 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 
 						do {
 							++currentOffset;
-						} while (current[currentOffset] != '\n');
+						} while (current[currentOffset] != '\n'); // i.e. skip \r
 						break quoted;
-					} else 	if (current[currentOffset] == escapeCharacter) {
+					} else if (current[currentOffset] == escapeCharacter) {
 						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-						++currentOffset;
+						++currentOffset; // so this also needs a range check now, if escaping newline
 						++start;
-					} else if (currentOffset == rangeIndex) {
+					} 
+						
+					if (currentOffset == rangeIndex) { // or in other words if current[currentOffset] == '\n
 						currentOffset -= start;
 						if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {
 							throw new CsvException("Illegal value in column " + lastIndex);

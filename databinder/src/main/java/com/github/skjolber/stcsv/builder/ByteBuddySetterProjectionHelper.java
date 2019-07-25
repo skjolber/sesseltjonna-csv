@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 
 public class ByteBuddySetterProjectionHelper<T> extends SetterProjectionHelper<T> implements InvocationHandler {
 		
+	protected T proxy;
+
 	public ByteBuddySetterProjectionHelper(Class<T> target) {
 		super(target);
 	}

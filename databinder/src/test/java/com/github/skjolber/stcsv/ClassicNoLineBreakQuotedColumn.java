@@ -379,5 +379,9 @@ public class ClassicNoLineBreakQuotedColumn extends AbstractColumn {
 	public void last(MethodVisitor mv, String subClassInternalName, boolean carriageReturn, boolean inline) {
 		throw new IllegalArgumentException();
 	}
+
+	@Override
+	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
+	}
 	
 }

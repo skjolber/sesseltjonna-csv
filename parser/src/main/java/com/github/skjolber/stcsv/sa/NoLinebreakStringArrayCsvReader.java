@@ -6,6 +6,13 @@ import java.io.Reader;
 import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.builder.CsvBuilderException;
 
+/**
+ * 
+ * Reader for CSV files which do not have (quoted) values containing newlines.
+ * 
+ *
+ */
+
 public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader {
 	
 	protected final String[] value;
@@ -79,7 +86,8 @@ public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader 
 				} else {
 					start = currentOffset + 1;
 	
-					quoted : while (true) {
+					quoted : 
+					while (true) {
 						while (current[++currentOffset] > maxCharacter);
 
 						if (current[currentOffset] == quoteCharacter) {

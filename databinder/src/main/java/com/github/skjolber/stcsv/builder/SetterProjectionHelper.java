@@ -8,7 +8,6 @@ public class SetterProjectionHelper<T> {
 	
 	protected Class<T> target;
 	protected Method method;
-	protected T proxy;
 	
 	public SetterProjectionHelper(Class<T> target) {
 		this.target = target;

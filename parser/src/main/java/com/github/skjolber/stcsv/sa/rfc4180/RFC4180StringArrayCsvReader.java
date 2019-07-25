@@ -63,6 +63,8 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 						while (current[++currentOffset] > '"');
 
 						if (current[currentOffset] == '"') {
+							// we're in the middle column, so there should never be a single quote followed by a newline, so 
+							// fair to access currentOffset + 1 without checking against the rangeIndex
 							if (current[currentOffset + 1] != '"') {
 								if (currentOffset > start) {
 									value[i] = new String(current, start, currentOffset - start);
@@ -76,6 +78,7 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 								break quoted;
 							}
 	
+							// double quote, i.e. convert 2x double quote to 1x double quote
 							System.arraycopy(current, start, current, start + 1, currentOffset - start);
 							++currentOffset;
 							++start;
@@ -121,22 +124,33 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 					while (current[++currentOffset] > '"');
 					
 					if (current[currentOffset] == '"') {
-						if (current[currentOffset + 1] != '"') {
-							if (currentOffset > start) {
-								value[lastIndex] = new String(current, start, currentOffset - start);
+						currentOffset++;
+						if (currentOffset == rangeIndex) {
+							currentOffset -= start;
+							
+							// attempt to fill, if we're at EOF thats okey
+							rangeIndex = this.fill(currentOffset + 1);
+
+							start = 0;
+						}						
+						
+						if (current[currentOffset] != '"') {
+							// single quote
+							if (currentOffset - 1 > start) {
+								value[lastIndex] = new String(current, start, currentOffset - start - 1);
 							} else {
 								value[lastIndex] = null;
 							}
 
-							do {
+							while (current[currentOffset] != '\n') { // i.e. skip \r 
 								++currentOffset;
-							} while (current[currentOffset] != '\n');
+							}
 							
 							break quoted;
 						}
 
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-						++currentOffset;
+						// double quote, i.e. convert 2x double quote to 1x double quote
+						System.arraycopy(current, start, current, start + 1, currentOffset - start - 1);
 						++start;
 					} else if (currentOffset == rangeIndex) {
 						currentOffset -= start;

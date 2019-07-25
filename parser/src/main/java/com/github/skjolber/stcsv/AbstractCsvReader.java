@@ -80,9 +80,15 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 				if(!eof) {
 					eof = true;
 	
-					// artificially insert linebreak so that scanners detects end
-					if(currentRange > 0 && current[currentRange - 1] != '\n') {
-						current[currentRange] = '\n';
+					if(currentRange > 0) {
+						if(current[currentRange - 1] == '\n') {
+							// the input ended with a newline
+							currentRange--;
+						} else {
+							// artificially insert linebreak after last line 
+							// so that scanners detects end
+							current[currentRange] = '\n';
+						}
 					}
 				}
 				this.spareRange = currentRange;

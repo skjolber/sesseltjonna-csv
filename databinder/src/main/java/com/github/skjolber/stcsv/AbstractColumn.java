@@ -62,9 +62,8 @@ public abstract class AbstractColumn {
 		}
 	}	
 	
-	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
-	}
-
+	protected abstract void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment);
+	
 	public String getName() {
 		return name;
 	}
