@@ -57,40 +57,64 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 					}
 				} else {
 					int rangeIndex = this.getCurrentRange();
-					start = currentOffset + 1;
-	
-					quoted : while (true) {
-						while (current[++currentOffset] > '"');
+					start = currentOffset + 1; // do not include quote character
 
-						if (current[currentOffset] == '"') {
-							// we're in the middle column, so there should never be a single quote followed by a newline, so 
-							// fair to access currentOffset + 1 without checking against the rangeIndex
-							if (current[currentOffset + 1] != '"') {
-								if (currentOffset > start) {
-									value[i] = new String(current, start, currentOffset - start);
-								} else {
-									value[i] = null;
+
+					quoted : 
+						while (true) {
+							while (current[++currentOffset] > '"');
+							
+							if (current[currentOffset] == '"') {
+								
+								// we're in the middle column, so there should never be a single quote followed by a newline,
+								// so checking against the rangeIndex is really not necessary
+
+								currentOffset++;
+								if (currentOffset == rangeIndex) {
+									currentOffset -= start;
+									
+									// attempt to fill
+									currentOffset -= start;
+									if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {
+										// expected more bytes; EOF not acceptable unless last column
+										throw new CsvException("Illegal value in column " + i);
+									}
+
+									start = 0;
 								}
-	
-								do {
-									++currentOffset;
-								} while (current[currentOffset] != ',');
-								break quoted;
+								
+								if (current[currentOffset] != '"') {
+									// single quote
+									if (currentOffset - 1 > start) {
+										value[i] = new String(current, start, currentOffset - start - 1);
+									} else {
+										value[i] = null;
+									}
+
+									while (current[currentOffset] != ',') {
+										++currentOffset;
+									}
+									
+									break quoted;
+								}
+
+								// double quote, i.e. convert 2x double quote to 1x double quote
+								//
+								// equivalent to 
+								// System.arraycopy(current, start, current, start + 1, currentOffset - start - 1);
+								// ++start;
+								System.arraycopy(current, start, current, ++start, currentOffset - start);
+							} else if (currentOffset == rangeIndex) {
+								currentOffset -= start;
+								if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {
+									throw new CsvException("Illegal value in column " + i);
+								}
+
+								start = 0;
 							}
-	
-							// double quote, i.e. convert 2x double quote to 1x double quote
-							System.arraycopy(current, start, current, start + 1, currentOffset - start);
-							++currentOffset;
-							++start;
-						} else if (currentOffset == rangeIndex) {
-							currentOffset -= start;
-							if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {
-								throw new CsvException("Illegal value in column " + i);
-							}
-	
-							start = 0;
 						}
-					}
+
+					
 				}
 				++currentOffset;
 			}
@@ -118,9 +142,10 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 				}
 			} else {
 				int rangeIndex = this.getCurrentRange();
-				start = currentOffset + 1;
+				start = currentOffset + 1; // do not include quote character
 
-				quoted : while (true) {
+				quoted : 
+				while (true) {
 					while (current[++currentOffset] > '"');
 					
 					if (current[currentOffset] == '"') {
@@ -132,7 +157,7 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 							rangeIndex = this.fill(currentOffset + 1);
 
 							start = 0;
-						}						
+						}
 						
 						if (current[currentOffset] != '"') {
 							// single quote
@@ -150,8 +175,11 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 						}
 
 						// double quote, i.e. convert 2x double quote to 1x double quote
-						System.arraycopy(current, start, current, start + 1, currentOffset - start - 1);
-						++start;
+						//
+						// equivalent to 
+						// System.arraycopy(current, start, current, start + 1, currentOffset - start - 1);
+						// ++start;
+						System.arraycopy(current, start, current, ++start, currentOffset - start);
 					} else if (currentOffset == rangeIndex) {
 						currentOffset -= start;
 						if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {

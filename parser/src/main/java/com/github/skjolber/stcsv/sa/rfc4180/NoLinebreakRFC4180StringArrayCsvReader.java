@@ -63,7 +63,7 @@ public final class NoLinebreakRFC4180StringArrayCsvReader extends StringArrayCsv
 						value[i] = null;
 					}
 				} else {
-					start = currentOffset + 1;
+					start = currentOffset + 1; // do not include quote character
 	
 					quoted : 
 					while (true) {
@@ -85,9 +85,13 @@ public final class NoLinebreakRFC4180StringArrayCsvReader extends StringArrayCsv
 						}
 
 						// double quote, i.e. convert 2x double quote to 1x double quote
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-						++currentOffset;
-						++start;
+						//
+						// equivalent to
+						// System.arraycopy(current, start, current, start + 1, currentOffset - start);
+						// ++currentOffset;
+						// ++start;
+
+						System.arraycopy(current, start, current, ++start, ++currentOffset - start);
 					}
 				}
 				++currentOffset;
@@ -115,7 +119,7 @@ public final class NoLinebreakRFC4180StringArrayCsvReader extends StringArrayCsv
 					value[lastIndex] = null;
 				}
 			} else {
-				start = currentOffset + 1;
+				start = currentOffset + 1; // do not include quote character
 
 				quoted : 
 				while (true) {
@@ -136,9 +140,13 @@ public final class NoLinebreakRFC4180StringArrayCsvReader extends StringArrayCsv
 					}
 
 					// double quote, i.e. convert 2x double quote to 1x double quote
-					System.arraycopy(current, start, current, start + 1, currentOffset - start);
-					++currentOffset;
-					++start;
+					//
+					// equivalent to
+					// System.arraycopy(current, start, current, start + 1, currentOffset - start);
+					// ++currentOffset;
+					// ++start;
+
+					System.arraycopy(current, start, current, ++start, ++currentOffset - start);
 				}
 			}
 			++currentOffset;			

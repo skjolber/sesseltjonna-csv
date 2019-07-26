@@ -77,7 +77,7 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 					}
 				} else {
 					int rangeIndex = this.getCurrentRange();
-					start = currentOffset + 1;
+					start = currentOffset + 1; // do not include quote character
 	
 					quoted : 
 					while (true) {
@@ -96,9 +96,7 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 							
 							break quoted;
 						} else 	if (current[currentOffset] == escapeCharacter) {
-							System.arraycopy(current, start, current, start + 1, currentOffset - start);
-							++currentOffset; // so this also needs a range check now, if escaping newline
-							++start;
+							System.arraycopy(current, start, current, ++start, ++currentOffset - start); // so this also needs a range check now, if escaping newline
 						} 
 						
 						if(currentOffset == rangeIndex) { // or in other words if current[currentOffset] == '\n'
@@ -137,7 +135,7 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 				}
 			} else {
 				int rangeIndex = this.getCurrentRange();
-				start = currentOffset + 1;
+				start = currentOffset + 1; // do not include quote character
 
 				quoted : while (true) {
 					while (current[++currentOffset] > maxCharacter);
@@ -154,9 +152,8 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 						} while (current[currentOffset] != '\n'); // i.e. skip \r
 						break quoted;
 					} else if (current[currentOffset] == escapeCharacter) {
-						System.arraycopy(current, start, current, start + 1, currentOffset - start);
-						++currentOffset; // so this also needs a range check now, if escaping newline
-						++start;
+						// so this also needs a range check now, if escaping newline
+						System.arraycopy(current, start, current, ++start, ++currentOffset - start);
 					} 
 						
 					if (currentOffset == rangeIndex) { // or in other words if current[currentOffset] == '\n
