@@ -105,8 +105,8 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitIincInsn(currentOffsetIndex, 1);
 
 				// if (currentOffset == rangeIndex) {
-				mv.visitVarInsn(ILOAD, 1);
-				mv.visitVarInsn(ILOAD, 5);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitVarInsn(ILOAD, rangeIndex);
 				Label safeToReadNextCharacter = new Label();
 				mv.visitJumpInsn(IF_ICMPNE, safeToReadNextCharacter);
 	
@@ -114,77 +114,52 @@ public class QuotedColumn extends AbstractColumn {
 			{
 	
 				// currentOffset -= start;
-				mv.visitVarInsn(ILOAD, 1);
-				mv.visitVarInsn(ILOAD, 4);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitVarInsn(ILOAD, startIndex);
 				mv.visitInsn(ISUB);
-				mv.visitVarInsn(ISTORE, 1);
+				mv.visitVarInsn(ISTORE, currentOffsetIndex);
 				
 				if(fillable) {
-					
+					// reading more characters from underlying stream must be possible (EOF not acceptable)
 					mv.visitVarInsn(ALOAD, 0);
-					mv.visitVarInsn(ILOAD, 1);
+					mv.visitVarInsn(ILOAD, currentOffsetIndex);
 					mv.visitInsn(ICONST_1);
 					mv.visitInsn(IADD);
 					mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
 					mv.visitInsn(DUP);
-					mv.visitVarInsn(ISTORE, 6);
-					mv.visitVarInsn(ILOAD, 1);
+					mv.visitVarInsn(ISTORE, rangeIndex);
+					mv.visitVarInsn(ILOAD, currentOffsetIndex);
 					mv.visitInsn(ICONST_1);
 					mv.visitInsn(IADD);
 					
 					Label l33 = new Label();
 					mv.visitJumpInsn(IF_ICMPGT, l33);
 					
-					throwMappingException(mv);					
+					throwMappingException(mv);
 					mv.visitLabel(l33);
 					
 				} else {
-					
-					
-					
-					
-					
-					
-					
-					
+					// reading more characters is potentially not possible (EOF acceptable)
 					// rangeIndex = this.fill(currentOffset + 1);
 					mv.visitVarInsn(ALOAD, 0);
-					mv.visitVarInsn(ILOAD, 1);
+					mv.visitVarInsn(ILOAD, currentOffsetIndex);
 					mv.visitInsn(ICONST_1);
 					mv.visitInsn(IADD);
 					mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
-					mv.visitVarInsn(ISTORE, 5);
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
+					mv.visitVarInsn(ISTORE, rangeIndex);
 				}
 
 				// start = 0
 				mv.visitInsn(ICONST_0);
-				mv.visitVarInsn(ISTORE, 4);
-
+				mv.visitVarInsn(ISTORE, startIndex);
 			}
-			
-			
-			
 			
 			// safe to read next character from buffer
 			mv.visitLabel(safeToReadNextCharacter);
 			
 			// if (current[currentOffset] != '"') {
-			mv.visitVarInsn(ALOAD, 2);
-			mv.visitVarInsn(ILOAD, 1);
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
 			mv.visitIntInsn(BIPUSH, quoteCharacter);
 			
@@ -194,7 +169,6 @@ public class QuotedColumn extends AbstractColumn {
 
 			
 			// fall through; single quote
-			
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(ICONST_1);
 			mv.visitInsn(ISUB);
@@ -212,16 +186,24 @@ public class QuotedColumn extends AbstractColumn {
 			}
 			mv.visitLabel(l26);
 			
-			
-			
-			mv.visitVarInsn(ALOAD, currentArrayIndex);
-			mv.visitIincInsn(currentOffsetIndex, 1);
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(Integer.valueOf(divider));
-			mv.visitJumpInsn(IF_ICMPNE, l26);
-			mv.visitJumpInsn(GOTO, endLabel);
 
+			// while (current[currentOffset] != ',') {
+			//   ++currentOffset;
+			// }
+			// break;
+			
+			{
+				mv.visitVarInsn(ALOAD, currentArrayIndex);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitInsn(CALOAD);
+				mv.visitLdcInsn(Integer.valueOf(divider));
+				mv.visitJumpInsn(IF_ICMPEQ, endLabel);
+				{
+					mv.visitIincInsn(currentOffsetIndex, 1);
+					mv.visitJumpInsn(GOTO, l26);
+				}
+			}
+			
 			if(!optional) {
 				mv.visitLabel(l24);
 				throwMappingException(mv);
@@ -241,10 +223,7 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
 			mv.visitJumpInsn(GOTO, whileQuoted);
 			
-			
-			
-			
-			
+			// NON-QUOTED character
 			mv.visitLabel(nonQuoteCharacter);
 			/*
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
