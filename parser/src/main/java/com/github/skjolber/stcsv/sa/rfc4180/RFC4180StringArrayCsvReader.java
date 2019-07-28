@@ -148,7 +148,6 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 					
 					if (current[currentOffset] == '"') {
 						
-						System.out.println("Start");
 						currentOffset++;
 						if (currentOffset == rangeIndex) {
 							currentOffset -= start;
@@ -180,10 +179,6 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 						// System.arraycopy(current, start, current, start + 1, currentOffset - start - 1);
 						// ++start;
 						System.arraycopy(current, start, current, ++start, currentOffset - start);
-						
-						
-						System.out.println("End");
-						
 						
 					} else if (currentOffset == rangeIndex) {
 						currentOffset -= start;

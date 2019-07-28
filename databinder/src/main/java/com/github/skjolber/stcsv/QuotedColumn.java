@@ -104,55 +104,8 @@ public class QuotedColumn extends AbstractColumn {
 			// currentOffset++;
 			mv.visitIincInsn(currentOffsetIndex, 1);
 
-				// if (currentOffset == rangeIndex) {
-				mv.visitVarInsn(ILOAD, currentOffsetIndex);
-				mv.visitVarInsn(ILOAD, rangeIndex);
-				Label safeToReadNextCharacter = new Label();
-				mv.visitJumpInsn(IF_ICMPNE, safeToReadNextCharacter);
-	
-				// fall through if currentOffset is at rangeIndex
-			{
-	
-				// currentOffset -= start;
-				mv.visitVarInsn(ILOAD, currentOffsetIndex);
-				mv.visitVarInsn(ILOAD, startIndex);
-				mv.visitInsn(ISUB);
-				mv.visitVarInsn(ISTORE, currentOffsetIndex);
-				
-				if(fillable) {
-					// reading more characters from underlying stream must be possible (EOF not acceptable)
-					mv.visitVarInsn(ALOAD, 0);
-					mv.visitVarInsn(ILOAD, currentOffsetIndex);
-					mv.visitInsn(ICONST_1);
-					mv.visitInsn(IADD);
-					mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
-					mv.visitInsn(DUP);
-					mv.visitVarInsn(ISTORE, rangeIndex);
-					mv.visitVarInsn(ILOAD, currentOffsetIndex);
-					mv.visitInsn(ICONST_1);
-					mv.visitInsn(IADD);
-					
-					Label l33 = new Label();
-					mv.visitJumpInsn(IF_ICMPGT, l33);
-					
-					throwMappingException(mv);
-					mv.visitLabel(l33);
-					
-				} else {
-					// reading more characters is potentially not possible (EOF acceptable)
-					// rangeIndex = this.fill(currentOffset + 1);
-					mv.visitVarInsn(ALOAD, 0);
-					mv.visitVarInsn(ILOAD, currentOffsetIndex);
-					mv.visitInsn(ICONST_1);
-					mv.visitInsn(IADD);
-					mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
-					mv.visitVarInsn(ISTORE, rangeIndex);
-				}
-
-				// start = 0
-				mv.visitInsn(ICONST_0);
-				mv.visitVarInsn(ISTORE, startIndex);
-			}
+			Label safeToReadNextCharacter = new Label();
+			fill(mv, subClassInternalName, safeToReadNextCharacter, fillable);
 			
 			// safe to read next character from buffer
 			mv.visitLabel(safeToReadNextCharacter);
@@ -292,10 +245,10 @@ public class QuotedColumn extends AbstractColumn {
 				mv.visitVarInsn(ISTORE, startIndex);
 			}
 			
-			Label l31 = new Label();
-			mv.visitLabel(l31);
+			Label whileQuoted = new Label();
+			mv.visitLabel(whileQuoted);
 			
-			Label afterCheckingForEscapeAndQuotes;
+			Label incrementCurrentOffsetWhileQuoted;
 			if(isLowAsciiCharacter) {
 				// scan to any char <= int value of max(quote character, escape character)
 				// tight inner loop
@@ -304,11 +257,11 @@ public class QuotedColumn extends AbstractColumn {
 				mv.visitVarInsn(ILOAD, currentOffsetIndex);
 				mv.visitInsn(CALOAD);
 				mv.visitIntInsn(BIPUSH, Integer.valueOf(Math.max(quoteCharacter, escapeCharacter)));
-				mv.visitJumpInsn(IF_ICMPGT, l31);
+				mv.visitJumpInsn(IF_ICMPGT, whileQuoted);
 				
-				afterCheckingForEscapeAndQuotes = l31;
+				incrementCurrentOffsetWhileQuoted = whileQuoted;
 			} else {
-				afterCheckingForEscapeAndQuotes = new Label();
+				incrementCurrentOffsetWhileQuoted = new Label();
 			}
 			
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
@@ -317,25 +270,34 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitLdcInsn(Integer.valueOf(escapeCharacter));
 			Label l32 = new Label();
 			mv.visitJumpInsn(IF_ICMPNE, l32);
-			mv.visitVarInsn(ALOAD, currentArrayIndex); 
-			mv.visitVarInsn(ILOAD, startIndex);
+			
+			
+			
+			
+			// System.arraycopy(current, start++, current, start, ++currentOffset - start);
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
-			mv.visitVarInsn(ILOAD, startIndex);			
-			mv.visitInsn(ICONST_1);
-			mv.visitInsn(IADD);
+			mv.visitVarInsn(ILOAD, startIndex);
+			mv.visitIincInsn(startIndex, 1);
+			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			mv.visitVarInsn(ILOAD, startIndex);
+			mv.visitIincInsn(currentOffsetIndex, 1);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, startIndex);
 			mv.visitInsn(ISUB);
 			mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
-			mv.visitIincInsn(currentOffsetIndex, 1);
-			mv.visitIincInsn(startIndex, 1);
-			mv.visitJumpInsn(GOTO, afterCheckingForEscapeAndQuotes);
+
+
+			
+			Label l38 = new Label();
+			mv.visitJumpInsn(GOTO, l38);
+			
+			
 			mv.visitLabel(l32);
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
 			mv.visitIntInsn(SIPUSH, quoteCharacter);
-			Label l38 = new Label();
+			
 			mv.visitJumpInsn(IF_ICMPNE, l38);
 
 			
@@ -364,59 +326,73 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitLdcInsn(Integer.valueOf(divider));
 			mv.visitJumpInsn(IF_ICMPNE, l42);
 			
-			Label l45 = new Label();
-			mv.visitJumpInsn(GOTO, l45);
+			mv.visitJumpInsn(GOTO, endLabel);
+			
 			mv.visitLabel(l38);
 			
-			/*
-			mv.visitVarInsn(ALOAD, currentArrayIndex);
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitInsn(CALOAD);
-			mv.visitIntInsn(BIPUSH, 10);
-			mv.visitJumpInsn(IF_ICMPNE, afterCheckingForEscapeAndQuotes);
-			*/
-			
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitVarInsn(ILOAD, rangeIndex);
-			mv.visitJumpInsn(IF_ICMPNE, afterCheckingForEscapeAndQuotes);
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitVarInsn(ILOAD, startIndex);
-			mv.visitInsn(ISUB);
-			mv.visitVarInsn(ISTORE, currentOffsetIndex);
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			
-			mv.visitInsn(ICONST_1);
-			mv.visitInsn(IADD);
-
-			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
-			mv.visitInsn(DUP);
-			mv.visitVarInsn(ISTORE, rangeIndex);
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			
-			mv.visitInsn(ICONST_1);
-			mv.visitInsn(IADD);
-
-			Label l48 = new Label();
-			mv.visitJumpInsn(IF_ICMPGT, l48);
-			
-			throwMappingException(mv);
-
-			mv.visitLabel(l48);
-			mv.visitInsn(ICONST_0);
-			mv.visitVarInsn(ISTORE, startIndex);
+			fill(mv, subClassInternalName, incrementCurrentOffsetWhileQuoted, fillable);
 			
 			if(!isLowAsciiCharacter) {
-				mv.visitLabel(afterCheckingForEscapeAndQuotes);
+				mv.visitLabel(incrementCurrentOffsetWhileQuoted);
 				mv.visitIincInsn(currentOffsetIndex, 1);
-				mv.visitJumpInsn(GOTO, l31);
 			}
-			mv.visitLabel(l45);
-			
+			mv.visitJumpInsn(GOTO, whileQuoted);
 		}
 		mv.visitLabel(endLabel);
 		
 		mv.visitIincInsn(currentOffsetIndex, increment);
+	}
+
+	private void fill(MethodVisitor mv, String subClassInternalName, Label safeToReadNextCharacter, boolean fillable) {
+		{
+
+			// if (currentOffset == rangeIndex) {
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitVarInsn(ILOAD, rangeIndex);
+			mv.visitJumpInsn(IF_ICMPNE, safeToReadNextCharacter);
+
+			// fall through if currentOffset is at rangeIndex
+
+			// currentOffset -= start;
+			mv.visitVarInsn(ILOAD, currentOffsetIndex);
+			mv.visitVarInsn(ILOAD, startIndex);
+			mv.visitInsn(ISUB);
+			mv.visitVarInsn(ISTORE, currentOffsetIndex);
+			
+			if(fillable) {
+				// reading more characters from underlying stream must be possible (EOF not acceptable)
+				mv.visitVarInsn(ALOAD, 0);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitInsn(ICONST_1);
+				mv.visitInsn(IADD);
+				mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
+				mv.visitInsn(DUP);
+				mv.visitVarInsn(ISTORE, rangeIndex);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitInsn(ICONST_1);
+				mv.visitInsn(IADD);
+				
+				Label l33 = new Label();
+				mv.visitJumpInsn(IF_ICMPGT, l33);
+				
+				throwMappingException(mv);
+				mv.visitLabel(l33);
+				
+			} else {
+				// reading more characters is potentially not possible (EOF acceptable)
+				// rangeIndex = this.fill(currentOffset + 1);
+				mv.visitVarInsn(ALOAD, 0);
+				mv.visitVarInsn(ILOAD, currentOffsetIndex);
+				mv.visitInsn(ICONST_1);
+				mv.visitInsn(IADD);
+				mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
+				mv.visitVarInsn(ISTORE, rangeIndex);
+			}
+
+			// start = 0
+			mv.visitInsn(ICONST_0);
+			mv.visitVarInsn(ISTORE, startIndex);
+		}
 	}
 
 	

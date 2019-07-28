@@ -122,6 +122,10 @@ public abstract class AbstractColumn {
 		mv.visitJumpInsn(IF_ICMPNE, l29);
 	}
 	
+	
+	
+	
+	
 	protected void doDecrementWhileAtWhitespace(MethodVisitor mv, int variableIndex) {
 		
 		// while (current[--currentOffset] == ' ' || current[currentOffset] == '\t');
