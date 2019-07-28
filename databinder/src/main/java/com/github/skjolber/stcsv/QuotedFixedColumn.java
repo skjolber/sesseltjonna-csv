@@ -36,7 +36,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 		this.fixedSize = fixedSize;
 	}
 
-	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
+	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment, boolean fillable) {
 		
 		/*
 
@@ -71,7 +71,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 		
 		mv.visitIincInsn(currentOffsetIndex, fixedSize);
 
-		writeValue(mv, subClassInternalName);
+		writeValue(mv, subClassInternalName, true);
 
 		if(optional) {
 			mv.visitLabel(emptyLabel);
@@ -145,7 +145,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 			
 			mv.visitLabel(l46);
 			
-			writeValue(mv, subClassInternalName);
+			writeValue(mv, subClassInternalName, true);
 	
 			Label l26;
 			if(optional) {
@@ -309,7 +309,7 @@ public class QuotedFixedColumn extends AbstractColumn {
 			
 			mv.visitLabel(l46);			
 			
-			writeValue(mv, subClassInternalName);
+			writeValue(mv, subClassInternalName, true);
 
 			mv.visitLabel(l42);
 			mv.visitIincInsn(currentOffsetIndex, 1);

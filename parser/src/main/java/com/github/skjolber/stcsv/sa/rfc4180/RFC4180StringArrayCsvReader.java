@@ -61,60 +61,58 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 
 
 					quoted : 
-						while (true) {
-							while (current[++currentOffset] > '"');
+					while (true) {
+						while (current[++currentOffset] > '"');
+						
+						if (current[currentOffset] == '"') {
 							
-							if (current[currentOffset] == '"') {
+							// we're in the middle column, so there should never be a single quote followed by a newline,
+							// so checking against the rangeIndex is strictly not necessary
+
+							currentOffset++;
+							if (currentOffset == rangeIndex) {
+								currentOffset -= start;
 								
-								// we're in the middle column, so there should never be a single quote followed by a newline,
-								// so checking against the rangeIndex is really not necessary
-
-								currentOffset++;
-								if (currentOffset == rangeIndex) {
-									currentOffset -= start;
-									
-									// attempt to fill
-									currentOffset -= start;
-									if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {
-										// expected more bytes; EOF not acceptable unless last column
-										throw new CsvException("Illegal value in column " + i);
-									}
-
-									start = 0;
-								}
-								
-								if (current[currentOffset] != '"') {
-									// single quote
-									if (currentOffset - 1 > start) {
-										value[i] = new String(current, start, currentOffset - start - 1);
-									} else {
-										value[i] = null;
-									}
-
-									while (current[currentOffset] != ',') {
-										++currentOffset;
-									}
-									
-									break quoted;
-								}
-
-								// double quote, i.e. convert 2x double quote to 1x double quote
-								//
-								// equivalent to 
-								// System.arraycopy(current, start, current, start + 1, currentOffset - start - 1);
-								// ++start;
-								System.arraycopy(current, start, current, ++start, currentOffset - start);
-							} else if (currentOffset == rangeIndex) {
+								// attempt to fill
 								currentOffset -= start;
 								if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {
+									// expected more bytes; EOF not acceptable unless last column
 									throw new CsvException("Illegal value in column " + i);
 								}
 
 								start = 0;
 							}
-						}
+							
+							if (current[currentOffset] != '"') {
+								// single quote
+								if (currentOffset - 1 > start) {
+									value[i] = new String(current, start, currentOffset - start - 1);
+								} else {
+									value[i] = null;
+								}
 
-					
+								while (current[currentOffset] != ',') {
+									++currentOffset;
+								}
+								
+								break quoted;
+							}
+
+							// double quote, i.e. convert 2x double quote to 1x double quote
+							//
+							// equivalent to 
+							// System.arraycopy(current, start, current, start + 1, currentOffset - start - 1);
+							// ++start;
+							System.arraycopy(current, start, current, ++start, currentOffset - start);
+						} else if (currentOffset == rangeIndex) {
+							currentOffset -= start;
+							if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {
+								throw new CsvException("Illegal value in column " + i);
+							}
+
+							start = 0;
+						}
+					}
 				}
 				++currentOffset;
 			}
@@ -149,6 +147,8 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 					while (current[++currentOffset] > '"');
 					
 					if (current[currentOffset] == '"') {
+						
+						System.out.println("Start");
 						currentOffset++;
 						if (currentOffset == rangeIndex) {
 							currentOffset -= start;
@@ -180,6 +180,11 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 						// System.arraycopy(current, start, current, start + 1, currentOffset - start - 1);
 						// ++start;
 						System.arraycopy(current, start, current, ++start, currentOffset - start);
+						
+						
+						System.out.println("End");
+						
+						
 					} else if (currentOffset == rangeIndex) {
 						currentOffset -= start;
 						if ((rangeIndex = this.fill(currentOffset + 1)) <= currentOffset + 1) {

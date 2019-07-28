@@ -35,7 +35,7 @@ public class QuotedColumn extends AbstractColumn {
 		this.escapeCharacter = escapeCharacter;
 	}
 
-	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
+	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment, boolean fillable) {
 
 		Label quoted = ifAtChar(mv, quoteCharacter); // quoted
 		Label plainEmpty = ifAtChar(mv, divider); // empty
@@ -44,7 +44,7 @@ public class QuotedColumn extends AbstractColumn {
 		
 		doIncrementWhileNotEqualToDivider(mv, divider);
 		
-		writeValue(mv, subClassInternalName);
+		writeValue(mv, subClassInternalName, true);
 		
 		Label endLabel;
 		if(optional) {
@@ -64,6 +64,8 @@ public class QuotedColumn extends AbstractColumn {
 		if(quoteCharacter == escapeCharacter) {
 			// handle quoted
 			mv.visitLabel(quoted);
+			
+			// rangeIndex = this.getCurrentRange();
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "getCurrentRange", "()I", false);
 			mv.visitVarInsn(ISTORE, rangeIndex);
@@ -76,8 +78,8 @@ public class QuotedColumn extends AbstractColumn {
 			
 			
 			// start quote while
-			Label l19 = new Label();
-			mv.visitLabel(l19);
+			Label whileQuoted = new Label();
+			mv.visitLabel(whileQuoted);
 			
 			// scan to any char <= int value of quote character
 			// tight inner loop
@@ -86,32 +88,121 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
 			mv.visitIntInsn(BIPUSH, Integer.valueOf(quoteCharacter));
-			mv.visitJumpInsn(IF_ICMPGT, l19);
+			mv.visitJumpInsn(IF_ICMPGT, whileQuoted);
 			
 			// check if quote or newline
-			
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(CALOAD);
 			mv.visitLdcInsn(Integer.valueOf(quoteCharacter));
-			Label l20 = new Label();
-			mv.visitJumpInsn(IF_ICMPNE, l20);
 			
-			mv.visitVarInsn(ALOAD, currentArrayIndex);
+			Label nonQuoteCharacter = new Label();
+			mv.visitJumpInsn(IF_ICMPNE, nonQuoteCharacter);
+			
+			// fall through if quote character
+
+			// currentOffset++;
+			mv.visitIincInsn(currentOffsetIndex, 1);
+
+				// if (currentOffset == rangeIndex) {
+				mv.visitVarInsn(ILOAD, 1);
+				mv.visitVarInsn(ILOAD, 5);
+				Label safeToReadNextCharacter = new Label();
+				mv.visitJumpInsn(IF_ICMPNE, safeToReadNextCharacter);
+	
+				// fall through if currentOffset is at rangeIndex
+			{
+	
+				// currentOffset -= start;
+				mv.visitVarInsn(ILOAD, 1);
+				mv.visitVarInsn(ILOAD, 4);
+				mv.visitInsn(ISUB);
+				mv.visitVarInsn(ISTORE, 1);
+				
+				if(fillable) {
+					
+					mv.visitVarInsn(ALOAD, 0);
+					mv.visitVarInsn(ILOAD, 1);
+					mv.visitInsn(ICONST_1);
+					mv.visitInsn(IADD);
+					mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
+					mv.visitInsn(DUP);
+					mv.visitVarInsn(ISTORE, 6);
+					mv.visitVarInsn(ILOAD, 1);
+					mv.visitInsn(ICONST_1);
+					mv.visitInsn(IADD);
+					
+					Label l33 = new Label();
+					mv.visitJumpInsn(IF_ICMPGT, l33);
+					
+					throwMappingException(mv);					
+					mv.visitLabel(l33);
+					
+				} else {
+					
+					
+					
+					
+					
+					
+					
+					
+					// rangeIndex = this.fill(currentOffset + 1);
+					mv.visitVarInsn(ALOAD, 0);
+					mv.visitVarInsn(ILOAD, 1);
+					mv.visitInsn(ICONST_1);
+					mv.visitInsn(IADD);
+					mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "fill", "(I)I", false);
+					mv.visitVarInsn(ISTORE, 5);
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+				}
+
+				// start = 0
+				mv.visitInsn(ICONST_0);
+				mv.visitVarInsn(ISTORE, 4);
+
+			}
+			
+			
+			
+			
+			// safe to read next character from buffer
+			mv.visitLabel(safeToReadNextCharacter);
+			
+			// if (current[currentOffset] != '"') {
+			mv.visitVarInsn(ALOAD, 2);
+			mv.visitVarInsn(ILOAD, 1);
+			mv.visitInsn(CALOAD);
+			mv.visitIntInsn(BIPUSH, quoteCharacter);
+			
+
+			Label isDoubleQuote = new Label();
+			mv.visitJumpInsn(IF_ICMPEQ, isDoubleQuote);
+
+			
+			// fall through; single quote
+			
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitInsn(ICONST_1);
-			mv.visitInsn(IADD);
-			mv.visitInsn(CALOAD);
-			mv.visitLdcInsn(Integer.valueOf(quoteCharacter));			
-			Label l22 = new Label();
-			mv.visitJumpInsn(IF_ICMPEQ, l22);
-			
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitVarInsn(ILOAD, startIndex);
+			mv.visitInsn(ISUB);
+			mv.visitVarInsn(ILOAD, startIndex);			
 			Label l24 = new Label();
 			mv.visitJumpInsn(IF_ICMPLE, l24);
 			
-			writeValue(mv, subClassInternalName);
+			writeValue(mv, subClassInternalName, false);
 	
 			Label l26;
 			if(optional) {
@@ -120,6 +211,9 @@ public class QuotedColumn extends AbstractColumn {
 				l26 = new Label();			
 			}
 			mv.visitLabel(l26);
+			
+			
+			
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitIincInsn(currentOffsetIndex, 1);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
@@ -127,27 +221,31 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitLdcInsn(Integer.valueOf(divider));
 			mv.visitJumpInsn(IF_ICMPNE, l26);
 			mv.visitJumpInsn(GOTO, endLabel);
-	
+
 			if(!optional) {
 				mv.visitLabel(l24);
 				throwMappingException(mv);
 			}			
 			
-			mv.visitLabel(l22);
-			mv.visitVarInsn(ALOAD, currentArrayIndex);
-			mv.visitVarInsn(ILOAD, startIndex);
-			mv.visitVarInsn(ALOAD, currentArrayIndex);
-			mv.visitVarInsn(ILOAD, startIndex);
-			mv.visitInsn(ICONST_1);
-			mv.visitInsn(IADD);
-			mv.visitVarInsn(ILOAD, currentOffsetIndex);
-			mv.visitVarInsn(ILOAD, startIndex);
+			mv.visitLabel(isDoubleQuote);
+			
+			// System.arraycopy(current, start, current, ++start, currentOffset - start);
+			mv.visitVarInsn(ALOAD, 2);
+			mv.visitVarInsn(ILOAD, 4);
+			mv.visitVarInsn(ALOAD, 2);
+			mv.visitIincInsn(4, 1);
+			mv.visitVarInsn(ILOAD, 4);
+			mv.visitVarInsn(ILOAD, 1);
+			mv.visitVarInsn(ILOAD, 4);
 			mv.visitInsn(ISUB);
 			mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
-			mv.visitIincInsn(currentOffsetIndex, 1);
-			mv.visitIincInsn(startIndex, 1);
-			mv.visitJumpInsn(GOTO, l19);
-			mv.visitLabel(l20);
+			mv.visitJumpInsn(GOTO, whileQuoted);
+			
+			
+			
+			
+			
+			mv.visitLabel(nonQuoteCharacter);
 			/*
 			mv.visitVarInsn(ALOAD, currentArrayIndex);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
@@ -157,7 +255,7 @@ public class QuotedColumn extends AbstractColumn {
 			*/
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, rangeIndex);
-			mv.visitJumpInsn(IF_ICMPNE, l19);
+			mv.visitJumpInsn(IF_ICMPNE, whileQuoted);
 			mv.visitVarInsn(ILOAD, currentOffsetIndex);
 			mv.visitVarInsn(ILOAD, startIndex);
 			mv.visitInsn(ISUB);
@@ -185,7 +283,7 @@ public class QuotedColumn extends AbstractColumn {
 			mv.visitVarInsn(ISTORE, startIndex);
 			
 			// continue quote 
-			mv.visitJumpInsn(GOTO, l19);
+			mv.visitJumpInsn(GOTO, whileQuoted);
 		} else {
 			// handle quoted
 			mv.visitLabel(quoted);
@@ -277,7 +375,7 @@ public class QuotedColumn extends AbstractColumn {
 			
 			mv.visitLabel(l40);
 			
-			writeValue(mv, subClassInternalName);
+			writeValue(mv, subClassInternalName, true);
 
 			mv.visitLabel(l42);
 			mv.visitIincInsn(currentOffsetIndex, 1);

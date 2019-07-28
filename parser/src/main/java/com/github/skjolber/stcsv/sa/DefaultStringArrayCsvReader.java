@@ -137,7 +137,8 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 				int rangeIndex = this.getCurrentRange();
 				start = currentOffset + 1; // do not include quote character
 
-				quoted : while (true) {
+				quoted : 
+				while (true) {
 					while (current[++currentOffset] > maxCharacter);
 
 					if (current[currentOffset] == quoteCharacter) {

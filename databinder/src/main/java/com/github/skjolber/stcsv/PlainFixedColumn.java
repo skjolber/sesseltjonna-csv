@@ -15,7 +15,7 @@ public class PlainFixedColumn extends AbstractColumn {
 		this.fixedSize = fixedSize;
 	}
 
-	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
+	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment, boolean fillable) {
 		Label emptyLabel = ifAtChar(mv, divider);
 		
 		saveOffsetInStart(mv);
@@ -23,7 +23,7 @@ public class PlainFixedColumn extends AbstractColumn {
 		// add fixed size
 		mv.visitIincInsn(currentOffsetIndex, fixedSize);
 
-		writeValue(mv, subClassInternalName);
+		writeValue(mv, subClassInternalName, true);
 		
 		if(!optional) {
 			Label skip = new Label();

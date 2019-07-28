@@ -200,7 +200,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);		
 	}
 
-	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
+	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment, boolean fillable) {
 		
 		/*
 
@@ -232,7 +232,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 		
 		mv.visitIincInsn(1, fixedSize);
 
-		writeValue(mv, subClassInternalName);
+		writeValue(mv, subClassInternalName, true);
 
 		if(optional) {
 			mv.visitLabel(emptyLabel);
@@ -251,7 +251,7 @@ public class ClassicQuotedFixedColumn extends AbstractColumn {
 		mv.visitLabel(quoteLabel);
 		mv.visitIincInsn(1, fixedSize + 1); // skip quote + fixed size
 		
-		writeValue(mv, subClassInternalName);
+		writeValue(mv, subClassInternalName, true);
 		
 		mv.visitIincInsn(1, increment + 1); // end quote + dividers
 		mv.visitLabel(endLabel);

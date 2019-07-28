@@ -9,7 +9,7 @@ public class PlainColumn extends AbstractColumn {
 		super(name, index, optional, trimTrailingWhitespaces, trimLeadingWhitespaces);
 	}
 
-	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
+	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment, boolean fillable) {
 
 		Label skipLabel = null;
 		if(optional) {
@@ -27,7 +27,7 @@ public class PlainColumn extends AbstractColumn {
 		// do while loop
 		doIncrementWhileNotEqualToDivider(mv, divider);		
 		
-		writeValue(mv, subClassInternalName);
+		writeValue(mv, subClassInternalName, true);
 		
 		if(optional) {
 			mv.visitLabel(skipLabel);

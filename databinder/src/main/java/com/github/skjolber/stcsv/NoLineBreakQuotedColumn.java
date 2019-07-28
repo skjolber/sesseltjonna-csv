@@ -28,7 +28,7 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 	}
 
 	@Override
-	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
+	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment, boolean fillable) {
 
 		Label quoted = ifAtChar(mv, quoteCharacter); // quoted
 		Label plainEmpty = ifAtChar(mv, divider); // empty
@@ -37,7 +37,7 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 		
 		doIncrementWhileNotEqualToDivider(mv, divider);
 		
-		writeValue(mv, subClassInternalName);
+		writeValue(mv, subClassInternalName, true);
 		
 		Label endLabel;
 		if(optional) {
@@ -112,7 +112,7 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 			
 			mv.visitLabel(nonEmptyValue);
 			
-			writeValue(mv, subClassInternalName);
+			writeValue(mv, subClassInternalName, true);
 
 			mv.visitLabel(skipToComma);
 			
@@ -166,7 +166,7 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 			
 			mv.visitLabel(nonEmptyValue);
 			
-			writeValue(mv, subClassInternalName);
+			writeValue(mv, subClassInternalName, true);
 
 			mv.visitLabel(skipToComma);
 			

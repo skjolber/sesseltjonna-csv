@@ -169,7 +169,7 @@ public class ClassicPlainColumn extends AbstractColumn {
 	}
 
 	@Override
-	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment) {
+	protected void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment, boolean fillable) {
 	}
 	
 }

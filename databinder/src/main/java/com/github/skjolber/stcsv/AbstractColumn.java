@@ -1,6 +1,6 @@
 package com.github.skjolber.stcsv;
 
-import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CALOAD;
@@ -51,18 +51,28 @@ public abstract class AbstractColumn {
 	}
 
 	public void middle(MethodVisitor mv, String subClassInternalName, boolean inline) {
-		inline(mv, subClassInternalName, parent.getDivider(), 1);
+		inline(mv, subClassInternalName, parent.getDivider(), 1, true);
 	}
 
 	public void last(MethodVisitor mv, String subClassInternalName, boolean carriageReturn, boolean inline) {
 		if(carriageReturn) {
-			inline(mv, subClassInternalName, '\r', 2); // \r\n
+			inline(mv, subClassInternalName, '\r', 2, false); // \r\n
 		} else {
-			inline(mv, subClassInternalName, '\n', 1); // \n
+			inline(mv, subClassInternalName, '\n', 1, false); // \n
 		}
-	}	
+	}
 	
-	protected abstract void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment);
+	/**
+	 * Inline column handling
+	 * 
+	 * @param mv method visitor
+	 * @param subClassInternalName target parser class
+	 * @param divider divider character
+	 * @param increment increment after last character
+	 * @param fillable if true then a fill operation must be successful
+	 */
+	
+	protected abstract void inline(MethodVisitor mv, String subClassInternalName, int divider, int increment, boolean fillable);
 	
 	public String getName() {
 		return name;
@@ -143,9 +153,14 @@ public abstract class AbstractColumn {
 		mv.visitJumpInsn(IF_ICMPEQ, condition);
 	}
 	
-	protected void trimTrailingWhitespace(MethodVisitor mv) {
+	protected void trimTrailingWhitespace(MethodVisitor mv, boolean inclusive) {
 		// keep the 'end' index in the range index
 		saveOffsetInRange(mv);
+		
+		if(!inclusive) {
+			// decrement range
+			mv.visitIincInsn(rangeIndex, -1);
+		}
 		
 		doDecrementWhileAtWhitespace(mv, rangeIndex);
 		
@@ -163,7 +178,7 @@ public abstract class AbstractColumn {
 		mv.visitVarInsn(ISTORE, rangeIndex);
 	}
 	
-	protected void writeValue(MethodVisitor mv, String subClassInternalName) {
+	protected void writeValue(MethodVisitor mv, String subClassInternalName, boolean inclusive) {
 		int endIndex;
 		
 		if(trimLeadingWhitespaces) {
@@ -171,7 +186,13 @@ public abstract class AbstractColumn {
 		}
 
 		if(trimTrailingWhitespaces) {
-			trimTrailingWhitespace(mv);
+			trimTrailingWhitespace(mv, inclusive);
+			endIndex = rangeIndex;
+		} else if(!inclusive) {
+			saveOffsetInRange(mv);
+			
+			// decrement range by one
+			mv.visitIincInsn(rangeIndex, -1);
 			
 			endIndex = rangeIndex;
 		} else {
