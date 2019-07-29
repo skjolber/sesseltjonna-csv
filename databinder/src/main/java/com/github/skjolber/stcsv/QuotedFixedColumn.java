@@ -66,7 +66,7 @@ public class QuotedFixedColumn extends QuotedColumn {
 			throwMappingException(mv);
 		}
 
-		// so on other words, fixed column size is not much of an optimization for quoted values;
+		// so in other words, fixed column size is not much of an optimization for quoted values;
 		// the parser still needs to scan through all of the fixed column data if so.
 		scanQuoted(mv, subClassInternalName, increment, divider, fillable, quoted, endLabel);
 	}

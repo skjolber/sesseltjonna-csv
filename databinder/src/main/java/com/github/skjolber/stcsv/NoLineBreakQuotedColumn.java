@@ -59,7 +59,8 @@ public class NoLineBreakQuotedColumn extends AbstractColumn {
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
 		mv.visitVarInsn(ISTORE, startIndex);
 
-		// handle quotes
+		// so in other words, fixed column size is not much of an optimization for quoted values;
+		// the parser still needs to scan through all of the fixed column data if so.
 		if(quoteCharacter == escapeCharacter) {
 			Label l26 = new Label();
 			mv.visitJumpInsn(GOTO, l26);
