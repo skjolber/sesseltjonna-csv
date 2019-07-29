@@ -142,7 +142,7 @@ public class RFC4180StringArrayCsvReaderTest extends AbstractCsvReaderTest {
 	}
 
 	@Test
-	public void throwsExceptionWhenReaderRunsEmptyMiddleColumn() throws Exception {
+	public void throwsExceptionWhenReaderRunsEmptyMiddleColumnNonQuoted() throws Exception {
 		String row = "abcdef,\"b1\nb2b3b4\",end\n";
 
 		int index = row.indexOf('\n');
@@ -161,7 +161,26 @@ public class RFC4180StringArrayCsvReaderTest extends AbstractCsvReaderTest {
 	}
 
 	@Test
-	public void throwsExceptionWhenReaderRunsEmptyEndColumn() throws Exception {
+	public void throwsExceptionWhenReaderRunsEmptyMiddleColumnQuoted() throws Exception {
+		String row = "abcdef,\"b1b2b3b4\"\n,end\n";
+
+		int index = row.indexOf('\n');
+
+		char[] first = row.substring(0, index+1).toCharArray();
+		
+		char[] b = new char[1024];
+		System.arraycopy(first, 0, b, 0, first.length);
+		
+		RFC4180StringArrayCsvReader reader = new RFC4180StringArrayCsvReader(new StringReader(""), b, 0, first.length, 3);
+
+		assertThrows(CsvException.class, ()->{
+        	reader.next();
+        } );
+
+	}
+
+	@Test
+	public void throwsExceptionWhenReaderRunsEmptyEndColumnNonQuotes() throws Exception {
 		String row = "abcdef,ghijk,\"b1\nb2b3b4\"\n";
 
 		int index = row.indexOf('\n');
@@ -178,4 +197,6 @@ public class RFC4180StringArrayCsvReaderTest extends AbstractCsvReaderTest {
         } );
 
 	}
+	
+	
 }

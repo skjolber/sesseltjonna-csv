@@ -61,6 +61,11 @@ public class QuotedColumn extends AbstractColumn {
 			throwMappingException(mv);
 		}
 		
+		scanQuoted(mv, subClassInternalName, increment, divider, fillable, quoted, endLabel);
+	}
+
+	protected void scanQuoted(MethodVisitor mv, String subClassInternalName, int increment, int divider, boolean fillable,
+			Label quoted, Label endLabel) {
 		if(quoteCharacter == escapeCharacter) {
 			// handle quoted
 			mv.visitLabel(quoted);

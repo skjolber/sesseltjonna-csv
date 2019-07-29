@@ -31,7 +31,7 @@ public class IgnoredColumn {
 							if(currentOffset == currentRange) {
 								if((currentRange = scanner.fill(0)) == 0) { 
 									// 1s quote, but expected more bytes since missing at least one divider
-									throw new CsvException();
+									throw new CsvException("Unexpected end of input");
 								}
 								currentOffset = 0;
 							}
@@ -45,7 +45,7 @@ public class IgnoredColumn {
 						} else if(currentOffset == currentRange) {
 							if((currentRange = scanner.fill(0)) == 0) { 
 								// expected more bytes since still within quote
-								throw new CsvException();
+								throw new CsvException("Unexpected end of input");
 							}
 							currentOffset = 0;
 						} else {
@@ -170,7 +170,7 @@ public class IgnoredColumn {
 							if(currentOffset == currentRange) {
 								if((currentRange = scanner.fill(0)) == 0) {
 									// exptected more bytes since missing at least one divider
-									throw new CsvException();
+									throw new CsvException("Unexpected end of input");
 								}
 								// skip now
 								currentOffset = 1; 
@@ -179,7 +179,7 @@ public class IgnoredColumn {
 						if(currentOffset == currentRange) {
 							if((currentRange = scanner.fill(0)) == 0) {
 								// exptected more bytes since missing at least one divider
-								throw new CsvException();
+								throw new CsvException("Unexpected end of input");
 							}
 							currentOffset = 0;
 						} else {
@@ -232,7 +232,7 @@ public class IgnoredColumn {
 						if(currentOffset == currentRange) { // i.e. current character is newline
 							if((currentRange = scanner.fill(0)) == 0) { 
 								// expected more bytes, still within quote
-								throw new CsvException();
+								throw new CsvException("Unexpected end of input");
 							}
 							currentOffset = 0;
 						} else {
