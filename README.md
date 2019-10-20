@@ -28,7 +28,7 @@ Example dependency config:
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>databinder</artifactId>
-    <version>1.0.17</version>
+    <version>1.0.18</version>
 </dependency>
 ```
 or
@@ -36,7 +36,7 @@ or
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>parser</artifactId>
-    <version>1.0.17</version>
+    <version>1.0.18</version>
 </dependency>
 ```
 
@@ -165,6 +165,7 @@ Contributions are welcome, especially those with unit tests ;)
 
 # History
 
+ - 1.0.18: Add default module names for JDK9+, renamed packages accordingly.
  - 1.0.17: Improve parse of quoted columns
  - 1.0.16: Improve ByteBuddy usage for setter detection.
  - 1.0.15: Improved test coverage, fix quoted first line for.
