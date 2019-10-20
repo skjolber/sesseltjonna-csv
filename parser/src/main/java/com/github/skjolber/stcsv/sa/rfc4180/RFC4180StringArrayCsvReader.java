@@ -35,10 +35,10 @@ public final class RFC4180StringArrayCsvReader extends StringArrayCsvReader {
 			currentOffset = 0;
 		}
 
-		char[] current = super.current;
+		final char[] current = super.current;
 
 		try {
-			String[] value = this.value;
+			final String[] value = this.value;
 
 			int start;
 

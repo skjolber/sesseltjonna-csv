@@ -57,12 +57,12 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 		this(reader, new char[length + 1], 0, 0);
 	}
 	
-	protected int fill(int keep) throws IOException { 
+	public int fill(int keep) throws IOException { 
 		this.currentRange -= keep;
 		return fill();
 	}
 
-	protected int fill() throws IOException {
+	public int fill() throws IOException {
 		char[] current = this.current;
 		
 		int currentRange = this.currentRange;
@@ -106,7 +106,7 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 
 	public abstract T next() throws Exception;
 
-	protected int getCurrentRange() {
+	public int getCurrentRange() {
 		return currentRange;
 	}
 

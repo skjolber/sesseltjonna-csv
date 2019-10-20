@@ -45,7 +45,7 @@ public final class NoLinebreakRFC4180StringArrayCsvReader extends StringArrayCsv
 		final char[] current = super.current;
 
 		try {
-			String[] value = this.value;
+			final String[] value = this.value;
 
 			int start;
 
