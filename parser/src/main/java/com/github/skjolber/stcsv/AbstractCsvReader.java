@@ -32,16 +32,22 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 	protected int spareRange = 0; // data length
 	protected boolean eof = false;
 
+	/**
+	 * Construct new instance. The current buffer must at least contain a single row, 
+	 * ending with a newline. 
+	 * 
+	 * @param reader read input
+	 * @param current current buffer
+	 * @param offset buffer offset
+	 * @param length buffer payload length
+	 */
+	
 	public AbstractCsvReader(Reader reader, char[] current, int offset, int length) {
 		this.reader = reader;
 		this.current = current;
 		this.currentOffset = offset;
 		this.spareRange = length;
-		if(length > 0) {
-			this.currentRange = findEndOfLine(length - 1);
-		} else {
-			this.currentRange = 0;
-		}
+		this.currentRange = findEndOfLine(length - 1);
 
 		// always leave one char for artificially adding a linebreak if necessary
 		this.maxRange = current.length - 1;
