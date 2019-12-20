@@ -1,10 +1,13 @@
 package com.github.skjolber.stcsv.databinder.builder;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-
 import com.github.skjolber.stcsv.builder.CsvBuilderException;
+
+/**
+ * This class helps to unwrap delta constructs to access
+ * the underlying setter directly.
+ * 
+ */
 
 public class SetterProjectionHelper<T> {
 	

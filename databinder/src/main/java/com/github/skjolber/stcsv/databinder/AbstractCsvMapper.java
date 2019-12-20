@@ -236,7 +236,41 @@ public abstract class AbstractCsvMapper<T> {
 		// generics seems to not work when generating multiple classes; 
 		// fails for class number 2 because of failing method signature
 		// TODO still generate such a beast for the first?
-		classWriter.visit(Opcodes.V1_8,
+		
+		String specificationVersion = System.getProperty("java.specification.version");
+		
+		int version;
+		switch(specificationVersion) {
+			case "9" :  {
+				version = Opcodes.V9;
+				break;
+			}
+			case "10" :  {
+				version = Opcodes.V10;
+				break;
+			}
+			case "11" :  {
+				version = Opcodes.V11;
+				break;
+			}
+			case "12" :  {
+				version = Opcodes.V12;
+				break;
+			}
+			case "13" :  {
+				version = Opcodes.V13;
+				break;
+			}
+			case "14" :  {
+				version = Opcodes.V14;
+				break;
+			}
+			default : {
+				version = Opcodes.V1_8;
+			}
+		}
+		
+		classWriter.visit(version ,
 				ACC_FINAL | ACC_PUBLIC,
 				subClassInternalName,
 				null,
