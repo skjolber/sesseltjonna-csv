@@ -28,7 +28,7 @@ Example dependency config:
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>databinder</artifactId>
-    <version>1.0.18</version>
+    <version>1.0.19</version>
 </dependency>
 ```
 or
@@ -36,7 +36,7 @@ or
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>parser</artifactId>
-    <version>1.0.18</version>
+    <version>1.0.19</version>
 </dependency>
 ```
 
@@ -143,8 +143,8 @@ The following rules / restrictions apply, mostly for keeping in sync with [RFC-4
 
  * Quoted fields must be declared as quoted (in the builder) and can contain all characters. 
  * The first character of a quoted field must be a quote. If not, the value is treated as a plain field. 
- * Plain fields must not contain the separator or newline, otherwise can contain all characters.
- * All fields are either required or optional (no empty string is ever propagated to the target). Missing values result in CsvException.
+ * Plain fields must not contain the newline (or separator).
+ * Each fields are either required or optional (no empty string is ever propagated to the target). Missing values result in CsvException.
  * All lines must contain the same number of columns
  * Corrupt files can result in CsvException
  * Newline and carriage return + newline line endings are supported (and auto-detected).
@@ -165,11 +165,9 @@ Contributions are welcome, especially those with unit tests ;)
 
 # History
 
+ - 1.0.19: Improve JDK9+ support using moditech plugin, fix parsing of single line without linebreak.
  - 1.0.18: Add default module names for JDK9+, renamed packages accordingly.
  - 1.0.17: Improve parse of quoted columns
- - 1.0.16: Improve ByteBuddy usage for setter detection.
- - 1.0.15: Improved test coverage, fix quoted first line for.
- - 1.0.14: Fix issue with skipping columns
 
 [Apache 2.0]:           http://www.apache.org/licenses/LICENSE-2.0.html
 [issue-tracker]:        https://github.com/skjolber/sesseltjonna-csv/issues
