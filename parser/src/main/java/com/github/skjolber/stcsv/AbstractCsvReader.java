@@ -37,7 +37,11 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 		this.current = current;
 		this.currentOffset = offset;
 		this.spareRange = length;
-		this.currentRange = findEndOfLine(length - 1);
+		if(length > 0) {
+			this.currentRange = findEndOfLine(length - 1);
+		} else {
+			this.currentRange = 0;
+		}
 
 		// always leave one char for artificially adding a linebreak if necessary
 		this.maxRange = current.length - 1;

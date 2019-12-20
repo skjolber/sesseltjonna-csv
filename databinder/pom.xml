@@ -70,15 +70,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifestEntries>
-						    <Automatic-Module-Name>com.github.skjolber.stcsv.databinder</Automatic-Module-Name>
-						</manifestEntries>
-					</archive>
-				</configuration>
+			    <groupId>org.moditect</groupId>
+			    <artifactId>moditect-maven-plugin</artifactId>			
 			</plugin>
 		</plugins>
 	</build>

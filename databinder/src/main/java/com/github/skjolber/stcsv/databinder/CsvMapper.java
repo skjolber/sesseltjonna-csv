@@ -38,6 +38,7 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 	public CsvReader<T> create(Reader reader) throws Exception {
 		// avoid multiple calls to read when locating the first line
 		// so read a full buffer
+		// assumes no newlines in quoted headers
 		char[] current = new char[bufferLength + 1];
 
 		int start = 0;
@@ -45,6 +46,7 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 		do {
 			int read = reader.read(current, start, bufferLength - start);
 			if(read == -1) {
+				// so there was not a single newline, must always be empty result
 				return new EmptyCsvReader<>();
 			} else {
 				end += read;

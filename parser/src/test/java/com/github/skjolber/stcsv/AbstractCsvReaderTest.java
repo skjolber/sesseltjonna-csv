@@ -1,7 +1,5 @@
 package com.github.skjolber.stcsv;
 
-import static org.junit.Assert.assertFalse;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -9,7 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Objects;
-
+import static org.junit.jupiter.api.Assertions.*;
 import com.univocity.parsers.csv.CsvFormat;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;

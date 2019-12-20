@@ -53,25 +53,14 @@
 			<artifactId>truth</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.google.truth.extensions</groupId>
-			<artifactId>truth-java8-extension</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 
+	</dependencies>
+	
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifestEntries>
-						    <Automatic-Module-Name>com.github.skjolber.stcsv</Automatic-Module-Name>
-						</manifestEntries>
-					</archive>
-				</configuration>
+			    <groupId>org.moditect</groupId>
+			    <artifactId>moditect-maven-plugin</artifactId>			
 			</plugin>
 		</plugins>
 	</build>

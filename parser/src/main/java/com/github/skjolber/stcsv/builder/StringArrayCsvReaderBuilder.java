@@ -70,6 +70,17 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 		do {
 			int read = reader.read(current, offset, bufferLength - offset);
 			if(read == -1) {
+				if(offset > 0) {
+					if(current[offset - 1] == '\n') {
+						// the input ended with a newline
+					} else {
+						// artificially insert linebreak after last line 
+						// so that scanners detects end
+						current[offset] = '\n';
+						offset++;
+					}
+				}				
+				
 				break;
 			} else {
 				offset += read;
@@ -126,7 +137,7 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 					}
 				}
 			}
-			while(true) {
+			while(i < end) {
 				if(current[i] == divider) {
 					break;
 				} else if(current[i] == '\n') {

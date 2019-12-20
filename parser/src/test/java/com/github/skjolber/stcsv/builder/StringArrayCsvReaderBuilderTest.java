@@ -17,6 +17,7 @@ import com.github.skjolber.stcsv.sa.rfc4180.NoLinebreakRFC4180StringArrayCsvRead
 public class StringArrayCsvReaderBuilderTest {
 
 	private String empty = "";
+	private String singleLineWithoutNewline = "a,b,c";
 	private String singleLine = "a,b,c\n";
 	private String quotedSingleLine = "\"a\",\"b\",\"c\"\n";
 	private String indexes = "1,2,3\n";
@@ -45,6 +46,13 @@ public class StringArrayCsvReaderBuilderTest {
 		assertThat(build).isInstanceOf(EmptyCsvReader.class);
 		assertThat(build.next()).isNull();
 	}
+	
+	@Test
+	public void testSingleLineWithoutNewline() throws Exception {
+		CsvReader<String[]> build = new StringArrayCsvReaderBuilder().build(new StringReader(singleLineWithoutNewline));
+		String[] next = build.next();
+		assertThat(next[0]).isEqualTo("a");
+	}	
 
 	@Test
 	public void testSingleLine() throws Exception {
