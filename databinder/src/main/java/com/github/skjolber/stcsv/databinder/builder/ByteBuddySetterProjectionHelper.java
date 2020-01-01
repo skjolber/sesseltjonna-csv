@@ -46,6 +46,10 @@ public class ByteBuddySetterProjectionHelper<T> extends SetterProjectionHelper<T
 	public Method toMethod(AbstractTypedCsvFieldMapperBuilder<T, ?> abstractCsvFieldMapperBuilder) throws CsvBuilderException {
 		if(abstractCsvFieldMapperBuilder.hasSetter()) {
 			// detect setter using proxy class
+			// note for single shot scenarios, this approach requires that the ByteBuddy library is
+			// loaded, and is therefore somewhat more heavy than the setter detected
+			// using the naming convention
+			// TODO support setter name for improved startup time
 			return invokeSetter(abstractCsvFieldMapperBuilder); // populates the 'method' field
 		} 
 		// detect setter using reflection, based on the name
