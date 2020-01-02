@@ -22,22 +22,54 @@ Bugs, feature suggestions and help requests can be filed with the [issue-tracker
 ## Obtain
 The project is implemented in Java and built using [Maven]. The project is available on the central Maven repository.
 
-Example dependency config:
+## Maven
+
+for
+```xml
+<properties>
+    <sesseltjonna-csv.version>1.0.19</sesseltjonna-csv.version>
+</properties>
+```
+
+add
 
 ```xml
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>databinder</artifactId>
-    <version>1.0.19</version>
+    <version>${sesseltjonna-csv.version}</version>
 </dependency>
 ```
+
 or
+
 ```xml
 <dependency>
     <groupId>com.github.skjolber.sesseltjonna-csv</groupId>
     <artifactId>parser</artifactId>
-    <version>1.0.19</version>
+    <version>${sesseltjonna-csv.version}</version>
 </dependency>
+```
+
+## Gradle
+
+For
+
+```groovy
+ext {
+    sesseltjonnaCsvVersion = '1.0.19'
+}
+```
+
+add
+
+```groovy
+implementation("com.github.skjolber.sesseltjonna-csv:databinder:${sesseltjonnaCsvVersion}")
+```
+or
+
+```groovy
+implementation("com.github.skjolber.sesseltjonna-csv:parser:${sesseltjonnaCsvVersion}")
 ```
 
 # Usage - databinding
@@ -46,19 +78,16 @@ Use the builder to configure your parser.
 ```java
 CsvMapper<Trip> mapper = CsvMapper.builder(Trip.class)
         .stringField("route_id")
-            .setter(Trip::setRouteId)
             .quoted()
             .optional()
         .stringField("service_id")
-            .setter(Trip::setServiceId)
             .required()
         .build();
 ```
 
-where each field must be either `required` or `optional`. Use of the `setter` is optional; a setter with the same name as the field name will be automatically selected in its abscense. 
+where each field must be either `required` or `optional`. The necessary `Trip` setters will be deducted from the field name (see further down for customization).  
 
 Then create a `CsvReader` using
-
 
 ```java
 Reader reader = ...; // your input
@@ -79,7 +108,7 @@ do {
 } while(true);
 ```
 
-If you're into doing some custom logic before applying values, add your own `consumer`:
+To run some custom logic before applying values, add your own `consumer`:
 
 ```java
 CsvMapper<City> mapping = CsvMapper.builder(City.class)
@@ -87,6 +116,20 @@ CsvMapper<City> mapping = CsvMapper.builder(City.class)
         .consumer((city, n) -> city.setPopulation(n * 1000))
         .optional()
     .build();
+```
+
+or with custom (explicit) setters:
+
+```java
+CsvMapper<Trip> mapper = CsvMapper.builder(Trip.class)
+        .stringField("route_id")
+            .setter(Trip::setRouteId)
+            .quoted()
+            .optional()
+        .stringField("service_id")
+            .setter(Trip::setServiceId)
+            .required()
+        .build();
 ```
 
 ## Intermediate processor
@@ -137,6 +180,9 @@ To maximize performance (like response time) it is always necessary to pre-warm 
 JMH [benchmark results](https://github.com/skjolber/csv-benchmark#results). 
 
 If the parser runs alone on a multicore system, the [ParallelReader](https://github.com/arnaudroger/SimpleFlatMapper/blob/master/sfm-util/src/main/java/org/simpleflatmapper/util/ParallelReader.java) from the [SimpleFlatMapper](https://simpleflatmapper.org/) might further improve performance by approximately 50%.
+
+## Classloading / footprint
+Performance note for single-shot scenarios and `CsvMapper`: If a custom setter is specified, the library will invoke it to determine the underlying method invokation using `ByteBuddy`, so some additional classloading will take place.
 
 # Compatibility
 The following rules / restrictions apply, mostly for keeping in sync with [RFC-4180]:

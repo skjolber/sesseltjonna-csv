@@ -25,7 +25,7 @@ public class IgnoredColumn {
 				if(current[currentOffset] == divider) {
 					--columns;
 				} else if(current[currentOffset] == quoteCharacter) {
-					int currentRange = scanner.getCurrentRange();
+					int currentRange = scanner.getEndOfLineIndex();
 					currentOffset++;
 					do {
 						if(current[currentOffset] == quoteCharacter) {
@@ -93,7 +93,7 @@ public class IgnoredColumn {
 				if(current[currentOffset] == '\n') {
 					return ++currentOffset; // skip newline
 				} else if(current[currentOffset] == quoteCharacter) {
-					int currentRange = scanner.getCurrentRange();
+					int currentRange = scanner.getEndOfLineIndex();
 					currentOffset++;
 					do {
 						if(current[currentOffset] == quoteCharacter) {
@@ -161,7 +161,7 @@ public class IgnoredColumn {
 				if(current[currentOffset] == divider) {
 					--columns;
 				} else if(current[currentOffset] == quoteCharacter) {
-					int currentRange = scanner.getCurrentRange();
+					int currentRange = scanner.getEndOfLineIndex();
 					currentOffset++;
 					
 					do {
@@ -224,7 +224,7 @@ public class IgnoredColumn {
 				if(current[currentOffset] == '\n') {
 					return ++currentOffset; // skip newline
 				} else if(current[currentOffset] == quoteCharacter) {
-					int currentRange = scanner.getCurrentRange();
+					int currentRange = scanner.getEndOfLineIndex();
 					currentOffset++;
 					do {
 						if(current[currentOffset] == quoteCharacter) {

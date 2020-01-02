@@ -25,11 +25,12 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 	
 	protected final Reader reader;
 	protected final char[] current;
-	protected final int maxRange;
+	protected final int maxDataLength;
 	
-	protected int currentOffset = 0;
-	protected int currentRange = 0; // last newline within the buffer
-	protected int spareRange = 0; // data length
+	protected int offset = 0;
+	protected int endOfLineIndex = 0; // last newline within the buffer
+	protected int dataLength = 0; // data length
+	
 	protected boolean eof = false;
 
 	/**
@@ -45,12 +46,11 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 	public AbstractCsvReader(Reader reader, char[] current, int offset, int length) {
 		this.reader = reader;
 		this.current = current;
-		this.currentOffset = offset;
-		this.spareRange = length;
-		this.currentRange = findEndOfLine(length - 1);
-
+		this.offset = offset;
+		this.dataLength = length;
+		this.endOfLineIndex = findEndOfLine(length - 1);
 		// always leave one char for artificially adding a linebreak if necessary
-		this.maxRange = current.length - 1;
+		this.maxDataLength = current.length - 1;
 	}
 
 	protected int findEndOfLine(int currentRange) {
@@ -68,56 +68,57 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 	}
 	
 	public int fill(int keep) throws IOException { 
-		this.currentRange -= keep;
+		this.endOfLineIndex -= keep;
 		return fill();
 	}
 
 	public int fill() throws IOException {
 		char[] current = this.current;
 		
-		int currentRange = this.currentRange;
+		// 012345 6789012
+		// a,b,c\nd,e,f\n
+		int dataLength = this.dataLength - endOfLineIndex - 1;
+		if(dataLength > 0) {
+			// copy tail to head
+			System.arraycopy(current, endOfLineIndex + 1, current, 0, dataLength);
+		}
 		
-		if(spareRange > currentRange) {
-			System.arraycopy(current, currentRange + 1, current, 0, currentRange = spareRange - currentRange - 1);
-		} else {
-			currentRange = 0;
+		if(eof) {
+			this.dataLength = dataLength;
+			this.endOfLineIndex = dataLength - 1;
+			
+			return endOfLineIndex;
 		}
 		
 		int read;
-		do {
-			read = reader.read(current, currentRange, maxRange - currentRange);
+		while(dataLength < maxDataLength) {
+			read = reader.read(current, dataLength, maxDataLength - dataLength);
 			if(read == -1) {
-				if(!eof) {
-					eof = true;
-	
-					if(currentRange > 0) {
-						if(current[currentRange - 1] == '\n') {
-							// the input ended with a newline
-							currentRange--;
-						} else {
-							// artificially insert linebreak after last line 
-							// so that scanners detects end
-							current[currentRange] = '\n';
-						}
-					}
+				eof = true;
+
+				if(dataLength > 0 && current[dataLength - 1] != '\n') {
+					// artificially insert linebreak after last line 
+					// so that scanners detects end
+					current[dataLength] = '\n';
+					dataLength++;
 				}
-				this.spareRange = currentRange;
-				this.currentRange = currentRange;
+				this.endOfLineIndex = dataLength - 1;
+				this.dataLength = dataLength;
 				
-				return currentRange;
+				return this.endOfLineIndex;
 			}
-			currentRange += read;
-		} while(currentRange < maxRange);
+			dataLength += read;
+		}
 		
-		this.spareRange = currentRange;
+		this.dataLength = dataLength;
 		
-		return this.currentRange = findEndOfLine(currentRange);
+		return this.endOfLineIndex = findEndOfLine(dataLength - 1);
 	}
 
 	public abstract T next() throws Exception;
 
-	public int getCurrentRange() {
-		return currentRange;
+	public int getEndOfLineIndex() {
+		return endOfLineIndex;
 	}
 
 }

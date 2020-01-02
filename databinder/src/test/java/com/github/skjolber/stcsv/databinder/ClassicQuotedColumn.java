@@ -39,7 +39,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 			}
 
 			// now inside start quote
-			int currentRange = scanner.getCurrentRange();
+			int currentRange = scanner.getEndOfLineIndex();
 			int start = ++currentOffset;
 			
 			if(quoteCharacter == escapeCharacter) {
@@ -132,7 +132,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 			}
 			
 			// now inside start quote
-			int currentRange = scanner.getCurrentRange();
+			int currentRange = scanner.getEndOfLineIndex();
 			int start = ++currentOffset;
 			
 			if(quoteCharacter == escapeCharacter) {
@@ -219,7 +219,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 				}
 				
 				// now inside start quote
-				int currentRange = scanner.getCurrentRange();
+				int currentRange = scanner.getEndOfLineIndex();
 				int start = ++currentOffset;
 				
 				if(quoteCharacter == escapeCharacter) {
@@ -302,7 +302,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 				}
 				
 				// now inside start quote
-				int currentRange = scanner.getCurrentRange();
+				int currentRange = scanner.getEndOfLineIndex();
 				int start = ++currentOffset;
 				
 				if(quoteCharacter == escapeCharacter) {
@@ -385,7 +385,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 				}
 				
 				// now inside start quote
-				int currentRange = scanner.getCurrentRange();
+				int currentRange = scanner.getEndOfLineIndex();
 				int start = ++currentOffset;
 				
 				if(quoteCharacter == escapeCharacter) {
@@ -468,7 +468,7 @@ public class ClassicQuotedColumn extends AbstractColumn {
 				}
 				
 				// now inside start quote
-				int currentRange = scanner.getCurrentRange();
+				int currentRange = scanner.getEndOfLineIndex();
 				int start = ++currentOffset;
 				
 				if(quoteCharacter == escapeCharacter) {

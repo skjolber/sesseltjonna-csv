@@ -54,9 +54,9 @@ public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader 
 	}	
 	
 	public String[] next() throws IOException {
-		int currentOffset = super.currentOffset;
-		if (currentOffset >= super.currentRange) {
-			if (this.fill() == 0) {
+		int currentOffset = super.offset;
+		if (currentOffset >= super.endOfLineIndex) {
+			if (this.fill() <= 0) {
 				return null;
 			}
 
@@ -156,7 +156,7 @@ public final class NoLinebreakStringArrayCsvReader extends StringArrayCsvReader 
 			}
 			++currentOffset;			
 
-			super.currentOffset = currentOffset;
+			super.offset = currentOffset;
 
 			return value;
 		} catch (ArrayIndexOutOfBoundsException e) {

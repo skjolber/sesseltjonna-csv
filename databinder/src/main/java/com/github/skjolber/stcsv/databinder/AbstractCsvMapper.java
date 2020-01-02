@@ -18,6 +18,8 @@ import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.IFGT;
+import static org.objectweb.asm.Opcodes.IFLE;
 import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
 import static org.objectweb.asm.Opcodes.IF_ICMPLT;
 import static org.objectweb.asm.Opcodes.IF_ICMPNE;
@@ -186,11 +188,11 @@ public abstract class AbstractCsvMapper<T> {
 		}
 		
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
-		/*
+		
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-		*/
+		
 		return loader.load(classWriter.toByteArray(), subClassName);
 	}
 
@@ -306,19 +308,19 @@ public abstract class AbstractCsvMapper<T> {
 		// init offset and char array
 		// int currentOffset = this.currentOffset;
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, superClassInternalName, "currentOffset", "I");
+		mv.visitFieldInsn(GETFIELD, superClassInternalName, "offset", "I");
 		mv.visitVarInsn(ISTORE, currentOffsetIndex);
 
 		mv.visitVarInsn(ILOAD, 1);
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, superClassInternalName, "currentRange", "I");
+		mv.visitFieldInsn(GETFIELD, superClassInternalName, "endOfLineIndex", "I");
 		Label l2 = new Label();
 		mv.visitJumpInsn(IF_ICMPLT, l2);
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKEVIRTUAL, superClassInternalName, "fill", "()I", false);
 		Label l4 = new Label();
-		mv.visitJumpInsn(IFNE, l4);
+		mv.visitJumpInsn(IFGT, l4);
 		mv.visitInsn(ACONST_NULL);
 		mv.visitInsn(ARETURN);
 		mv.visitLabel(l4);
@@ -423,7 +425,7 @@ public abstract class AbstractCsvMapper<T> {
 		// finish up method
 		mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, startLabel, endLabel, 0);
 		mv.visitLocalVariable("value", "L" + mappedClassInternalName + ";", null, startLabel, endLabel, objectIndex);
-		mv.visitLocalVariable("currentOffset", "I", null, startLabel, endLabel, currentOffsetIndex);
+		mv.visitLocalVariable("offset", "I", null, startLabel, endLabel, currentOffsetIndex);
 		mv.visitLocalVariable("current", "[C", null, startLabel, endLabel, currentArrayIndex);
 		if(inline) {
 			mv.visitLocalVariable("start", "I", null, startLabel, endLabel, startIndex);
@@ -450,7 +452,7 @@ public abstract class AbstractCsvMapper<T> {
 		Label l13 = new Label();
 		mv.visitLabel(l13);
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, subClassInternalName, "currentRange", "I");
+		mv.visitFieldInsn(GETFIELD, subClassInternalName, "endOfLineIndex", "I");
 		mv.visitVarInsn(ISTORE, rangeVariableIndex);
 		Label l14 = new Label();
 		mv.visitLabel(l14);
@@ -607,7 +609,7 @@ public abstract class AbstractCsvMapper<T> {
 		Label l13 = new Label();
 		mv.visitLabel(l13);
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, subClassInternalName, "currentRange", "I");
+		mv.visitFieldInsn(GETFIELD, subClassInternalName, "endOfLineIndex", "I");
 		mv.visitVarInsn(ISTORE, rangeVariableIndex);
 		Label l14 = new Label();
 		mv.visitLabel(l14);
@@ -682,7 +684,7 @@ public abstract class AbstractCsvMapper<T> {
 			Label l5 = new Label();
 			mv.visitJumpInsn(IF_ICMPNE, l5);
 			mv.visitVarInsn(ALOAD, 0);
-			mv.visitFieldInsn(GETFIELD, subClassInternalName, "currentRange", "I");
+			mv.visitFieldInsn(GETFIELD, subClassInternalName, "endOfLineIndex", "I");
 			mv.visitVarInsn(ISTORE, rangeVariableIndex);
 			Label l7 = new Label();
 			mv.visitLabel(l7);
@@ -748,7 +750,7 @@ public abstract class AbstractCsvMapper<T> {
 			Label l5 = new Label();
 			mv.visitJumpInsn(IF_ICMPNE, l5);
 			mv.visitVarInsn(ALOAD, 0);
-			mv.visitFieldInsn(GETFIELD, subClassInternalName, "currentRange", "I");
+			mv.visitFieldInsn(GETFIELD, subClassInternalName, "endOfLineIndex", "I");
 			mv.visitVarInsn(ISTORE, 3);
 			mv.visitIincInsn(currentOffsetIndex, 1);
 			Label l8 = new Label();
@@ -969,7 +971,7 @@ public abstract class AbstractCsvMapper<T> {
 	protected void saveCurrentOffset(MethodVisitor mv, String superClassInternalName, int currentOffsetIndex) {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ILOAD, currentOffsetIndex);
-		mv.visitFieldInsn(PUTFIELD, superClassInternalName, "currentOffset", "I");		
+		mv.visitFieldInsn(PUTFIELD, superClassInternalName, "offset", "I");		
 	}
 
 	protected List<String> parseColumnNames(String writer) {
