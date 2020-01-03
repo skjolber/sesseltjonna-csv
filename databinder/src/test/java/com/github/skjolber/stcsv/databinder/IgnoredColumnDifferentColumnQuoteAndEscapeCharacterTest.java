@@ -26,7 +26,7 @@ public class IgnoredColumnDifferentColumnQuoteAndEscapeCharacterTest {
 	@Test
 	public void DifferentQuoteAndEscapeCharactersSkipNoEscape() throws IOException {
 		AbstractCsvReader scanner = mock(AbstractCsvReader.class);
-		when(scanner.getCurrentRange()).thenReturn(1024);
+		when(scanner.getEndOfLineIndex()).thenReturn(1024);
 		
 		int offset = IgnoredColumn.DifferentQuoteAndEscapeCharacter.skipColumns(scanner, quotedNoEscapeLinebreak.toCharArray(), 0, ',', '\'', '\\', 2);
 		assertThat(offset).isEqualTo(quotedNoEscapeLinebreak.lastIndexOf(',') + 1);
@@ -44,7 +44,7 @@ public class IgnoredColumnDifferentColumnQuoteAndEscapeCharacterTest {
 	@Test
 	public void DifferentQuoteAndEscapeCharactersSkipEscaped() throws IOException {
 		AbstractCsvReader scanner = mock(AbstractCsvReader.class);
-		when(scanner.getCurrentRange()).thenReturn(1024);
+		when(scanner.getEndOfLineIndex()).thenReturn(1024);
 		
 		int offset = IgnoredColumn.DifferentQuoteAndEscapeCharacter.skipColumns(scanner, quotedEscapeLinebreak.toCharArray(), 0, ',', '\'', '\\', 2);
 		assertThat(offset).isEqualTo(quotedEscapeLinebreak.lastIndexOf(',') + 1);
@@ -62,7 +62,7 @@ public class IgnoredColumnDifferentColumnQuoteAndEscapeCharacterTest {
 	@Test
 	public void testFillSkipColumns() throws IOException {
 		AbstractCsvReader scanner = mock(AbstractCsvReader.class);
-		when(scanner.getCurrentRange()).thenReturn(quotedLinebreakFirstPart.length() - 1);
+		when(scanner.getEndOfLineIndex()).thenReturn(quotedLinebreakFirstPart.length() - 1);
 		
 		char[] buffer = new char[1024];
 		char[] first = quotedLinebreakFirstPart.toCharArray();
@@ -85,7 +85,7 @@ public class IgnoredColumnDifferentColumnQuoteAndEscapeCharacterTest {
 	@Test
 	public void testFillSkipNewline() throws IOException {
 		AbstractCsvReader scanner = mock(AbstractCsvReader.class);
-		when(scanner.getCurrentRange()).thenReturn(quotedLinebreakFirstPart.length() - 1);
+		when(scanner.getEndOfLineIndex()).thenReturn(quotedLinebreakFirstPart.length() - 1);
 		
 		char[] buffer = new char[1024];
 		char[] first = quotedLinebreakFirstPart.toCharArray();

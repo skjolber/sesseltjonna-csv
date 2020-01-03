@@ -72,7 +72,7 @@ public class QuotedColumn extends AbstractColumn {
 			
 			// rangeIndex = this.getCurrentRange();
 			mv.visitVarInsn(ALOAD, 0);
-			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "getCurrentRange", "()I", false);
+			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "getEndOfLineIndex", "()I", false);
 			mv.visitVarInsn(ISTORE, rangeIndex);
 
 			// start = currentOffset + 1
@@ -233,7 +233,7 @@ public class QuotedColumn extends AbstractColumn {
 			boolean isLowAsciiCharacter = escapeCharacter < '0' && quoteCharacter < '0';
 
 			mv.visitVarInsn(ALOAD, 0);
-			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "getCurrentRange", "()I", false);
+			mv.visitMethodInsn(INVOKEVIRTUAL, subClassInternalName, "getEndOfLineIndex", "()I", false);
 			mv.visitVarInsn(ISTORE, rangeIndex);
 			
 			if(isLowAsciiCharacter) {

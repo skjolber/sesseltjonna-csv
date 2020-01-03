@@ -46,9 +46,9 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 	}	
 	
 	public String[] next() throws IOException {
-		int currentOffset = super.currentOffset;
-		if (currentOffset >= super.currentRange) {
-			if (this.fill() == 0) {
+		int currentOffset = super.offset;
+		if (currentOffset >= super.endOfLineIndex) {
+			if (this.fill() <= 0) {
 				return null;
 			}
 
@@ -76,7 +76,7 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 						value[i] = null;
 					}
 				} else {
-					int rangeIndex = this.getCurrentRange();
+					int rangeIndex = this.getEndOfLineIndex();
 					start = currentOffset + 1; // do not include quote character
 	
 					quoted : 
@@ -134,7 +134,7 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 					value[lastIndex] = null;
 				}
 			} else {
-				int rangeIndex = this.getCurrentRange();
+				int rangeIndex = this.getEndOfLineIndex();
 				start = currentOffset + 1; // do not include quote character
 
 				quoted : 
@@ -169,7 +169,7 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 			}
 			++currentOffset;			
 
-			super.currentOffset = currentOffset;
+			super.offset = currentOffset;
 
 			return value;
 		} catch (ArrayIndexOutOfBoundsException e) {

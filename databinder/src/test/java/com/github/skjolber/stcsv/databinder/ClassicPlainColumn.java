@@ -25,7 +25,7 @@ public class ClassicPlainColumn extends AbstractColumn {
 	public static int skipEmptyLines(AbstractCsvReader scanner, char[] current, int currentOffset) throws IOException {
 		// skip empty lines
 		if(current[currentOffset] == '\n') {
-			int currentRange = scanner.getCurrentRange();
+			int currentRange = scanner.getEndOfLineIndex();
 			do {
 				if(currentOffset == currentRange) {
 					if((currentRange = scanner.fill()) > 0) {

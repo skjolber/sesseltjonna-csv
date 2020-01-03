@@ -105,7 +105,8 @@ public class StringArrayCsvReaderBuilderTest {
 	
 	@Test
 	public void testFixedColumnIndexesWithQuotes() throws Exception {
-		CsvReader<String[]> build = StringArrayCsvReader.builder().withColumnMapping("b", 0).build(new StringReader(quotedSingleLine + indexes));
+		String str = quotedSingleLine + indexes;
+		CsvReader<String[]> build = StringArrayCsvReader.builder().withColumnMapping("b", 0).build(new StringReader(str));
 
 		String[] next = build.next();
 		assertThat(next.length).isEqualTo(1);
