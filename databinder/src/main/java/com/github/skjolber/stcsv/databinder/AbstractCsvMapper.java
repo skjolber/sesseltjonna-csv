@@ -19,7 +19,6 @@ import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.IFGT;
-import static org.objectweb.asm.Opcodes.IFLE;
 import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
 import static org.objectweb.asm.Opcodes.IF_ICMPLT;
 import static org.objectweb.asm.Opcodes.IF_ICMPNE;
@@ -48,7 +47,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import com.github.skjolber.stcsv.AbstractCsvReader;
-import com.github.skjolber.stcsv.databinder.builder.CsvMappingBuilder;
 import com.github.skjolber.stcsv.databinder.column.bi.CsvColumnValueConsumer;
 import com.github.skjolber.stcsv.databinder.column.tri.CsvColumnValueTriConsumer;
 import com.github.skjolber.stcsv.databinder.projection.BiConsumerProjection;
@@ -189,10 +187,11 @@ public abstract class AbstractCsvMapper<T> {
 		
 		CsvReaderClassLoader<AbstractCsvReader<T>> loader = new CsvReaderClassLoader<AbstractCsvReader<T>>(classLoader);
 		
+		/*
 		FileOutputStream fout = new FileOutputStream(new File("./my.class"));
 		fout.write(classWriter.toByteArray());
 		fout.close();
-		
+		*/
 		return loader.load(classWriter.toByteArray(), subClassName);
 	}
 

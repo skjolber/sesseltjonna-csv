@@ -27,7 +27,7 @@ The project is implemented in Java and built using [Maven]. The project is avail
 for
 ```xml
 <properties>
-    <sesseltjonna-csv.version>1.0.19</sesseltjonna-csv.version>
+    <sesseltjonna-csv.version>1.0.20</sesseltjonna-csv.version>
 </properties>
 ```
 
@@ -57,7 +57,7 @@ For
 
 ```groovy
 ext {
-    sesseltjonnaCsvVersion = '1.0.19'
+    sesseltjonnaCsvVersion = '1.0.20'
 }
 ```
 
@@ -85,7 +85,7 @@ CsvMapper<Trip> mapper = CsvMapper.builder(Trip.class)
         .build();
 ```
 
-where each field must be either `required` or `optional`. The necessary `Trip` setters will be deducted from the field name (see further down for customization).  
+where each field must be either `required` or `optional`. The necessary `Trip` setters will be deducted from the field name (see further down for customization).
 
 Then create a `CsvReader` using
 
@@ -211,6 +211,7 @@ Contributions are welcome, especially those with unit tests ;)
 
 # History
 
+ - 1.0.20: Fix AbstractCsvReader; better names and EOF fix.
  - 1.0.19: Improve JDK9+ support using moditech plugin, fix parsing of single line without linebreak.
  - 1.0.18: Add default module names for JDK9+, renamed packages accordingly.
  - 1.0.17: Improve parse of quoted columns
