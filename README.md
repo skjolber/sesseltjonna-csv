@@ -201,6 +201,9 @@ Also note that
  * The default mode assumes the first line is the header. For fixed formats, a default parser can be created.
  * Maximum line length is per default 64K. 64K should be enough to hold a lot of lines, if not try increasing the buffer size to improve performance.
 
+# See it in action
+See the project [gtfs-databinding](https://github.com/skjolber/gtfs-databinding) for a full working example.
+
 # Contact
 If you have any questions, comments or feature requests, please open an issue.
 
