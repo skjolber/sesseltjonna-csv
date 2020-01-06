@@ -136,7 +136,7 @@ CsvMapper<Trip> mapper = CsvMapper.builder(Trip.class)
 The library supports an `intermediate processor` for handling complex references. In other words when a column value maps to a child or parent object, it can be resolved at parse or post-processing time. For example by resolving a `Country` when parsing a `City` using an instance of `MyCountryLookup` - first the mapper:
 
 ```java
-CsvMapper<City> mapping = CsvMapper.builder(City.class, MyCountryLookup.class)
+CsvMapper2<City, MyCountryLookup> mapping = CsvMapper2.builder(City.class, MyCountryLookup.class)
     .longField("Country")
         .consumer((city, lookup, country) -> city.setCountry(lookup.getCountry(country))
         .optional()
