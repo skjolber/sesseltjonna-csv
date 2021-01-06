@@ -25,33 +25,33 @@ public class DefaultStringArrayCsvReaderTest extends AbstractCsvReaderTest {
 	@Test
 	public void compareToConventionalParserWithoutQuotes() throws Exception {
 		CsvParser referenceParser = referenceParser(semicolonFile, StandardCharsets.UTF_8, true, '"', '\\', ';');
-		DefaultStringArrayCsvReader factory = parser(semicolonFile, StandardCharsets.UTF_8, false);
-		
-		compare(referenceParser, factory);
+		try (DefaultStringArrayCsvReader factory = parser(semicolonFile, StandardCharsets.UTF_8, false)) {
+			compare(referenceParser, factory);
+		}
 	}
 
 	@Test
 	public void compareToConventionalParserWithoutQuotesAndCarriageReturn() throws Exception {
 		CsvParser referenceParser = referenceParser(semicolonFile, StandardCharsets.UTF_8, true, '"', '\\', ';');
-		DefaultStringArrayCsvReader factory = parser(semicolonFile, StandardCharsets.UTF_8, true);
-		
-		compare(referenceParser, factory);
+		try (DefaultStringArrayCsvReader factory = parser(semicolonFile, StandardCharsets.UTF_8, true)) {
+			compare(referenceParser, factory);
+		}
 	}
 	
 	@Test
 	public void compareToConventionalParserWithQuotes() throws Exception {
 		CsvParser referenceParser = referenceParser(quotedSemicolonFile, StandardCharsets.UTF_8, true, '"', '\\', ';');
-		DefaultStringArrayCsvReader factory = parser(quotedSemicolonFile, StandardCharsets.UTF_8, false);
-		
-		compare(referenceParser, factory);
+		try (DefaultStringArrayCsvReader factory = parser(quotedSemicolonFile, StandardCharsets.UTF_8, false)) {
+			compare(referenceParser, factory);
+		}
 	}
 
 	@Test
 	public void compareToConventionalParserQuotesAndCarriageReturn() throws Exception {
 		CsvParser referenceParser = referenceParser(quotedSemicolonFile, StandardCharsets.UTF_8, true, '"', '\\', ';');
-		DefaultStringArrayCsvReader factory = parser(quotedSemicolonFile, StandardCharsets.UTF_8, true);
-
-		compare(referenceParser, factory);
+		try (DefaultStringArrayCsvReader factory = parser(quotedSemicolonFile, StandardCharsets.UTF_8, true)) {
+			compare(referenceParser, factory);
+		}
 	}
 	
 	@Test

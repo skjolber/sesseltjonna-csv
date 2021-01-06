@@ -120,5 +120,10 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 	public int getEndOfLineIndex() {
 		return endOfLineIndex;
 	}
+	
+	@Override
+	public void close() throws Exception {
+		reader.close();
+	}
 
 }

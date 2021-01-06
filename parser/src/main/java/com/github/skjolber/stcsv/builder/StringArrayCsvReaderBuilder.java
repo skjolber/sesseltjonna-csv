@@ -24,7 +24,7 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 			throw new CsvBuilderException("Skipping comments not supported");
 		}
 		if(skipEmptyLines) {
-			throw new CsvBuilderException("Skipping empty lines supported");
+			throw new CsvBuilderException("Skipping empty lines not supported");
 		}
 		
 		CsvReader<String[]> r = reader(reader);

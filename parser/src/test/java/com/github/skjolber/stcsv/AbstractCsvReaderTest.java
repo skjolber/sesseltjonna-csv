@@ -31,16 +31,16 @@ public class AbstractCsvReaderTest {
 		
 			String[] row = referenceParser.parseNext();
 			if(row == null) {
-				System.out.println("UPSS");
+				System.out.println("Empty row returned");
 				for(int i = 0; i < trip.length; i++) {
-					System.out.println(trip[i]);
+					System.err.println(trip[i]);
 				}
 				throw new RuntimeException("");
 			}
 			for(int i = 0; i < trip.length; i++) {
 				//System.out.println(trip[i]);
 				if(!Objects.equals(trip[i], row[i])) {
-					System.out.println("Line " + count + " column " + i + ": reference '" + trip[i] + "' vs ours '" + row[i] + "'");
+					System.err.println("Line " + count + " column " + i + ": reference '" + trip[i] + "' vs ours '" + row[i] + "'");
 					
 					fail = true;
 					

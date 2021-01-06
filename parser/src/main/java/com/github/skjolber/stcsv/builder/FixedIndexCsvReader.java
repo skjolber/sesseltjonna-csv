@@ -39,6 +39,10 @@ public class FixedIndexCsvReader implements CsvReader<String[]>{
 		
 		return fixed;
 	}
-	
+
+	@Override
+	public void close() throws Exception {
+		reader.close();
+	}
 	
 }
