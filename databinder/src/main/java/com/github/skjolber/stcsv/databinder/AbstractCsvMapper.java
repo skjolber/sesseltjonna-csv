@@ -34,7 +34,9 @@ import static org.objectweb.asm.Opcodes.RETURN;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +49,13 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import com.github.skjolber.stcsv.AbstractCsvReader;
+import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.builder.StringArrayCsvReaderBuilder;
 import com.github.skjolber.stcsv.databinder.column.bi.CsvColumnValueConsumer;
 import com.github.skjolber.stcsv.databinder.column.tri.CsvColumnValueTriConsumer;
 import com.github.skjolber.stcsv.databinder.projection.BiConsumerProjection;
 import com.github.skjolber.stcsv.databinder.projection.TriConsumerProjection;
+import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
 
 /**
  * 
@@ -973,30 +978,10 @@ public abstract class AbstractCsvMapper<T> {
 		mv.visitFieldInsn(PUTFIELD, superClassInternalName, "offset", "I");		
 	}
 
-	protected List<String> parseColumnNames(String writer) {
-		List<String> names = new ArrayList<>();
-		int start = 0;
-		for(int i = 0; i < writer.length(); i++) {
-			if(writer.charAt(i) == divider) {
-				String trim = writer.substring(start, i).trim();
-				if(!trim.isEmpty() && trim.charAt(0) == '"' && trim.charAt(trim.length() - 1) == '"') {
-					names.add(trim.substring(1, trim.length() - 1));
-				} else {
-					names.add(trim);
-				}
-				start = i + 1;
-			}
+	protected List<String> parseColumnNames(String row) throws Exception {
+		try (CsvReader<String[]> reader = StringArrayCsvReader.builder().divider((char)divider).quoteCharacter((char)quoteCharacter).escapeCharacter((char)escapeCharacter).build(new StringReader(row))) {
+			return Arrays.asList(reader.next());
 		}
-
-		if(start < writer.length()) {
-			String trim = writer.substring(start, writer.length()).trim();
-			if(trim.charAt(0) == '"' && trim.charAt(trim.length() - 1) == '"') {
-				names.add(trim.substring(1, trim.length() - 1));
-			} else {
-				names.add(trim);
-			}
-		}
-		return names;
 	}
 	
 	ClassLoader getClassLoader() {

@@ -11,13 +11,19 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import com.github.skjolber.stcsv.AbstractCsvReaderTest;
 import com.github.skjolber.stcsv.CarriageReturnNewLineReader;
 import com.github.skjolber.stcsv.CsvException;
+import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.builder.CsvBuilderException;
+import com.github.skjolber.stcsv.builder.StringArrayCsvReaderBuilder;
 import com.github.skjolber.stcsv.sa.DefaultStringArrayCsvReader;
+import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
 import com.univocity.parsers.csv.CsvParser;
 
 public class DefaultStringArrayCsvReaderTest extends AbstractCsvReaderTest {
@@ -185,6 +191,23 @@ public class DefaultStringArrayCsvReaderTest extends AbstractCsvReaderTest {
 		assertThrows(CsvException.class, ()->{
         	reader.next();
         } );
-
-	}	
+	}
+	
+	@Test
+	public void testInvalidInput() throws Exception {
+		Throwable exception = assertThrows(CsvBuilderException.class, ()->{
+			String data = "A,\"B";
+	        CsvReader<String[]> reader = StringArrayCsvReader.builder().build(new StringReader(data));
+        } );
+		assertThat(exception.getCause()).isInstanceOf(ArrayIndexOutOfBoundsException.class);
+		
+		exception = assertThrows(CsvBuilderException.class, ()->{
+			String data = "\"A,B";
+	        CsvReader<String[]> reader = StringArrayCsvReader.builder().build(new StringReader(data));
+        } );
+		assertThat(exception.getCause()).isInstanceOf(ArrayIndexOutOfBoundsException.class);
+		
+	}
+	
+	
 }

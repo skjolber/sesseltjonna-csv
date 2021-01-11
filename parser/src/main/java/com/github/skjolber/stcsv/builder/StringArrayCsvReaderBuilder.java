@@ -64,51 +64,52 @@ public class StringArrayCsvReaderBuilder extends AbstractCsvBuilder<StringArrayC
 	}
 
 	private CsvReader<String[]> reader(Reader reader) throws IOException {
+		
 		char[] current = new char[bufferLength + 1];
-
 		int offset = 0;
-		do {
-			int read = reader.read(current, offset, bufferLength - offset);
-			if(read == -1) {
-				if(offset > 0) {
-					if(current[offset - 1] == '\n') {
-						// the input ended with a newline
-					} else {
-						// artificially insert linebreak after last line 
-						// so that scanners detects end
-						current[offset] = '\n';
-						offset++;
+		int columns;
+		try {
+	
+			do {
+				int read = reader.read(current, offset, bufferLength - offset);
+				if(read == -1) {
+					if(offset > 0) {
+						if(current[offset - 1] == '\n') {
+							// the input ended with a newline
+						} else {
+							// artificially insert linebreak after last line
+							// so that scanners detects end
+							current[offset] = '\n';
+							offset++;
+						}
 					}
-				}				
-				
-				break;
-			} else {
-				offset += read;
-			}
-		} while(offset < bufferLength);
-		
-		if(offset == 0) {
-			return new EmptyCsvReader<>();			
-		}
-		
-		int columns = countColumnsLine(current, offset);
+					break;
+				} else {
+					offset += read;
+				}
+			} while(offset < bufferLength);
 
-		
+			if(offset == 0) {
+				return new EmptyCsvReader<>();			
+			}
+
+			columns = countColumnsLine(current, offset);
+		} catch(Exception e) {
+			throw new CsvBuilderException(e);
+		}
 		if(divider == ',' && quoteCharacter == '"' && escapeCharacter == '"') {
 			if(!linebreaks) {
 				return new NoLinebreakRFC4180StringArrayCsvReader(reader, current, 0, offset, columns);
 			}
 			return new RFC4180StringArrayCsvReader(reader, current, 0, offset, columns);
 		}
-		
 		if(quoteCharacter == escapeCharacter) {
+			// TODO add implementation based on RFC4180 implementation
 			throw new CsvBuilderException("Identical escape and quote character not supported");
 		}
-		
 		if(!linebreaks) {
 			return new NoLinebreakStringArrayCsvReader(reader, current, 0, offset, columns, quoteCharacter, escapeCharacter, divider);
 		}
-		
 		return new DefaultStringArrayCsvReader(reader, current, 0, offset, columns, quoteCharacter, escapeCharacter, divider);
 	}
 	

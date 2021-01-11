@@ -18,6 +18,7 @@ public class CsvLineObjectScannerDividerTest {
 	public void init() throws Exception {
 		mapping = CsvMapper.builder(CsvLineObject.class)
 				.divider(';')
+				.quoteCharacter('\'')
 				.stringField("stringValue")
 					.optional()
 				.longField("longValue")
