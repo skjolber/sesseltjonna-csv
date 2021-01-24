@@ -27,7 +27,7 @@ The project is implemented in Java and built using [Maven]. The project is avail
 for
 ```xml
 <properties>
-    <sesseltjonna-csv.version>1.0.21</sesseltjonna-csv.version>
+    <sesseltjonna-csv.version>1.0.22</sesseltjonna-csv.version>
 </properties>
 ```
 
@@ -57,7 +57,7 @@ For
 
 ```groovy
 ext {
-    sesseltjonnaCsvVersion = '1.0.21'
+    sesseltjonnaCsvVersion = '1.0.22'
 }
 ```
 
@@ -214,6 +214,7 @@ Contributions are welcome, especially those with unit tests ;)
 
 # History
 
+ - 1.0.22: Parse first line of dynamic parser with static parser.
  - 1.0.21: Make CsvReader AutoCloseable. Remove (unused) ASM dependencies from static parser. Bump dependencies
  - 1.0.20: Fix AbstractCsvReader; better names and EOF fix.
  - 1.0.19: Improve JDK9+ support using moditech plugin, fix parsing of single line without linebreak.
