@@ -122,8 +122,159 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 	}
 	
 	@Override
-	public void close() throws Exception {
+	public void close() throws IOException {
 		reader.close();
 	}
 
+	public boolean skip(int count) throws IOException {
+		int currentOffset = this.offset;
+		if (currentOffset + count >= endOfLineIndex) {
+			if (this.fill() <= 0) {
+				return false;
+			}
+
+			currentOffset = 0;
+		}
+		
+		currentOffset += count;
+
+		this.offset = currentOffset;
+
+		return currentOffset < endOfLineIndex;
+	}
+
+	public boolean skipToNextNewline() throws IOException {
+		return skipToCharacter('\n');
+	}
+	
+	public boolean skipToCharacter(char c) throws IOException {
+		int currentOffset = this.offset;
+		if (currentOffset >= endOfLineIndex) {
+			if (this.fill() <= 0) {
+				return false;
+			}
+
+			currentOffset = 0;
+		}
+
+		final char[] current = this.current;
+
+		try {
+			do {
+				++currentOffset;
+			} while (current[currentOffset] != c); // i.e. skip \r
+			
+			++currentOffset;			
+
+			this.offset = currentOffset;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public RawReader getReader() {
+		return new RawReader() {
+			
+			@Override
+			public char[] getBuffer() {
+				return current;
+			}
+			
+			@Override
+			public int getLimit() {
+				return dataLength;
+			}
+			
+			@Override
+			public int getOffset() {
+				return offset;
+			}
+			
+			@Override
+			public boolean fill() throws IOException {
+				if (AbstractCsvReader.this.fill() <= 0) {
+					return false;
+				}
+				
+				return true;
+			}
+			
+		    /**
+		     * Reads characters into a portion of an array.
+		     * @param   b  Destination buffer
+		     * @param   off  Offset at which to start storing characters
+		     * @param   len   Maximum number of characters to read
+		     * @return  The actual number of characters read, or -1 if
+		     *          the end of the stream has been reached
+		     *
+		     * @throws  IOException  If an I/O error occurs
+		     * @throws  IndexOutOfBoundsException {@inheritDoc}
+		     */
+			
+		    public int read(char b[], int off, int len) throws IOException {
+				int currentOffset = AbstractCsvReader.this.offset;
+				if (currentOffset >= dataLength) {
+					currentOffset = dataLength - endOfLineIndex - 1;
+					if (AbstractCsvReader.this.fill() <= 0) {
+						return -1;
+					}
+				}
+
+				int avail = dataLength - currentOffset;
+				
+				if(len > avail) {
+					len = avail;
+				}
+				
+	            System.arraycopy(current, currentOffset, b, off, len);
+	            
+	            AbstractCsvReader.this.offset = currentOffset + len;
+	            
+	            return len;
+		    }
+		    
+		    /**
+		     * Reads a single character.  This method will block until a character is
+		     * available, an I/O error occurs, or the end of the stream is reached.
+		     *
+		     * <p> Subclasses that intend to support efficient single-character input
+		     * should override this method.
+		     *
+		     * @return     The character read, as an integer in the range 0 to 65535
+		     *             ({@code 0x00-0xffff}), or -1 if the end of the stream has
+		     *             been reached
+		     *
+		     * @throws     IOException  If an I/O error occurs
+		     */
+		    
+			@Override
+			public int read() throws IOException {
+				int currentOffset = AbstractCsvReader.this.offset;
+				if (currentOffset >= dataLength) {
+					currentOffset = dataLength - endOfLineIndex - 1;
+					if (AbstractCsvReader.this.fill() <= 0) {
+						return -1;
+					}
+				}
+				
+				AbstractCsvReader.this.offset = currentOffset + 1;
+				
+				return current[currentOffset];
+			}
+			
+		    /**
+		     * Tells whether this stream supports the mark() operation, which it does not.
+		     */
+		    public boolean markSupported() {
+		        return false;
+		    }
+			
+			@Override
+			public void close() throws IOException {
+				AbstractCsvReader.this.reader.close();
+			}
+		};
+	}
 }

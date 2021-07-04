@@ -1,5 +1,8 @@
 package com.github.skjolber.stcsv.builder;
 
+import java.io.Reader;
+
+import com.github.skjolber.stcsv.RawReader;
 import com.github.skjolber.stcsv.CsvReader;
 
 /**
@@ -45,4 +48,8 @@ public class FixedIndexCsvReader implements CsvReader<String[]>{
 		reader.close();
 	}
 	
+	@Override
+	public RawReader getReader() {
+		return reader.getReader();
+	}
 }
