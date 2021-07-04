@@ -1,9 +1,7 @@
 package com.github.skjolber.stcsv.builder;
 
-import java.io.Reader;
-
-import com.github.skjolber.stcsv.RawReader;
 import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.RawReader;
 
 /**
  * 

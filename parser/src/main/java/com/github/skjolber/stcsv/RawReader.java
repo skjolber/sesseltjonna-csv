@@ -37,6 +37,9 @@ public abstract class RawReader extends Reader {
 	 * @return true if there was more left
 	 * @throws IOException if underlying reader throws exception
 	 */
-	
+		
 	public abstract boolean fill() throws IOException;
+	
+	public abstract boolean skipToCharacter(char c) throws IOException;	
+	
 }

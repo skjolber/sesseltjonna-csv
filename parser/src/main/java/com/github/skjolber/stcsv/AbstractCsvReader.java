@@ -125,53 +125,6 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 	public void close() throws IOException {
 		reader.close();
 	}
-
-	public boolean skip(int count) throws IOException {
-		int currentOffset = this.offset;
-		if (currentOffset + count >= endOfLineIndex) {
-			if (this.fill() <= 0) {
-				return false;
-			}
-
-			currentOffset = 0;
-		}
-		
-		currentOffset += count;
-
-		this.offset = currentOffset;
-
-		return currentOffset < endOfLineIndex;
-	}
-
-	public boolean skipToNextNewline() throws IOException {
-		return skipToCharacter('\n');
-	}
-	
-	public boolean skipToCharacter(char c) throws IOException {
-		int currentOffset = this.offset;
-		if (currentOffset >= endOfLineIndex) {
-			if (this.fill() <= 0) {
-				return false;
-			}
-
-			currentOffset = 0;
-		}
-
-		final char[] current = this.current;
-
-		try {
-			do {
-				++currentOffset;
-			} while (current[currentOffset] != c); // i.e. skip \r
-			
-			++currentOffset;			
-
-			this.offset = currentOffset;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return false;
-		}
-		return true;
-	}
 	
 	@Override
 	public RawReader getReader() {
@@ -263,6 +216,50 @@ public abstract class AbstractCsvReader<T> implements CsvReader<T> {
 				
 				return current[currentOffset];
 			}
+			
+
+			public long skip(long count) throws IOException {
+				int currentOffset = AbstractCsvReader.this.offset;
+				if (currentOffset >= dataLength) {
+					currentOffset = dataLength - endOfLineIndex - 1;
+					if (AbstractCsvReader.this.fill() <= 0) {
+						return -1;
+					}
+				}
+
+				int len = (int)Math.min(Integer.MAX_VALUE, count);
+
+				int avail = dataLength - currentOffset;
+				if(len > avail) {
+					len = avail;
+				}
+	            
+	            AbstractCsvReader.this.offset = currentOffset + len;
+	            
+	            return len;
+			}
+			
+			public boolean skipToCharacter(char c) throws IOException {
+				int currentOffset = AbstractCsvReader.this.offset;
+
+				final char[] current = AbstractCsvReader.this.current;
+
+				try {
+					do {
+						if (currentOffset >= dataLength) {
+							currentOffset = dataLength - endOfLineIndex - 1;
+							if (AbstractCsvReader.this.fill() <= 0) {
+								return false;
+							}
+						}
+					} while (current[currentOffset++] != c);
+
+					AbstractCsvReader.this.offset = currentOffset;
+				} catch (ArrayIndexOutOfBoundsException e) {
+					return false;
+				}
+				return true;
+			}			
 			
 		    /**
 		     * Tells whether this stream supports the mark() operation, which it does not.
