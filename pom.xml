@@ -56,7 +56,7 @@
 
 		<asm.version>9.2</asm.version>
 		<byte-buddy.version>1.10.19</byte-buddy.version>
-		<univocity.version>2.9.0</univocity.version>
+		<univocity.version>2.9.1</univocity.version>
 
 		<commons-io.version>2.10.0</commons-io.version>
 		<google-truth.version>1.1</google-truth.version>
