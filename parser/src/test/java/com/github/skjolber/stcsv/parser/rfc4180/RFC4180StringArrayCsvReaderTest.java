@@ -14,13 +14,13 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.AbstractCsvReaderTest;
+import com.github.skjolber.stcsv.AbstractCsvTest;
 import com.github.skjolber.stcsv.CarriageReturnNewLineReader;
 import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.sa.rfc4180.RFC4180StringArrayCsvReader;
 import com.univocity.parsers.csv.CsvParser;
 
-public class RFC4180StringArrayCsvReaderTest extends AbstractCsvReaderTest {
+public class RFC4180StringArrayCsvReaderTest extends AbstractCsvTest {
 
 	@Test
 	public void compareToConventionalParserWithoutQuotes() throws Exception {

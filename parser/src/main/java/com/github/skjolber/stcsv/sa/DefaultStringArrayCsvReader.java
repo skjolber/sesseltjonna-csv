@@ -164,7 +164,7 @@ public class DefaultStringArrayCsvReader extends StringArrayCsvReader {
 						}
 
 						start = 0;
-					}					
+					}
 				}
 			}
 			++currentOffset;			

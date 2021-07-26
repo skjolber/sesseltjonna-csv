@@ -1,100 +1,188 @@
 package com.github.skjolber.stcsv;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Reader;
-import java.nio.charset.Charset;
-import java.util.Objects;
-import static org.junit.jupiter.api.Assertions.*;
-import com.univocity.parsers.csv.CsvFormat;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
+import java.io.StringReader;
 
-public class AbstractCsvReaderTest {
+import org.junit.jupiter.api.Test;
 
-	protected File file = new File("src/test/resources/gtfs/trips-plain-5000.txt");
-	protected File quotedFile = new File("src/test/resources/gtfs/trips-quoted-5000.txt");
-	protected File semicolonFile = new File("src/test/resources/gtfs/trips-plain-semicolon-5000.txt");
-	protected File quotedSemicolonFile = new File("src/test/resources/gtfs/trips-quoted-semicolon-5000.txt");
+import com.github.skjolber.stcsv.sa.DefaultStringArrayCsvReader;
 
-	protected void compare(CsvParser referenceParser, CsvReader<String[]> factory) throws Exception {
-		int count = 0;
+public class AbstractCsvReaderTest extends AbstractCsvTest {
+
+	@Test
+	public void testReaderSingle() throws Throwable {
 		
-		boolean fail = false;
-		do {
-			String[] trip = factory.next();
-			if(trip == null) {
-				break;
-			}
+		String line = "abcdefghijklmnopqrstuvwxyz,0123456789\n";
 		
-			String[] row = referenceParser.parseNext();
-			if(row == null) {
-				System.out.println("Empty row returned");
-				for(int i = 0; i < trip.length; i++) {
-					System.err.println(trip[i]);
-				}
-				throw new RuntimeException("");
-			}
-			for(int i = 0; i < trip.length; i++) {
-				//System.out.println(trip[i]);
-				if(!Objects.equals(trip[i], row[i])) {
-					System.err.println("Line " + count + " column " + i + ": reference '" + trip[i] + "' vs ours '" + row[i] + "'");
-					
-					fail = true;
-					
-					throw new RuntimeException();
-				}
-			}
-			count++;
-		} while(true);
-
-		assertFalse(fail);
-	}
-
-	public static CsvParser referenceParser(File file, Charset charset, boolean crnl) throws Exception {
-		InputStream input = new FileInputStream(file);
-		InputStreamReader reader = new InputStreamReader(input, charset);
-		
-		return referenceParser(reader, charset, crnl ? "\r\n" : "\n", '"', '"', ',');
-	}
-	
-	public static CsvParser referenceParser(File file, Charset charset, boolean crnl, char quote, char escape, char seperator) throws Exception {
-		InputStream input = new FileInputStream(file);
-		InputStreamReader reader = new InputStreamReader(input, charset);
-
-		return referenceParser(reader, charset, crnl ? "\r\n" : "\n", quote, escape, seperator);
-	}
-	
-	public static CsvParser referenceParser(Reader reader, Charset charset, String lineSeperator, char quote, char escape, char seperator) throws Exception {
-		CsvParserSettings settings = new CsvParserSettings();
-		//the file used in the example uses '\n' as the line separator sequence.
-		//the line separator sequence is defined here to ensure systems such as MacOS and Windows
-		//are able to process this file correctly (MacOS uses '\r'; and Windows uses '\r\n').
-		
-		CsvFormat format = settings.getFormat();
-		format.setLineSeparator(lineSeperator);
-		format.setDelimiter(seperator);
-		format.setQuote(quote);
-		format.setQuoteEscape(escape);
-
-		settings.setIgnoreLeadingWhitespaces(false);
-		settings.setIgnoreTrailingWhitespaces(false);
-		settings.setSkipEmptyLines(false);
-		settings.setColumnReorderingEnabled(false);
-		
-		//##CODE_START
-
-		// creates a CSV parser
-		CsvParser parser = new CsvParser(settings);
-		
-		if(lineSeperator.equals("\r\n")) {
-			parser.beginParsing(new CarriageReturnNewLineReader(reader));		
-		} else {
-			parser.beginParsing(reader);		
+		StringBuilder builder = new StringBuilder();
+		for(int i = 0; i < 1024 * 64; i++) {
+			builder.append(line);
 		}
 		
-		return parser;
+		String string = builder.toString();
+		
+		StringReader reader = new StringReader(string);
+		
+		DefaultStringArrayCsvReader r = new DefaultStringArrayCsvReader(reader, 2, '"', '\'', ',');
+
+		int count = 0;
+
+		for(int i = 0; i < 1024; i++) {
+			r.next();
+			count++;
+		}
+		
+		Reader subreader = r.getReader();
+
+		String nextLine;
+		while( (nextLine = readLine(subreader)) != null) {
+			count++;
+			assertEquals(line, nextLine);
+		}
+		
+		assertEquals(1024 * 64, count);
+
+	}
+
+	@Test
+	public void testReaderBulk() throws Throwable {
+		
+		String line = "abcdefghijklmnopqrstuvwxyz,0123456789";
+		
+		StringBuilder builder = new StringBuilder();
+		for(int i = 0; i < 1024 * 64; i++) {
+			builder.append(line);
+			builder.append("\n");
+		}
+		
+		String string = builder.toString();
+		
+		StringReader reader = new StringReader(string);
+		
+		DefaultStringArrayCsvReader r = new DefaultStringArrayCsvReader(reader, 2, '"', '\'', ',');
+
+		int count = 0;
+
+		for(int i = 0; i < 1024; i++) {
+			r.next();
+			
+			count++;
+		}
+		
+		BufferedReader subreader = new BufferedReader(r.getReader());
+		
+		String nextLine;
+		while( (nextLine = subreader.readLine()) != null) {
+			count++;
+			assertEquals(line, nextLine);
+		}
+		assertEquals(1024 * 64, count);
+	}
+
+	@Test
+	public void testReaderSkipToCharacter() throws Throwable {
+		
+		String line = "abcdefghijklmnopqrstuvwxyz,0123456789";
+		
+		StringBuilder builder = new StringBuilder();
+		for(int i = 0; i < 1024 * 64; i++) {
+			builder.append(line);
+			builder.append("\n");
+		}
+		
+		String string = builder.toString();
+		
+		StringReader reader = new StringReader(string);
+		
+		DefaultStringArrayCsvReader csvReader = new DefaultStringArrayCsvReader(reader, 2, '"', '\'', ',');
+
+		RawReader subreader = csvReader.getReader();
+
+		int count = 0;
+		
+		for(int i = 0; i < 1024; i++) {
+			csvReader.next();
+			
+			count++;
+		}
+		
+		assertTrue(subreader.skipToCharacter('\n'));
+		
+		BufferedReader bufferedReader = new BufferedReader(subreader);
+		
+		String nextLine;
+		while( (nextLine = bufferedReader.readLine()) != null) {
+			count++;
+			assertEquals(line, nextLine);
+		}	
+		
+		count++;
+		assertEquals(1024 * 64, count);
+	}
+	
+	@Test
+	public void testReaderSkip() throws Throwable {
+		
+		String line = "abcdefghijklmnopqrstuvwxyz,0123456789";
+		
+		StringBuilder builder = new StringBuilder();
+		for(int i = 0; i < 1024 * 64; i++) {
+			builder.append(line);
+			builder.append("\n");
+		}
+		
+		String string = builder.toString();
+		
+		StringReader reader = new StringReader(string);
+		
+		DefaultStringArrayCsvReader csvReader = new DefaultStringArrayCsvReader(reader, 2, '"', '\'', ',');
+
+		RawReader subreader = csvReader.getReader();
+
+		int count = 0;
+		
+		for(int i = 0; i < 1024; i++) {
+			csvReader.next();
+			
+			count++;
+		}
+		
+		assertEquals(line.length() + 1, subreader.skip(line.length() + 1));
+		
+		BufferedReader bufferedReader = new BufferedReader(subreader);
+		
+		String nextLine;
+		while( (nextLine = bufferedReader.readLine()) != null) {
+			count++;
+			assertEquals(line, nextLine);
+		}
+		
+		count++;
+		assertEquals(1024 * 64, count);
 	}	
+
+	
+	private String readLine(Reader subreader) throws IOException {
+		StringBuilder stringBuilder = new StringBuilder();
+		
+		int character;
+		while( (character = subreader.read()) != -1) {
+			stringBuilder.append((char)character);
+			
+			if(character == '\n') {
+				break;
+			}
+		}
+		if(stringBuilder.length() == 0) {
+			return null;
+		}
+		return stringBuilder.toString();
+	}
+	
 }

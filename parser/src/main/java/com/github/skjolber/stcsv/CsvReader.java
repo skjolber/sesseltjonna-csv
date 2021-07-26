@@ -4,4 +4,5 @@ public interface CsvReader<T> extends AutoCloseable {
 
 	T next() throws Exception;
 	
+	RawReader getReader();
 }

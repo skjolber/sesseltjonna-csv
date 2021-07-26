@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.skjolber.stcsv.AbstractCsvReaderTest;
+import com.github.skjolber.stcsv.AbstractCsvTest;
 import com.github.skjolber.stcsv.CarriageReturnNewLineReader;
 import com.github.skjolber.stcsv.CsvException;
 import com.github.skjolber.stcsv.CsvReader;
@@ -26,7 +26,7 @@ import com.github.skjolber.stcsv.sa.DefaultStringArrayCsvReader;
 import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
 import com.univocity.parsers.csv.CsvParser;
 
-public class DefaultStringArrayCsvReaderTest extends AbstractCsvReaderTest {
+public class DefaultStringArrayCsvReaderTest extends AbstractCsvTest {
 
 	@Test
 	public void compareToConventionalParserWithoutQuotes() throws Exception {
