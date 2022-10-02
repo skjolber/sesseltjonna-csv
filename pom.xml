@@ -54,7 +54,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<java.module.version>9</java.module.version>
 
-		<asm.version>9.3</asm.version>
+		<asm.version>9.4</asm.version>
 		<byte-buddy.version>1.12.14</byte-buddy.version>
 		<univocity.version>2.9.1</univocity.version>
 
