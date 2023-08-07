@@ -58,7 +58,7 @@
 		<byte-buddy.version>1.14.5</byte-buddy.version>
 		<univocity.version>2.9.1</univocity.version>
 
-		<commons-io.version>2.11.0</commons-io.version>
+		<commons-io.version>2.13.0</commons-io.version>
 		<google-truth.version>1.1.5</google-truth.version>
 		<junit.version>5.10.0</junit.version>
 		<mocktio.version>4.9.0</mocktio.version>
