@@ -21,16 +21,18 @@ Bugs, feature suggestions and help requests can be filed with the [issue-tracker
 ## Obtain
 The project is implemented in Java and built using [Maven]. The project is available on the central Maven repository.
 
-## Maven
+<details>
+  <summary>Maven coordinates</summary>
 
-for
+Add
+
 ```xml
 <properties>
-    <sesseltjonna-csv.version>1.0.24</sesseltjonna-csv.version>
+    <sesseltjonna-csv.version>1.0.25</sesseltjonna-csv.version>
 </properties>
 ```
 
-add
+and
 
 ```xml
 <dependency>
@@ -49,14 +51,18 @@ or
     <version>${sesseltjonna-csv.version}</version>
 </dependency>
 ```
+</details>
 
-## Gradle
+or
 
+<details>
+  <summary>Gradle coordinates</summary>
+  
 For
 
 ```groovy
 ext {
-    sesseltjonnaCsvVersion = '1.0.24'
+    sesseltjonnaCsvVersion = '1.0.25'
 }
 ```
 
@@ -70,6 +76,8 @@ or
 ```groovy
 implementation("com.github.skjolber.sesseltjonna-csv:parser:${sesseltjonnaCsvVersion}")
 ```
+
+</details>
 
 # Usage - databinding
 Use the builder to configure your parser.
@@ -213,6 +221,7 @@ Contributions are welcome, especially those with unit tests ;)
 
 # History
 
+ - 1.0.25: Maintenance release
  - 1.0.24: Maintenance release
  - 1.0.23: Allow for access to the underlying buffer, for error correction purposes - see issue #38.
  - 1.0.22: Parse first line of dynamic parser with static parser.
