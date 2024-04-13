@@ -1,3 +1,5 @@
+![Build Status](https://github.com/skjolber/sesseltjonna-csv/actions/workflows/maven.yml/badge.svg) 
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.skjolber.sesseltjonna-csv/parent.svg)](https://mvnrepository.com/artifact/com.github.skjolber.sesseltjonna-csv)
 [![codecov](https://codecov.io/gh/skjolber/sesseltjonna-csv/branch/master/graph/badge.svg)](https://codecov.io/gh/skjolber/sesseltjonna-csv)
 
 # sesseltjonna-csv: High-performance CSV processing
