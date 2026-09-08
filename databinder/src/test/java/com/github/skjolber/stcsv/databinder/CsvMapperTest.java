@@ -74,6 +74,16 @@ public class CsvMapperTest {
         } );
 		
 	}
+
+	@Test
+	public void testCreateWithPartialHeaderReads() throws Exception {
+		try (CsvReader<CsvLineObject> reader = consumerMapping.create(new ChunkedStringReader(header + "\n" + "aa,1,2,d,e,true,1.0,2.5\n", 2))) {
+			CsvLineObject value = reader.next();
+			assertThat(value.getStringValue()).isEqualTo("aa");
+			assertThat(value.getLongValue()).isEqualTo(1L);
+			assertThat(reader.next()).isNull();
+		}
+	}
 	
 	@Test
 	public void testReaderInputWithNoMappedColumns() throws Exception {
@@ -84,5 +94,20 @@ public class CsvMapperTest {
 		CsvReader<CsvLineObject> csvReader2 = consumerMapping.buildStaticCsvMapper(false, "x,y,z").newInstance(new StringReader(line), charArray, 0, charArray.length);
 		assertThat(csvReader2).isInstanceOf(EmptyCsvReader.class);
 	}	
+
+	private static class ChunkedStringReader extends StringReader {
+
+		private final int chunkSize;
+
+		private ChunkedStringReader(String input, int chunkSize) {
+			super(input);
+			this.chunkSize = chunkSize;
+		}
+
+		@Override
+		public int read(char[] buffer, int offset, int length) throws java.io.IOException {
+			return super.read(buffer, offset, Math.min(length, chunkSize));
+		}
+	}
 	
 }
