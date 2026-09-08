@@ -66,7 +66,7 @@
 		<!-- plugins -->
 		<build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
-		<nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
+		<central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
 		<maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
 		<maven-source-plugin.version>3.4.0</maven-source-plugin.version>
 		<maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
@@ -198,23 +198,12 @@
 				<version>${maven-surefire-plugin.version}</version>
 			</plugin>
 			<plugin>
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>${nexus-staging-maven-plugin.version}</version>
+				<groupId>org.sonatype.central</groupId>
+				<artifactId>central-publishing-maven-plugin</artifactId>
+				<version>${central-publishing-maven-plugin.version}</version>
 				<extensions>true</extensions>
-				<executions>
-					<execution>
-						<id>default-deploy</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>deploy</goal>
-						</goals>
-					</execution>
-				</executions>
 				<configuration>
-					<serverId>ossrh</serverId>
-					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-					<autoReleaseAfterClose>false</autoReleaseAfterClose>
+					<publishingServerId>central</publishingServerId>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -310,16 +299,5 @@
 		<module>databinder</module>
 		<module>parser</module>
 	</modules>
-
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-	</distributionManagement>
 
 </project>
