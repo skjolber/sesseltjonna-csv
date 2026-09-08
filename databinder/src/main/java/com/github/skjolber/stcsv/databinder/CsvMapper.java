@@ -57,7 +57,7 @@ public class CsvMapper<T> extends AbstractCsvMapper<T> {
 					return create(reader, new String(current, 0, i), current, i + 1, end);
 				}
 			}
-			start += end;
+			start = end;
 		} while(end < bufferLength);
 
 		throw new CsvException("No linebreak found in " + current.length + " characters");
