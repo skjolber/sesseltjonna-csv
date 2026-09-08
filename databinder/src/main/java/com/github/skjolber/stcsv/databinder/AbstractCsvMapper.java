@@ -920,7 +920,7 @@ public abstract class AbstractCsvMapper<T> {
 		mv.visitLocalVariable("length", "I", null, startLabel, endLabel, 4);
 		
 		if(intermediateInternalName != null) {
-			mv.visitLocalVariable("intermediateInternalName", "Ljava/lang/String;", null, startLabel, endLabel, 5);
+			mv.visitLocalVariable("intermediate", "L" + intermediateInternalName + ";", null, startLabel, endLabel, 5);
 			mv.visitMaxs(5, 6);
 		} else {
 			mv.visitMaxs(5, 5);
@@ -962,7 +962,7 @@ public abstract class AbstractCsvMapper<T> {
 		mv.visitLocalVariable("this", "L" + subClassInternalName + ";", null, startLabel, endLabel, 0);
 		mv.visitLocalVariable("reader", "Ljava/io/Reader;", null, startLabel, endLabel, 1);
 		if(intermediateInternalName != null) {
-			mv.visitLocalVariable("intermediateInternalName", "Ljava/lang/String;", null, startLabel, endLabel, 2);
+			mv.visitLocalVariable("intermediate", "L" + intermediateInternalName + ";", null, startLabel, endLabel, 2);
 			
 			mv.visitMaxs(3, 3);
 		} else {
